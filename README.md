@@ -1,5 +1,9 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+news新闻 stanford about 动态老师页面 research 加 news
+advisiong resources不要 admission 动态
+computer fac不要
+
 ## Available Scripts
 
 In the project directory, you can run:
