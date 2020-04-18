@@ -7,6 +7,9 @@ const Styles = styled.div`
 `;
 
 class NavigationBar extends React.Component {
+  /* TODO */
+  // About, Academic, Admissions should be dynamic
+  // staff page inside people nav should be dynamic
   constructor() {
     super();
   }
@@ -37,15 +40,21 @@ class NavigationBar extends React.Component {
                 <Nav.Item><Nav.Link href="/">Home</Nav.Link></Nav.Item>
                 <NavDropdown title="About" id="basic-nav-dropdown">
                   <NavDropdown.Item href="#" onClick={this.handleClick}>Action</NavDropdown.Item>
-                  <NavDropdown.Item href="#">Another action</NavDropdown.Item>
-                  <NavDropdown.Item href="#">Something</NavDropdown.Item>
+                  <NavDropdown.Item href="/">Another action</NavDropdown.Item>
+                  <NavDropdown.Item href="/">Something</NavDropdown.Item>
                 </NavDropdown>
                 <NavDropdown title="People" id="basic-nav-dropdown">
                   <NavDropdown.Item href="/people">Faculty</NavDropdown.Item>
-                  <NavDropdown.Item href="#">Research Staff</NavDropdown.Item>
-                  <NavDropdown.Item href="#">Administrative Staff</NavDropdown.Item>
+                  <NavDropdown.Item href="/">Research Staff</NavDropdown.Item>
+                  <NavDropdown.Item href="/">Administrative Staff</NavDropdown.Item>
                 </NavDropdown>
                 <Nav.Item><Nav.Link href="/research">Research</Nav.Link></Nav.Item>
+                <NavDropdown title="Academics" id="basic-nav-dropdown">
+                  {/* TODO */}
+                </NavDropdown>
+                <NavDropdown title="Admissions" id="basic-nav-dropdown">
+                  {/* TODO */}
+                </NavDropdown>
               </Nav>
             </Navbar.Collapse>
           </Container>

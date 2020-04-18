@@ -1,7 +1,6 @@
 import React from 'react';
 import { Jumbotron as Jumbo, Container } from 'react-bootstrap';
 import styled from 'styled-components';
-import mountImg from '../assets/mountain_bg.jpg';
 
 const Styles = styled.div``;
 
@@ -10,8 +9,8 @@ export const Jumbotron = () => (
     <Jumbo fluid className="jumbo">
       <div className="overlay"></div>
       <Container>
-        <h1>welcome</h1>
-        <p>vnraiobaionovia</p>
+        <h1>Welcome</h1>
+        <p>This is a sample jumbotron. Background could be added later.</p>
       </Container>
     </Jumbo>
   </Styles>
