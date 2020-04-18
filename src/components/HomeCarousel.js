@@ -8,7 +8,7 @@ class HomeCarousel extends React.Component {
         <Carousel.Item>
           <img
             className="d-block w-100"
-            src="./desert.jpg"
+            src="./pictures/desert.jpg"
             alt="First slide"
             height="500" width="800"
           />
@@ -21,7 +21,7 @@ class HomeCarousel extends React.Component {
         <Carousel.Item>
           <img
             className="d-block w-100"
-            src="./tree.jpg"
+            src="./pictures/tree.jpg"
             alt="Third slide"
             height="500" width="800"
           />
@@ -34,7 +34,7 @@ class HomeCarousel extends React.Component {
         <Carousel.Item>
           <img
             className="d-block w-100"
-            src="./river.jpg"
+            src="./pictures/river.jpg"
             alt="Third slide"
             height="500" width="800"
           />
