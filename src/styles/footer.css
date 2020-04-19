@@ -1,0 +1,41 @@
+.footer {
+  margin: 0px auto; 
+  width: 100%; 
+  padding: 40px; 
+  margin-top: 30px; 
+  background-color: #3862bb; 
+  color: rgba(255, 255, 255, 0.815);
+  text-align: center;
+  position: absolute;
+}
+
+.leftblock, .rightblock {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.footnote1 span, .footnote2 span
+{
+  display: inline;
+  padding: 10px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.footnote1 {
+  text-align: left; 
+  padding: 5px;
+}
+
+.footnote2 {
+  padding: 5px; 
+  text-align: left;
+}
+
+.footnote3 {
+  padding: 5px;
+  padding-left: 15px;
+  padding-top: 13px;
+  text-align: left;
+  font-size: x-small;
+}
