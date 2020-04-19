@@ -18,7 +18,7 @@ class NavigationBar extends React.Component {
     axios.get("http://localhost:10480/csWeb/hello")
       .then((res) => {
         console.log(res);
-        alert(res.data.data);
+        // alert(res.data.data);
       })
       .catch((err) => {
         console.log(err);

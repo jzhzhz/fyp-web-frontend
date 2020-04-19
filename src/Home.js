@@ -17,8 +17,8 @@ export const Home = () => (
           <p>venauvboabvoueboabceounbvqv</p>
           <p>beuvabu9qbvieubviwqe</p>
           <p>bceoabvuobvuoe</p>
-          <p>Indulgence announcing uncommonly met she continuing two unpleasing terminated. Now busy say down the shed eyes roof paid her. Of shameless collected suspicion existence in. Share walls stuff think but the arise guest. Course suffer to do he sussex it window advice. Yet matter enable misery end extent common men should. Her indulgence but assistance favourable cultivated everything collecting. 
-</p>
+          <p>Indulgence announcing uncommonly met she continuing two unpleasing terminated. Now busy say down the shed eyes roof paid her. Of shameless collected suspicion existence in. Share walls stuff think but the arise guest. Course suffer to do he sussex it window advice. Yet matter enable misery end extent common men should. Her indulgence but assistance favourable cultivated everything collecting. </p>
+          <hr />
         </Col>
         <Col sm={2}>
           <h5>side line information</h5>
