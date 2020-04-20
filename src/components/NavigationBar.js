@@ -7,8 +7,6 @@ const Styles = styled.div`
 `;
 
 class NavigationBar extends React.Component {
-  /* TODO */
-  // staff page inside people nav should be dynamic
   constructor() {
     super();
     this.state = {
@@ -25,6 +23,7 @@ class NavigationBar extends React.Component {
       let aboutLabelsRes = res.data.data;
 
       aboutLabelsRes = aboutLabelsRes.map(
+        // change the label text to navbar dropdown item
         obj => <NavDropdown.Item key={obj.id} href="#">{obj.label}</NavDropdown.Item>
       );
 
@@ -34,6 +33,7 @@ class NavigationBar extends React.Component {
           aboutLabels: aboutLabelsRes
         };
       });
+
       console.log("get About labels success!");
     } else {
       console.log("get About labels failed!");
@@ -47,6 +47,7 @@ class NavigationBar extends React.Component {
       let academicsLabelsRes = res.data.data;
 
       academicsLabelsRes = academicsLabelsRes.map(
+        // change the label text to navbar dropdown item
         obj => <NavDropdown.Item key={obj.id} href="#">{obj.label}</NavDropdown.Item>
       );
 
@@ -56,6 +57,7 @@ class NavigationBar extends React.Component {
           academicsLabels: academicsLabelsRes
         };
       });
+
       console.log("get Academics labels success!");
     } else {
       console.log("get Academics labels failed!");
@@ -69,6 +71,7 @@ class NavigationBar extends React.Component {
       let admissionsLabelsRes = res.data.data;
 
       admissionsLabelsRes = admissionsLabelsRes.map(
+        // change the label text to navbar dropdown item
         obj => <NavDropdown.Item key={obj.id} href="#">{obj.label}</NavDropdown.Item>
       );
 
@@ -78,6 +81,7 @@ class NavigationBar extends React.Component {
           admissionsLabels: admissionsLabelsRes
         };
       });
+
       console.log("get Admissions labels success!");
     } else {
       console.log("get Admissions labels failed!");
@@ -89,10 +93,6 @@ class NavigationBar extends React.Component {
     this.getAcademicsLabel();
     this.getAdmissionsLabel();
   }
-
-  // handleClick = () => {
-
-  // }
 
   render() {
     return (
