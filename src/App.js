@@ -2,9 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Home } from './Home';
 import { About } from './About';
-import { People } from './People';
+import { Faculty } from './pages/people/Faculty';
 import { NoMatch } from './NoMatch';
-import { Layout } from './components/Layout';
+// import { Layout } from './components/Layout';
 import NavigationBar from './components/NavigationBar';
 import HomeFooter from './components/HomeFooter';
 
@@ -18,7 +18,7 @@ class App extends React.Component {
           <Switch>
             <Route exact path="/" component={Home} />
             <Route path="/about" component={About} />
-            <Route path="/people" component={People} />
+            <Route path="/faculty" component={Faculty} />
             <Route component={NoMatch} />
           </Switch>
           </div>   
