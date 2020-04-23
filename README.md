@@ -1,8 +1,10 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-news新闻 stanford about 动态老师页面 research 加 news
-advisiong resources不要 admission 动态
-computer fac不要
+1. 侧边栏比例， 一般7:3 ，footer重做y
+2. 不要硬编码，增加配置文件（添加global变量domain，port）y
+3. 表3合1，增加url，增加content（类型为text，存储内容代码用来填充前端模板）y
+4. news加入更多内容添加more按钮（参考搜狐新闻），多增加如people，research的版块，动态调控版块展示 ？priority
+5. 员工人物页面模板化 ？
 
 ## Available Scripts
 
