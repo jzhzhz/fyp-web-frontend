@@ -6,7 +6,7 @@ import { Faculty } from './pages/people/Faculty';
 import { NoMatch } from './NoMatch';
 // import { Layout } from './components/Layout';
 import NavigationBar from './components/NavigationBar';
-import HomeFooter from './components/HomeFooter';
+// import HomeFooter from './components/HomeFooter';
 
 class App extends React.Component {
   render() {
@@ -22,7 +22,6 @@ class App extends React.Component {
             <Route component={NoMatch} />
           </Switch>
           </div>   
-          <HomeFooter />
         </Router>
       </React.Fragment>
     );
