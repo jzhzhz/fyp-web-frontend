@@ -10,9 +10,9 @@ function HomeFooter() {
         <Row>
           <Col className="leftblock">        
             <img 
-              src="./pictures/xmum_longlogo.jpg"
+              src="./pictures/longpng_logo.png"
               alt="xmum_logo"
-              width="300"
+              width="400"
               height="100"
             />
           </Col>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Nav, Navbar, NavDropdown, Container } from 'react-bootstrap';
 import styled from 'styled-components';
 import axios from 'axios';
+import '../styles/navbar.css'
 
 const Styles = styled.div`
 `;
@@ -97,7 +98,7 @@ class NavigationBar extends React.Component {
   render() {
     return (
       <Styles>
-        <Navbar bg="dark" variant="dark" expand="lg">
+        <Navbar className="navbar-color" variant="dark" expand="lg">
           <Container>
             <Navbar.Brand href="/">XMUM</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav"/>
