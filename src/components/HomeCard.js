@@ -21,7 +21,6 @@ class HomeCard extends React.Component {
       text => <Card.Text key={++carTextId}>{text}</Card.Text>
     );
 
-
     return (
       <Styles>
         <Card>

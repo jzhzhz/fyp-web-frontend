@@ -16,82 +16,45 @@ class NavigationBar extends React.Component {
     };
   }
 
-  getAboutLabel = async () => {
-    const res = await axios.get("http://localhost:10480/csWeb/getAboutLabels");
+  getLabel = async (labelType) => {
+    let res = {};
+    const url = process.env.REACT_APP_BACKEND_URL + "/getLabels?labelType=" + labelType;
+    
+    await axios.get(url)
+      .then((getRes) => {
+        res = getRes;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
     if (res.status === 200 && res.data.code === 0) {
       let aboutLabelsRes = res.data.data;
 
       aboutLabelsRes = aboutLabelsRes.map(
         // change the label text to navbar dropdown item
-        obj => <NavDropdown.Item key={obj.id} href="#">{obj.label}</NavDropdown.Item>
+        obj => <NavDropdown.Item key={obj.id} href={obj.url}>{obj.label}</NavDropdown.Item>
       );
+
+      const stateLabelName = labelType + "Labels";
 
       this.setState((prevState) => {
         return {
           ...prevState,
-          aboutLabels: aboutLabelsRes
+          [stateLabelName]: aboutLabelsRes
         };
       });
 
-      console.log("get About labels success!");
+      console.log(`get ${labelType} labels success!`);
     } else {
-      console.log("get About labels failed!");
+      console.log(`get ${labelType} labels failed!`);
     }
   }
 
-  getAcademicsLabel = async () => {
-    const res = await axios.get("http://localhost:10480/csWeb/getAcademicsLabels");
-
-    if (res.status === 200 && res.data.code === 0) {
-      let academicsLabelsRes = res.data.data;
-
-      academicsLabelsRes = academicsLabelsRes.map(
-        // change the label text to navbar dropdown item
-        obj => <NavDropdown.Item key={obj.id} href="#">{obj.label}</NavDropdown.Item>
-      );
-
-      this.setState((prevState) => {
-        return {
-          ...prevState,
-          academicsLabels: academicsLabelsRes
-        };
-      });
-
-      console.log("get Academics labels success!");
-    } else {
-      console.log("get Academics labels failed!");
-    }
-  }
-
-  getAdmissionsLabel = async () => {
-    const res = await axios.get("http://localhost:10480/csWeb/getAdmissionsLabels");
-
-    if (res.status === 200 && res.data.code === 0) {
-      let admissionsLabelsRes = res.data.data;
-
-      admissionsLabelsRes = admissionsLabelsRes.map(
-        // change the label text to navbar dropdown item
-        obj => <NavDropdown.Item key={obj.id} href="#">{obj.label}</NavDropdown.Item>
-      );
-
-      this.setState((prevState) => {
-        return {
-          ...prevState,
-          admissionsLabels: admissionsLabelsRes
-        };
-      });
-
-      console.log("get Admissions labels success!");
-    } else {
-      console.log("get Admissions labels failed!");
-    }
-  }
-
-  componentWillMount() {
-    this.getAboutLabel();
-    this.getAcademicsLabel();
-    this.getAdmissionsLabel();
+  componentDidMount() {
+    this.getLabel("about");
+    this.getLabel("academics");
+    this.getLabel("admissions");
   }
 
   render() {
