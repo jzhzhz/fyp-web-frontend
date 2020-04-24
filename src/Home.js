@@ -57,7 +57,7 @@ export const Home = () => (
           
           <Row>
             <Col>
-              <h3>Academics  <span style={{fontSize: "small", color: "grey"}}><a href="/">[MORE]</a></span></h3>
+              <h3>Academics  <span><a href="/" style={{fontSize: "small", color: "grey"}}>[MORE]</a></span></h3>
               <p>Course suffer to do he sussex it window advice. </p>
               <p>Her indulgence but assistance favourable cultivated everything collecting. </p>
               <p>Yet matter enable misery end extent common men should.</p>
