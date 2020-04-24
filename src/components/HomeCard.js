@@ -16,9 +16,11 @@ const Styles = styled.div`
 
 class HomeCard extends React.Component {
   render() {
+    let carTextId = 0;
     const cardText = this.props.textList.map(
-      text => <Card.Text>{text}</Card.Text>
+      text => <Card.Text key={++carTextId}>{text}</Card.Text>
     );
+
 
     return (
       <Styles>

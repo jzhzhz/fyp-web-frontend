@@ -39,14 +39,16 @@ export const Home = () => (
 
           <Row>
             <Col>
-              <HomeCard 
+              <HomeCard
+                key={newsCard.title} 
                 title={newsCard.title} 
                 textList={newsCard.textList}
                 url={newsCard.url} 
               />
             </Col>
             <Col>
-              <HomeCard 
+              <HomeCard
+                key={researchCard.title}  
                 title={researchCard.title} 
                 textList={researchCard.textList} 
                 url={researchCard.url}
