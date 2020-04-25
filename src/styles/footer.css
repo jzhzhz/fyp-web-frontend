@@ -1,7 +1,7 @@
 .footer {
   margin: 0px auto; 
   width: 100%; 
-  padding: 40px; 
+  padding: 35px; 
   margin-top: 30px; 
   background-color: #066baf; 
   color: rgba(255, 255, 255, 0.815);
@@ -9,33 +9,68 @@
   position: absolute;
 }
 
+a {
+  color: rgba(255, 255, 255, 0.815);
+}
+
+a:hover {
+  color: rgba(255, 255, 255, 0.815);
+}
+
+.logopic {
+  max-width: 100%;
+  min-height: 80px;
+  height: auto;
+}
+
 .leftblock, .rightblock {
   display: inline-block;
   vertical-align: top;
 }
 
-.footnote1 span, .footnote2 span
-{
-  display: inline;
-  padding: 10px;
-  text-align: left;
-  vertical-align: middle;
+.rightblock {
+  margin-left: 40px;
 }
 
 .footnote1 {
   text-align: left; 
-  padding: 5px;
+  padding-top: 10px;
 }
 
 .footnote2 {
-  padding: 5px; 
   text-align: left;
 }
 
+.upperlist {
+  margin-bottom: 0px;
+}
+
+.bottomlist {
+  margin-bottom: 5px;
+}
+
+ul {
+  list-style-type: disc;
+  padding-left: 0;
+}
+
+li {
+  display: inline;
+  padding-right: 20px;
+  font-size: 15px;
+}
+
+@media (max-width: 960px) and (min-width: 501px) {
+  li { width: 50%; } /* Show 2 logos per row on medium devices (tablets, phones in landscape) */
+}
+
+@media (max-width: 500px) {
+  li { width: 100%; } /* On small screens, show one logo per row */
+}
+
+
 .footnote3 {
-  padding: 5px;
-  padding-left: 15px;
-  padding-top: 13px;
+  padding: 0px;
   text-align: left;
-  font-size: x-small;
+  font-size: 11px;
 }
