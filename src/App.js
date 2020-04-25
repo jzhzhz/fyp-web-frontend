@@ -6,7 +6,7 @@ import { Faculty } from './pages/people/Faculty';
 import { NoMatch } from './NoMatch';
 // import { Layout } from './components/Layout';
 import NavigationBar from './components/NavigationBar';
-// import HomeFooter from './components/HomeFooter';
+import HomeFooter from './components/Footer';
 
 class App extends React.Component {
   render() {
@@ -23,6 +23,7 @@ class App extends React.Component {
           </Switch>
           </div>   
         </Router>
+        <HomeFooter />
       </React.Fragment>
     );
   }
