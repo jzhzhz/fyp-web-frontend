@@ -62,7 +62,7 @@ class NavigationBar extends React.Component {
       <Styles>
         <Navbar variant="dark" expand="lg" style={{backgroundColor: "#066baf"}}>
           <Container>
-            <Navbar.Brand href="/">XMUM</Navbar.Brand>
+            <Navbar.Brand href="http://www.xmu.edu.my/">XMUM</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav"/>
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="mr-auto">
