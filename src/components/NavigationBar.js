@@ -4,6 +4,9 @@ import styled from 'styled-components';
 import axios from 'axios';
 
 const Styles = styled.div`
+  .nav-bar {
+    background-color: #066baf;
+  }
 `;
 
 class NavigationBar extends React.Component {
@@ -60,7 +63,7 @@ class NavigationBar extends React.Component {
   render() {
     return (
       <Styles>
-        <Navbar variant="dark" expand="lg" style={{backgroundColor: "#066baf"}}>
+        <Navbar className="nav-bar" variant="dark" expand="lg">
           <Container>
             <Navbar.Brand href="http://www.xmu.edu.my/">XMUM</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav"/>
