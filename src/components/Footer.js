@@ -1,6 +1,7 @@
 import React from 'react';
 import '../styles/footer.css'
 import { Container, Row } from 'react-bootstrap';
+import Logo from '../assets/longpng_logo.png';
 
 function Footer() {
   return (
@@ -10,7 +11,7 @@ function Footer() {
         <Row>
           <div className="leftblock">        
             <img className="logopic"
-              src="./pictures/longpng_logo.png"
+              src={Logo}
               alt="xmum_logo"
             />
           </div>
