@@ -1,6 +1,6 @@
 import React from 'react';
 import HomeCarousel from './components/HomeCarousel';
-import { Jumbotron } from './components/Jumbotron';
+
 import { Container, Row, Col } from 'react-bootstrap';
 import HomeCard from './components/HomeCard';
 
@@ -27,7 +27,6 @@ const researchCard = {
 
 export const Home = () => (
   <React.Fragment>
-    <Jumbotron />
     <Container>
       <Row>
         <Col sm={9}>
