@@ -23,24 +23,24 @@ class App extends React.Component {
           <Jumbotron />
           <Layout>
           <div style={{minHeight: "80vh"}}>      
-          <Switch>
-            <Route exact path="/" component={Home} />
-            <Route path="/about/department-overview" component={Overview} />
+            <Switch>
+              <Route exact path="/" component={Home} />
+              <Route path="/about/department-overview" component={Overview} />
 
-            <Route path="/people/faculty">
-              <Faculty />
-            </Route>
-            <Route path="/people/research-staff">
-              <ResearchStaff />
-            </Route>
-            <Route path="/people/admin-staff">
-              <AdminStaff />
-            </Route>
+              <Route path="/people/faculty">
+                <Faculty />
+              </Route>
+              <Route path="/people/research-staff">
+                <ResearchStaff />
+              </Route>
+              <Route path="/people/admin-staff">
+                <AdminStaff />
+              </Route>
 
-            <Route path="/research" component={Research}/>
+              <Route path="/research" component={Research}/>
 
-            <Route component={NoMatch} />
-          </Switch>
+              <Route component={NoMatch} />
+            </Switch>
           </div>
           </Layout>   
         </Router>
