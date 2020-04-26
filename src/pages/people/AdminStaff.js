@@ -1,14 +1,14 @@
 import React from 'react';
 import { Container, Table } from 'react-bootstrap';
 
-class Faculty extends React.Component {
+class AdminStaff extends React.Component {
   render() {
     return (
       <Container>
         <br />
-        <h2>Faculty</h2>
+        <h2>Administrative Staff</h2>
         <hr />
-        <p>regular faculty</p>
+        <p>Administration</p>
         
         <Table striped bordered hover size="sm">
           <thead>
@@ -51,4 +51,4 @@ class Faculty extends React.Component {
   }
 } 
 
-export default Faculty;
+export default AdminStaff;
