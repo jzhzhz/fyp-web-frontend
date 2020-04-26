@@ -1,7 +1,7 @@
 import React from 'react';
 import HomeCarousel from './components/HomeCarousel';
 
-import { Container, Row, Col } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import HomeCard from './components/HomeCard';
 
 // inputs for cards in home page
@@ -27,7 +27,7 @@ const researchCard = {
 
 export const Home = () => (
   <React.Fragment>
-    <Container>
+    <div>
       <Row>
         <Col sm={9}>
           <h2>Headline Information</h2>
@@ -77,6 +77,6 @@ export const Home = () => (
           <p>To ignore, add // eslint-disable-next-line to the line before.</p>
         </Col>
       </Row>
-    </Container>
+    </div>
   </React.Fragment>
 )

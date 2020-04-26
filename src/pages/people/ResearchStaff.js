@@ -1,10 +1,10 @@
 import React from 'react';
-import { Container, Table } from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 
 class ResearchStaff extends React.Component {
   render() {
     return (
-      <Container>
+      <React.Fragment>
         <br />
         <h2>Research Staff</h2>
         <hr />
@@ -46,7 +46,7 @@ class ResearchStaff extends React.Component {
             </tr>
           </tbody>
         </Table>
-      </Container>
+      </React.Fragment>
     );
   }
 } 
