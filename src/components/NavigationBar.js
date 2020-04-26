@@ -29,9 +29,9 @@ class NavigationBar extends React.Component {
       });
 
     if (res.status === 200 && res.data.code === 0) {
-      let aboutLabelsRes = res.data.data;
+      let labelsRes = res.data.data;
 
-      aboutLabelsRes = aboutLabelsRes.map(
+      labelsRes = labelsRes.map(
         // change the label text to navbar dropdown item
         obj => <NavDropdown.Item key={obj.id} href={obj.url}>{obj.label}</NavDropdown.Item>
       );
@@ -41,10 +41,10 @@ class NavigationBar extends React.Component {
       this.setState((prevState) => {
         return {
           ...prevState,
-          [stateLabelName]: aboutLabelsRes
+          [stateLabelName]: labelsRes,
         };
       });
-
+      
       console.log(`get ${labelType} labels success!`);
     } else {
       console.log(`get ${labelType} labels failed!`);
@@ -71,9 +71,9 @@ class NavigationBar extends React.Component {
                   {this.state.aboutLabels}
                 </NavDropdown>
                 <NavDropdown title="People" id="basic-nav-dropdown">
-                  <NavDropdown.Item href="/faculty">Faculty</NavDropdown.Item>
-                  <NavDropdown.Item href="/researchStaff">Research Staff</NavDropdown.Item>
-                  <NavDropdown.Item href="/adminStaff">Administrative Staff</NavDropdown.Item>
+                  <NavDropdown.Item href="/people/faculty">Faculty</NavDropdown.Item>
+                  <NavDropdown.Item href="/people/research-staff">Research Staff</NavDropdown.Item>
+                  <NavDropdown.Item href="/people/admin-staff">Administrative Staff</NavDropdown.Item>
                 </NavDropdown>
                 <Nav.Item><Nav.Link href="/research">Research</Nav.Link></Nav.Item>
                 <NavDropdown title="Academics" id="basic-nav-dropdown">
