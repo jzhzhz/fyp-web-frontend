@@ -60,17 +60,18 @@ li {
   font-size: 15px;
 }
 
-@media (max-width: 960px) and (min-width: 501px) {
-  li { width: 50%; } /* Show 2 logos per row on medium devices (tablets, phones in landscape) */
+li #lastOne{
+  padding-right: 0;
 }
-
-@media (max-width: 500px) {
-  li { width: 100%; } /* On small screens, show one logo per row */
-}
-
 
 .footnote3 {
   padding: 0px;
   text-align: left;
   font-size: 11px;
+}
+
+@media (max-width: 960px) {
+  .rightblock {
+    margin-left: 0px;
+  }
 }

@@ -26,7 +26,7 @@ function Footer() {
               <ul className="bottomlist">
                 <li>Terms of Use</li>
                 <li>Privacy</li>
-                <li>Copyright</li>
+                <li id="lastOne">Copyright</li>
               </ul>
             </div>
             <div className="footnote3">
