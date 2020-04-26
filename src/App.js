@@ -2,14 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import { Home } from './Home';
-import { About } from './pages/about/About';
+import { Overview } from './pages/about/Overview';
 import Faculty from './pages/people/Faculty';
 import ResearchStaff from './pages/people/ResearchStaff';
 import AdminStaff from './pages/people/AdminStaff';
 import { Research } from './pages/Research';
 import { NoMatch } from './NoMatch';
 
-// import { Layout } from './components/Layout';
+import { Layout } from './components/Layout';
 import NavigationBar from './components/NavigationBar';
 import { Jumbotron } from './components/Jumbotron';
 import HomeFooter from './components/Footer';
@@ -21,10 +21,11 @@ class App extends React.Component {
         <Router>
           <NavigationBar />
           <Jumbotron />
+          <Layout>
           <div style={{minHeight: "80vh"}}>      
           <Switch>
             <Route exact path="/" component={Home} />
-            <Route path="/about" component={About} />
+            <Route path="/about/department-overview" component={Overview} />
 
             <Route path="/people/faculty">
               <Faculty />
@@ -40,7 +41,8 @@ class App extends React.Component {
 
             <Route component={NoMatch} />
           </Switch>
-          </div>   
+          </div>
+          </Layout>   
         </Router>
         <HomeFooter />
       </React.Fragment>
