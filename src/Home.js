@@ -22,61 +22,75 @@ const researchCard = {
     "Title and make up the bulk of the card's content.",
     "Share walls stuff think but the arise guest."
   ],
-  url: "research"
+  url: "/research"
 };
 
-export const Home = () => (
-  <React.Fragment>
-    <div>
-      <Row>
-        <Col sm={9}>
-          <h2>Headline Information</h2>
-          <hr />
+class Home extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      sidebarTextList: [],
+      cardTextList: []
+    };
+  }
 
-          <HomeCarousel />
-          <hr />
-
+  render() {
+    return (
+      <React.Fragment>
+        <div>
           <Row>
-            <Col>
-              <HomeCard
-                key={newsCard.title} 
-                title={newsCard.title} 
-                textList={newsCard.textList}
-                url={newsCard.url} 
-              />
-            </Col>
-            <Col>
-              <HomeCard
-                key={researchCard.title}  
-                title={researchCard.title} 
-                textList={researchCard.textList} 
-                url={researchCard.url}
-              />
-            </Col>
-          </Row>
-          <hr />
-          
-          <Row>
-            <Col>
-              <h3>Academics  <span><a href="/" style={{fontSize: "small", color: "grey"}}>[MORE]</a></span></h3>
-              <p>Course suffer to do he sussex it window advice. </p>
-              <p>Her indulgence but assistance favourable cultivated everything collecting. </p>
-              <p>Yet matter enable misery end extent common men should.</p>
+            <Col sm={9}>
+              <h2>Headline Information</h2>
               <hr />
+
+              <HomeCarousel />
+              <hr />
+
+              <Row>
+                <Col>
+                  <HomeCard
+                    key={newsCard.title} 
+                    title={newsCard.title} 
+                    textList={newsCard.textList}
+                    url={newsCard.url} 
+                  />
+                </Col>
+                <Col>
+                  <HomeCard
+                    key={researchCard.title}  
+                    title={researchCard.title} 
+                    textList={researchCard.textList} 
+                    url={researchCard.url}
+                  />
+                </Col>
+              </Row>
+              <hr />
+              
+              <Row>
+                <Col>
+                  <h3>Academics  <span><a href="/" style={{fontSize: "small", color: "grey"}}>[MORE]</a></span></h3>
+                  <p>Course suffer to do he sussex it window advice. </p>
+                  <p>Her indulgence but assistance favourable cultivated everything collecting. </p>
+                  <p>Yet matter enable misery end extent common men should.</p>
+                  <hr />
+                </Col>
+              </Row>
+            </Col>
+            <Col sm={3}>
+              <h5>Sample Sidebar Headline</h5>
+              <p>Or kind rest bred with am shed then. In raptures building an bringing be.</p>
+              <p>Better of always missed we person mr. September smallness northward situation few her certainty something. </p>
+              <br />
+              <h5>Jumbotron Lennister</h5>
+              <p>Better of always missed we person mr. September smallness northward situation few her certainty something.</p>
+              <p>Search for the keywords to learn more about each warning.</p>
+              <p>To ignore, add // eslint-disable-next-line to the line before.</p>
             </Col>
           </Row>
-        </Col>
-        <Col sm={3}>
-          <h5>Side Line Information</h5>
-          <p>Or kind rest bred with am shed then. In raptures building an bringing be.</p>
-          <p>Better of always missed we person mr. September smallness northward situation few her certainty something. </p>
-          <br />
-          <h5>Jumbotron Lennister</h5>
-          <p>Better of always missed we person mr. September smallness northward situation few her certainty something.</p>
-          <p>Search for the keywords to learn more about each warning.</p>
-          <p>To ignore, add // eslint-disable-next-line to the line before.</p>
-        </Col>
-      </Row>
-    </div>
-  </React.Fragment>
-)
+        </div>
+      </React.Fragment>
+    );
+  }
+}
+
+export default Home;
