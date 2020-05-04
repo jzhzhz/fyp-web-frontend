@@ -24,14 +24,17 @@ const Styles = styled.div`
   }
 `;
 
-export const Jumbotron = (props) => (
-  <Styles>
-    <Jumbo fluid className="jumbo">
-      <div className="overlay"></div>
-      <Container>
-        <h1>{props.textBlock.title}</h1>
-        <p>the department of Computer Science in XMUM</p>
-      </Container>
-    </Jumbo>
-  </Styles>
-)
+export const Jumbotron = (props) => {
+
+  return (
+    <Styles>
+      <Jumbo fluid className="jumbo">
+        <div className="overlay"></div>
+        <Container>
+          <h1>{props.textBlock.title}</h1>
+          <p>{props.textBlock.contentList ? props.textBlock.contentList[0] : ""}</p>
+        </Container>
+      </Jumbo>
+    </Styles>
+  );
+}
