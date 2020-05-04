@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import { Form, Button } from 'react-bootstrap';
 import axios from 'axios';
 
 import Home from './Home';
@@ -11,13 +12,15 @@ import { Research } from './pages/Research';
 import { NoMatch } from './NoMatch';
 import Profile from './pages/people/Profile';
 
-import Login from './pages/Login';
+// import Login from './pages/Login';
 import Admin from './pages/Admin';
 
 import { Layout } from './components/Layout';
 import NavigationBar from './components/NavigationBar';
 import { Jumbotron } from './components/Jumbotron';
 import Footer from './components/Footer';
+
+let isAuthenticated = false;
 
 class App extends React.Component {
   constructor() {
@@ -50,10 +53,16 @@ class App extends React.Component {
             jumboTextBlock: res.data.data[0]
           };
         });
-        console.log(this.state.jumboTextBlock);
-        console.log(this.state.jumboTextBlock.contentList);
       }
   }
+
+  PrivateRoute = ({ component: Component, ...rest }) => (
+    <Route {...rest} render={(props) => (
+      isAuthenticated === true
+        ? <Component {...props} />
+        : <Redirect to='/login' />
+    )} />
+  )
 
   render() {
     return (
@@ -82,7 +91,7 @@ class App extends React.Component {
               <Route path="/research" component={Research} />
 
               <Route path="/login" component={Login} />
-              <Route path="/admin" component={Admin} />
+              <this.PrivateRoute path='/admin' component={Admin} />
 
               <Route component={NoMatch} />
             </Switch>
@@ -91,6 +100,96 @@ class App extends React.Component {
         </Router>
         <Footer />
       </React.Fragment>
+    );
+  }
+}
+
+class Login extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      username: "",
+      password: "",
+      notice: "",
+      passwordHidden: true,
+    };
+  }
+
+  handleShowPassword = () => {
+    this.setState((prevState) => {
+      return {
+        ...prevState,
+        passwordHidden: !prevState.passwordHidden
+      };
+    });
+  }
+
+  handleChange = (event) => {
+    const {name, value} = event.target;
+    this.setState((prevState) => {
+      return {
+        ...prevState,
+        [name]: value
+      };
+    });
+  }
+
+  handleSubmit = async (event) => {
+    event.preventDefault();
+    let checkResult = false;
+
+    const url = process.env.REACT_APP_ADMIN_URL + "/checkAdmin?" +
+                  "name=" + this.state.username +
+                  "&password=" + this.state.password;
+
+    await axios.get(url)
+      .then((getRes) => {
+        checkResult = getRes.data.data;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    if (checkResult) {
+      isAuthenticated = true;
+      this.props.history.push('/admin');
+    } else {
+      this.setState((prevState) => {
+        return {
+          ...prevState,
+          notice: "invalid username or password"
+        };
+      });
+    }
+  }
+  
+  render() {
+    return (
+      <Form style={{width: "20%"}} onSubmit={this.handleSubmit}>
+        <Form.Group controlId="formBasicUsername">
+          <Form.Label>Username</Form.Label>
+          <Form.Control name="username" onChange={this.handleChange} placeholder="Enter username" />
+        </Form.Group>
+
+        <Form.Group controlId="formBasicPassword">
+          <Form.Label>Password</Form.Label>
+          <Form.Control 
+            type={this.state.passwordHidden ? "password" : "input"} 
+            name="password" 
+            onChange={this.handleChange}  
+            placeholder="Password" 
+          />
+          <Form.Text className="text-muted">
+            <span style={{color: "red"}}>{this.state.notice}</span>
+          </Form.Text>
+        </Form.Group>
+        <Form.Group controlId="formBasicCheckbox">
+          <Form.Check type="checkbox" label="show password" onClick={this.handleShowPassword}/>
+        </Form.Group>
+        <Button style={{backgroundColor: "#066baf"}} type="submit">
+          Login
+        </Button>
+      </Form>
     );
   }
 }
