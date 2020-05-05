@@ -46,14 +46,14 @@ class App extends React.Component {
         console.log(err);
       });
 
-      if (res.status === 200 && res.data.code === 0) {
-        this.setState((prevState) => {
-          return {
-            ...prevState,
-            jumboTextBlock: res.data.data[0]
-          };
-        });
-      }
+    if (res.status === 200 && res.data.code === 0) {
+      this.setState((prevState) => {
+        return {
+          ...prevState,
+          jumboTextBlock: res.data.data[0]
+        };
+      });
+    }
   }
 
   PrivateRoute = ({ component: Component, ...rest }) => (
@@ -91,7 +91,7 @@ class App extends React.Component {
               <Route path="/research" component={Research} />
 
               <Route path="/login" component={Login} />
-              <this.PrivateRoute path='/admin' component={Admin} />
+              <Route path='/admin' component={Admin} />
 
               <Route component={NoMatch} />
             </Switch>

@@ -1,5 +1,6 @@
 import React from 'react';
 import HomeCarousel from './components/HomeCarousel';
+import axios from 'axios';
 
 import { Row, Col } from 'react-bootstrap';
 import HomeCard from './components/HomeCard';
@@ -29,9 +30,62 @@ class Home extends React.Component {
   constructor() {
     super();
     this.state = {
-      sidebarTextList: [],
-      cardTextList: []
+      headline: {
+        id: 0,
+        title: "",
+        content: "",
+        url: "",
+      },
+      jumbo: {
+        id: 0,
+        title: "",
+        content: "",
+        url: "",
+      },
+      sidebar: {
+        id: 0,
+        title: "",
+        content: "",
+        url: "",
+      },
+      cards: [],
+      sidebarTest: "<h5>Sidebar HTML Test</h5><p>This is to test the use of innerhtml in this sidebar. To see if it will actually work</p>"
     };
+  }
+
+  componentDidMount() {
+    this.getTextBlocksByType("headline");
+    this.getTextBlocksByType("sidebar");
+  }
+
+  getTextBlocksByType = async (type) => {
+    let res = {};
+    const url = process.env.REACT_APP_BACKEND_URL + "/getHomeTextBlockByType?type=" + type;
+    
+    await axios.get(url)
+      .then((getRes) => {
+        res = getRes;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    if (res.status === 200 && res.data.code === 0) {
+      if (type !== "cards") {
+        let resData = res.data.data[0];
+        // resData.content = resData.contentList[0];
+
+        this.setState({
+          [type]: resData
+        });
+
+        console.log(this.state[type]);
+      } else {
+        this.getDynamicTextBlocks(res.data.data);
+      }
+
+      // console.log(this.state);
+    }
   }
 
   render() {
@@ -40,7 +94,7 @@ class Home extends React.Component {
         <div>
           <Row>
             <Col sm={9}>
-              <h2>Headline Information</h2>
+              <h2>{this.state.headline.title}</h2>
               <hr />
 
               <HomeCarousel />
@@ -77,14 +131,7 @@ class Home extends React.Component {
               </Row>
             </Col>
             <Col sm={3}>
-              <h5>Sample Sidebar Headline</h5>
-              <p>Or kind rest bred with am shed then. In raptures building an bringing be.</p>
-              <p>Better of always missed we person mr. September smallness northward situation few her certainty something. </p>
-              <br />
-              <h5>Jumbotron Lennister</h5>
-              <p>Better of always missed we person mr. September smallness northward situation few her certainty something.</p>
-              <p>Search for the keywords to learn more about each warning.</p>
-              <p>To ignore, add // eslint-disable-next-line to the line before.</p>
+              <div dangerouslySetInnerHTML={{__html: this.state.sidebar.content}} />
             </Col>
           </Row>
         </div>

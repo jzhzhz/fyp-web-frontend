@@ -1,32 +1,202 @@
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
+import axios from 'axios';
 
 class Admin extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      headline: {
+        id: 0,
+        title: "",
+        content: "",
+        url: "",
+        deprecated: 0
+      },
+      jumbo: {
+        id: 0,
+        title: "",
+        content: "",
+        url: "",
+        deprecated: 0
+      },
+      sidebar: {
+        id: 0,
+        title: "",
+        content: "",
+        url: "",
+        deprecated: 0
+      },
+      cards: [],
+      isUpdated: true,
+      updating: false
+    };
+  }
+
+  componentDidMount() {
+    this.getTextBlocksByType("headline");
+    this.getTextBlocksByType("jumbo");
+    this.getTextBlocksByType("sidebar");
+  }
+
+  getTextBlocksByType = async (type) => {
+    let res = {};
+    const url = process.env.REACT_APP_BACKEND_URL + "/getHomeTextBlockByType?type=" + type;
+    
+    await axios.get(url)
+      .then((getRes) => {
+        res = getRes;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    if (res.status === 200 && res.data.code === 0) {
+      if (type !== "cards") {
+        let resData = res.data.data[0];
+        // resData.content = resData.contentList[0];
+
+        this.setState({
+          [type]: resData
+        });
+
+        console.log(this.state[type]);
+      } else {
+        this.getDynamicTextBlocks(res.data.data);
+      }
+
+      // console.log(this.state);
+    }
+  }
+
+  getDynamicTextBlocks = (resData) => {
+    // do sth
+    console.log(resData);
+  }
+
+  handleStaticChange = (event) => {
+    const {name, id, value} = event.target;
+    this.setState((prevState) => {
+      return {
+        isUpdated: false,
+        [name]: {
+          ...prevState[name],
+          [id]: value
+        }
+      };
+    });
+  }
+  
+  handleSubmit = async (event) => {
+    event.preventDefault();
+    console.log(this.state);
+    const url = process.env.REACT_APP_ADMIN_URL + "/updateHomeTextBlock";
+    
+    if (!this.state.isUpdated) {
+      this.setState({
+        updating: true
+      })
+      console.log("updating information...");
+
+      await axios.get(url, {
+        params: {
+          id: this.state.headline.id,
+          title: this.state.headline.title
+        }
+      });
+
+      await axios.get(url, {
+        params: {
+          id: this.state.jumbo.id,
+          title: this.state.jumbo.title,
+          content: this.state.jumbo.content
+        }
+      });
+
+      await axios.get(url, {
+        params: {
+          id: this.state.sidebar.id,
+          content: this.state.sidebar.content
+        }
+      });
+
+      this.setState({isUpdated: true});
+      console.log("information updated");
+      this.setState({
+        updating: false
+      })
+    } else {
+      console.log("no need to update");
+    }
+  }
+
+
   render() {
+    const updateSuccess = <span style={{color: "green"}}>all contents are up-to-date</span>
+
     return (
       <React.Fragment>
         <h3>Settings</h3>
         <hr />
-        <div style={{width: "50%"}}>
-        <h5>Jumbotron Settings</h5>
-        <Form>
-          <Form.Group controlId="formBasicEmail">
-            <Form.Label>Jumbotron Title</Form.Label>
-            <Form.Control type="input" placeholder="Enter email" />
+        <div style={{width: "70%"}}>
+          <Form onSubmit={this.handleSubmit}>
+            <h5>Headline Setting</h5>
+            <Form.Group>
+              <Form.Label>Headline Title</Form.Label>
+              <Form.Control 
+                name="headline"
+                id="title" 
+                value={this.state.headline.title} 
+                onChange={this.handleStaticChange}
+              />
+            </Form.Group>
+            <hr />
+
+            <h5>Jumbotron Setting</h5>
+            <Form.Group>
+              <Form.Label>Title</Form.Label>
+              <Form.Control 
+                name="jumbo"
+                id="title" 
+                value={this.state.jumbo.title} 
+                onChange={this.handleStaticChange}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Subtitle</Form.Label>
+              <Form.Control 
+                name="jumbo"
+                id="content" 
+                value={this.state.jumbo.content} 
+                onChange={this.handleStaticChange}
+              />
+            </Form.Group>
+            <hr />
+
+            <h5>Sidebar Information Setting</h5>
+            <Form.Group>
+              <Form.Label>html code segment:</Form.Label>
+              <Form.Control
+                style={{height: "300px"}}
+                as="textarea" 
+                name="sidebar"
+                id="content" 
+                value={this.state.sidebar.content} 
+                onChange={this.handleStaticChange}
+              />
+              <Form.Text className="text-muted">
+                the sidebar information should be written in html segment, which will later be put on the home page.
+              </Form.Text>
+            </Form.Group>
+            <hr />
+          
+            <Button variant="primary" type="submit" disabled={this.state.updating}>
+              Update
+            </Button>
             <Form.Text className="text-muted">
-              We'll never share your email with anyone else.
+              {this.state.isUpdated ? updateSuccess : "changes have not been updated"}
             </Form.Text>
-          </Form.Group>
-
-          <Form.Group controlId="formBasicPassword">
-            <Form.Label>Subtitle</Form.Label>
-            <Form.Control type="password" placeholder="Password" />
-          </Form.Group>
-
-          <Button variant="primary" type="submit">
-            Update
-          </Button>
-        </Form>
+          </Form>
         </div>
       </React.Fragment>
     );
