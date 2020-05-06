@@ -1,6 +1,7 @@
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
 import axios from 'axios';
+import _ from 'lodash';
 
 class Admin extends React.Component {
   constructor() {
@@ -28,6 +29,7 @@ class Admin extends React.Component {
         deprecated: 0
       },
       cards: [],
+      cardsReactElement: [],
       isUpdated: true,
       updating: false
     };
@@ -37,6 +39,7 @@ class Admin extends React.Component {
     this.getTextBlocksByType("headline");
     this.getTextBlocksByType("jumbo");
     this.getTextBlocksByType("sidebar");
+    this.getTextBlocksByType("cards");
   }
 
   getTextBlocksByType = async (type) => {
@@ -54,25 +57,94 @@ class Admin extends React.Component {
     if (res.status === 200 && res.data.code === 0) {
       if (type !== "cards") {
         let resData = res.data.data[0];
-        // resData.content = resData.contentList[0];
 
         this.setState({
           [type]: resData
         });
 
-        console.log(this.state[type]);
+        // console.log(this.state[type]);
       } else {
-        this.getDynamicTextBlocks(res.data.data);
+        this.getCardTextBlocks(res.data.data, type);
       }
-
-      // console.log(this.state);
     }
   }
 
-  getDynamicTextBlocks = (resData) => {
-    // do sth
-    console.log(resData);
+  getCardTextBlocks = (resData, type) => {
+    let cardArray = [];
+
+    resData.forEach((item) => {
+      let cardTemp = {};
+
+      cardTemp.title = item.title;
+      cardTemp.textList = item.content.split("[SEP]").filter(item => item);
+      cardTemp.url = item.url;
+
+      cardArray.push(cardTemp);
+    });
+
+    this.setState({
+      cards: _.cloneDeep(cardArray)
+    });
+
+    this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
   }
+
+  modifyCardToReactElement = (reactCardArray) => {
+    // console.log("before changes: ");
+    // console.log(this.state.cards);
+
+    reactCardArray.forEach((card, cardIndex) => {
+      card.textList = card.textList.map((text, textIndex) => {
+        return (
+          <Form.Group key={textIndex}>
+            <Form.Label>Card Text {textIndex+1}</Form.Label>
+            <Form.Control 
+                  name="textList"
+                  key={textIndex} 
+                  value={this.state.cards[cardIndex].textList[textIndex]} 
+                  onChange={this.handleCardChange(cardIndex, textIndex)}
+            />
+          </Form.Group>
+        );
+      });
+    });
+
+    reactCardArray = reactCardArray.map((item, cardIndex) => 
+      <Form.Group key={cardIndex} controlId={cardIndex}>
+        <h5 style={{fontSize: "16px"}}>Card {cardIndex+1}</h5>
+        <Form.Group>
+          <Form.Label>Title</Form.Label>
+          <Form.Control 
+            name="title"
+            value={this.state.cards[cardIndex].title} 
+            onChange={this.handleCardChange(cardIndex)}
+          />
+        </Form.Group>
+
+        {item.textList}
+
+        <Form.Group>
+          <Form.Label>URL</Form.Label>
+          <Form.Control 
+            name="url"
+            value={this.state.cards[cardIndex].url} 
+            onChange={this.handleCardChange(cardIndex)}
+          />
+        </Form.Group>
+      </Form.Group>
+    );
+
+    // console.log("after 2 changes: ");
+    // console.log(this.state.cards);
+
+    this.setState({
+      cardsReactElement: reactCardArray
+    });
+
+    return _.cloneDeep(reactCardArray);
+  }
+
+
 
   handleStaticChange = (event) => {
     const {name, id, value} = event.target;
@@ -85,6 +157,24 @@ class Admin extends React.Component {
         }
       };
     });
+  }
+
+  handleCardChange = (cardIndex, textIndex) => (event) => {
+    const {name, value} = event.target;
+    let newCards = _.cloneDeep(this.state.cards);
+
+    if (name === "textList") {
+      newCards[cardIndex][name][textIndex] = value;
+    } else {
+      newCards[cardIndex][name] = value;
+    }
+
+    this.setState(
+      {cards: _.cloneDeep(newCards)},
+      () => {
+        this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
+      }
+    );
   }
   
   handleSubmit = async (event) => {
@@ -133,6 +223,7 @@ class Admin extends React.Component {
 
   render() {
     const updateSuccess = <span style={{color: "green"}}>all contents are up-to-date</span>
+    console.log("rendering elements...");
 
     return (
       <React.Fragment>
@@ -188,6 +279,10 @@ class Admin extends React.Component {
                 the sidebar information should be written in html segment, which will later be put on the home page.
               </Form.Text>
             </Form.Group>
+            <hr />
+
+            <h5>Card Item Settings</h5>
+            {this.state.cardsReactElement}
             <hr />
           
             <Button variant="primary" type="submit" disabled={this.state.updating}>

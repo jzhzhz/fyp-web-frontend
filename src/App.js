@@ -26,17 +26,17 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      jumboTextBlock: {}
+      jumbo: {}
     };
   }
 
   componentDidMount() {
-    this.getJumbotronText();
+    this.getTextBlocksByType("jumbo");
   }
 
-  getJumbotronText = async () => {
+  getTextBlocksByType = async (type) => {
     let res = {};
-    const url = process.env.REACT_APP_BACKEND_URL + "/getHomeTextBlockByType?type=jumbo";
+    const url = process.env.REACT_APP_BACKEND_URL + "/getHomeTextBlockByType?type=" + type;
     
     await axios.get(url)
       .then((getRes) => {
@@ -47,13 +47,24 @@ class App extends React.Component {
       });
 
     if (res.status === 200 && res.data.code === 0) {
-      this.setState((prevState) => {
-        return {
-          ...prevState,
-          jumboTextBlock: res.data.data[0]
-        };
-      });
+      if (type !== "cards") {
+        let resData = res.data.data[0];
+        // resData.content = resData.contentList[0];
+
+        this.setState({
+          [type]: resData
+        });
+      } else {
+        this.getDynamicTextBlocks(res.data.data);
+      }
+
+      // console.log(this.state);
     }
+  }
+
+  getDynamicTextBlocks = (resData) => {
+    // do sth
+    console.log(resData);
   }
 
   PrivateRoute = ({ component: Component, ...rest }) => (
@@ -69,7 +80,7 @@ class App extends React.Component {
       <React.Fragment>
         <Router>
           <NavigationBar />
-          <Jumbotron textBlock={this.state.jumboTextBlock}/>
+          <Jumbotron textBlock={this.state.jumbo}/>
           <Layout>
           <div style={{minHeight: "80vh"}}>      
             <Switch>
@@ -91,8 +102,10 @@ class App extends React.Component {
               <Route path="/research" component={Research} />
 
               <Route path="/login" component={Login} />
-              <Route path='/admin' component={Admin} />
-
+              <Route path='/admin'>
+                <Admin getTextBlocksByType={this.getTextBlocksByType}/>
+              </Route>
+              {/* route to 404 not found page */}
               <Route component={NoMatch} />
             </Switch>
           </div>
