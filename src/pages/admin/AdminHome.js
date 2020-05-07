@@ -1,9 +1,9 @@
 import React from 'react';
-import { Form, Button, Tabs, Tab } from 'react-bootstrap';
+import { Form, Button, Tabs, Tab, Col } from 'react-bootstrap';
 import axios from 'axios';
 import _ from 'lodash';
 
-class Admin extends React.Component {
+class AdminHome extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -275,28 +275,33 @@ class Admin extends React.Component {
       return (
         <Form.Group key={cardIndex} controlId={cardIndex} style={{backgroundColor: "rgb(219, 215, 210)", padding: "15px"}}>
           <h5 style={{fontSize: "16px"}}>Card "{this.state.cards[cardIndex].title}"</h5>
-          <Form.Group>
-            <Form.Label>Title</Form.Label>
-            <Form.Control
-              style={{}} 
-              name="title"
-              value={this.state.cards[cardIndex].title} 
-              onChange={this.handleCardChange(cardIndex)}
-              disabled={this.state.cards[cardIndex].deprecated === 1}
-            />
-          </Form.Group>
+          <Form.Row>
+            <Col>
+              <Form.Group>
+                <Form.Label>Title</Form.Label>
+                <Form.Control
+                  style={{}} 
+                  name="title"
+                  value={this.state.cards[cardIndex].title} 
+                  onChange={this.handleCardChange(cardIndex)}
+                  disabled={this.state.cards[cardIndex].deprecated === 1}
+                />
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group>
+                <Form.Label>URL</Form.Label>
+                <Form.Control 
+                  name="url"
+                  value={this.state.cards[cardIndex].url} 
+                  onChange={this.handleCardChange(cardIndex)}
+                  disabled={this.state.cards[cardIndex].deprecated === 1}
+                />
+              </Form.Group>
+            </Col>
+          </Form.Row>
 
           {item.textList}
-
-          <Form.Group>
-            <Form.Label>URL</Form.Label>
-            <Form.Control 
-              name="url"
-              value={this.state.cards[cardIndex].url} 
-              onChange={this.handleCardChange(cardIndex)}
-              disabled={this.state.cards[cardIndex].deprecated === 1}
-            />
-          </Form.Group>
 
           <Form.Group>
             <Button 
@@ -409,4 +414,4 @@ class Admin extends React.Component {
   }
 }
 
-export default Admin;
+export default AdminHome;

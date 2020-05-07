@@ -13,7 +13,7 @@ import { NoMatch } from './NoMatch';
 import Profile from './pages/people/Profile';
 
 // import Login from './pages/Login';
-import Admin from './pages/Admin';
+import AdminHome from './pages/admin/AdminHome';
 
 import { Layout } from './components/Layout';
 import NavigationBar from './components/NavigationBar';
@@ -102,9 +102,7 @@ class App extends React.Component {
               <Route path="/research" component={Research} />
 
               <Route path="/login" component={Login} />
-              <Route path='/admin'>
-                <Admin getTextBlocksByType={this.getTextBlocksByType}/>
-              </Route>
+              <Route path='/admin' component={AdminHome}/>
               {/* route to 404 not found page */}
               <Route component={NoMatch} />
             </Switch>
