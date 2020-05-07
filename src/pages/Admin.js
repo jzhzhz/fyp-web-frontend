@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Tabs, Tab } from 'react-bootstrap';
 import axios from 'axios';
 import _ from 'lodash';
 
@@ -12,24 +12,28 @@ class Admin extends React.Component {
         title: "",
         content: "",
         url: "",
-        deprecated: 0
+        deprecated: 0,
+        changed: false
       },
       jumbo: {
         id: 0,
         title: "",
         content: "",
         url: "",
-        deprecated: 0
+        deprecated: 0,
+        changed: false
       },
       sidebar: {
         id: 0,
         title: "",
         content: "",
         url: "",
-        deprecated: 0
+        deprecated: 0,
+        changed: false
       },
       cards: [],
       cardsReactElement: [],
+      oldCardsLength: 0,
       isUpdated: true,
       updating: false
     };
@@ -52,6 +56,7 @@ class Admin extends React.Component {
       })
       .catch((err) => {
         console.log(err);
+        return -1;
       });
 
     if (res.status === 200 && res.data.code === 0) {
@@ -66,7 +71,11 @@ class Admin extends React.Component {
       } else {
         this.getCardTextBlocks(res.data.data, type);
       }
+    } else {
+      return -1;
     }
+
+    return 0;
   }
 
   getCardTextBlocks = (resData, type) => {
@@ -75,76 +84,23 @@ class Admin extends React.Component {
     resData.forEach((item) => {
       let cardTemp = {};
 
+      cardTemp.id = item.id;
       cardTemp.title = item.title;
-      cardTemp.textList = item.content.split("[SEP]").filter(item => item);
+      cardTemp.textList = item.content.split("*SEP*").filter(item => item);
       cardTemp.url = item.url;
+      cardTemp.changed = false;
+      cardTemp.deprecated = 0;
 
       cardArray.push(cardTemp);
     });
 
     this.setState({
-      cards: _.cloneDeep(cardArray)
+      cards: _.cloneDeep(cardArray),
+      oldCardsLength: resData.length
     });
 
     this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
   }
-
-  modifyCardToReactElement = (reactCardArray) => {
-    // console.log("before changes: ");
-    // console.log(this.state.cards);
-
-    reactCardArray.forEach((card, cardIndex) => {
-      card.textList = card.textList.map((text, textIndex) => {
-        return (
-          <Form.Group key={textIndex}>
-            <Form.Label>Card Text {textIndex+1}</Form.Label>
-            <Form.Control 
-                  name="textList"
-                  key={textIndex} 
-                  value={this.state.cards[cardIndex].textList[textIndex]} 
-                  onChange={this.handleCardChange(cardIndex, textIndex)}
-            />
-          </Form.Group>
-        );
-      });
-    });
-
-    reactCardArray = reactCardArray.map((item, cardIndex) => 
-      <Form.Group key={cardIndex} controlId={cardIndex}>
-        <h5 style={{fontSize: "16px"}}>Card {cardIndex+1}</h5>
-        <Form.Group>
-          <Form.Label>Title</Form.Label>
-          <Form.Control 
-            name="title"
-            value={this.state.cards[cardIndex].title} 
-            onChange={this.handleCardChange(cardIndex)}
-          />
-        </Form.Group>
-
-        {item.textList}
-
-        <Form.Group>
-          <Form.Label>URL</Form.Label>
-          <Form.Control 
-            name="url"
-            value={this.state.cards[cardIndex].url} 
-            onChange={this.handleCardChange(cardIndex)}
-          />
-        </Form.Group>
-      </Form.Group>
-    );
-
-    // console.log("after 2 changes: ");
-    // console.log(this.state.cards);
-
-    this.setState({
-      cardsReactElement: reactCardArray
-    });
-
-    return _.cloneDeep(reactCardArray);
-  }
-
-
 
   handleStaticChange = (event) => {
     const {name, id, value} = event.target;
@@ -153,7 +109,8 @@ class Admin extends React.Component {
         isUpdated: false,
         [name]: {
           ...prevState[name],
-          [id]: value
+          [id]: value,
+          changed: true
         }
       };
     });
@@ -168,9 +125,54 @@ class Admin extends React.Component {
     } else {
       newCards[cardIndex][name] = value;
     }
+    newCards[cardIndex].changed = true;
 
     this.setState(
-      {cards: _.cloneDeep(newCards)},
+      {
+        cards: _.cloneDeep(newCards),
+        isUpdated: false
+      },
+      () => {
+        this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
+      }
+    );
+  }
+
+  handleAddCard = () => {
+    console.log("adding another card");
+    const newCard = {
+      title: "Sample Title",
+      textList: ["text1", "text2", "text3"],
+      url: "/url",
+      changed: true,
+      deprecated: 0
+    };
+
+    let newCards = _.cloneDeep(this.state.cards);
+    newCards.push(newCard);
+
+    this.setState({
+      cards: _.cloneDeep(newCards),
+      isUpdated: false
+    }, () => {
+      this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
+    });
+  }
+
+  handleRemove = (cardIndex) => (event) => {
+    let newCards = _.cloneDeep(this.state.cards);
+    if (newCards[cardIndex].deprecated === 1) {
+      newCards[cardIndex].deprecated = 0;
+    } else {
+      newCards[cardIndex].deprecated = 1;
+    }
+    newCards[cardIndex].changed = true;
+
+    this.setState(
+      {
+        cards: _.cloneDeep(newCards),
+        isUpdated: false
+      },
       () => {
         this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
       }
@@ -179,36 +181,22 @@ class Admin extends React.Component {
   
   handleSubmit = async (event) => {
     event.preventDefault();
+    console.log("state before update:");
     console.log(this.state);
-    const url = process.env.REACT_APP_ADMIN_URL + "/updateHomeTextBlock";
-    
+
     if (!this.state.isUpdated) {
       this.setState({
         updating: true
       })
       console.log("updating information...");
 
-      await axios.get(url, {
-        params: {
-          id: this.state.headline.id,
-          title: this.state.headline.title
-        }
-      });
+      await this.updateTextBlockByType("headline");
 
-      await axios.get(url, {
-        params: {
-          id: this.state.jumbo.id,
-          title: this.state.jumbo.title,
-          content: this.state.jumbo.content
-        }
-      });
+      await this.updateTextBlockByType("jumbo");
 
-      await axios.get(url, {
-        params: {
-          id: this.state.sidebar.id,
-          content: this.state.sidebar.content
-        }
-      });
+      await this.updateTextBlockByType("sidebar");
+
+      await this.updateTextBlockByType("cards");
 
       this.setState({isUpdated: true});
       console.log("information updated");
@@ -220,10 +208,119 @@ class Admin extends React.Component {
     }
   }
 
+  updateTextBlockByType = async (type) => {
+    let updateUrl = process.env.REACT_APP_ADMIN_URL + "/updateHomeTextBlock";
+
+    if (type === "cards") {
+      for (const [index, card] of this.state.cards.entries()) {
+        if (card.changed) {
+          if (index+1 > this.state.oldCardsLength) {
+            console.log("getting new cards...");
+            updateUrl = process.env.REACT_APP_ADMIN_URL + "/createNewCard";
+          }
+
+          await axios.get(updateUrl, {
+            params: {
+              id: card.id,
+              title: card.title,
+              content: card.textList.join("*SEP*"),
+              url: card.url,
+              deprecated: card.deprecated
+            }
+          }).catch(err => {
+            console.log(err);
+            return -1;
+          })
+        }
+      }
+    } else {
+      if (this.state[type].changed) {
+        await axios.get(updateUrl, {
+          params: {
+            id: this.state[type].id,
+            title: this.state[type].title,
+            content: this.state[type].content,
+            url: this.state[type].url,
+            deprecated: this.state[type].deprecated
+          }
+        }).catch(err => {
+          console.log(err)
+          return -1;
+        });
+      }
+    }
+
+    return 0;
+  }
+
+  modifyCardToReactElement = (reactCardArray) => {
+    reactCardArray.forEach((card, cardIndex) => {
+      card.textList = card.textList.map((text, textIndex) => {
+        return (
+          <Form.Group key={textIndex}>
+            <Form.Label>Card Text {textIndex+1}</Form.Label>
+            <Form.Control 
+              name="textList"
+              key={textIndex} 
+              value={this.state.cards[cardIndex].textList[textIndex]} 
+              onChange={this.handleCardChange(cardIndex, textIndex)}
+              disabled={this.state.cards[cardIndex].deprecated === 1}
+            />
+          </Form.Group>
+        );
+      });
+    });
+
+    reactCardArray = reactCardArray.map((item, cardIndex) => {
+      return (
+        <Form.Group key={cardIndex} controlId={cardIndex} style={{backgroundColor: "rgb(219, 215, 210)", padding: "15px"}}>
+          <h5 style={{fontSize: "16px"}}>Card "{this.state.cards[cardIndex].title}"</h5>
+          <Form.Group>
+            <Form.Label>Title</Form.Label>
+            <Form.Control
+              style={{}} 
+              name="title"
+              value={this.state.cards[cardIndex].title} 
+              onChange={this.handleCardChange(cardIndex)}
+              disabled={this.state.cards[cardIndex].deprecated === 1}
+            />
+          </Form.Group>
+
+          {item.textList}
+
+          <Form.Group>
+            <Form.Label>URL</Form.Label>
+            <Form.Control 
+              name="url"
+              value={this.state.cards[cardIndex].url} 
+              onChange={this.handleCardChange(cardIndex)}
+              disabled={this.state.cards[cardIndex].deprecated === 1}
+            />
+          </Form.Group>
+
+          <Form.Group>
+            <Button 
+              variant={this.state.cards[cardIndex].deprecated === 1 ? "outline-danger" : "danger"}
+              size="sm"
+              onClick={this.handleRemove(cardIndex)}
+            >
+              {this.state.cards[cardIndex].deprecated === 1 ? "Cancel" : "Remove"}
+            </Button>
+            <Form.Text style={{color: "red"}}>WARNING: the whole card will be removed after update!</Form.Text>
+          </Form.Group>
+        </Form.Group>
+      );
+    });
+
+    this.setState({
+      cardsReactElement: reactCardArray
+    });
+
+    return _.cloneDeep(reactCardArray);
+  }
 
   render() {
     const updateSuccess = <span style={{color: "green"}}>all contents are up-to-date</span>
-    console.log("rendering elements...");
 
     return (
       <React.Fragment>
@@ -282,7 +379,21 @@ class Admin extends React.Component {
             <hr />
 
             <h5>Card Item Settings</h5>
+            <Tabs  defaultActiveKey="profile" id="uncontrolled-tab-example">
+              <Tab eventKey="home" title="Home">
+                <p>test1</p>
+              </Tab>
+              <Tab eventKey="profile" title="Profile">
+                <p>test2</p>
+              </Tab>
+              <Tab eventKey="contact" title="Contact" disabled>
+                <p>test3</p>
+              </Tab>
+            </Tabs>
             {this.state.cardsReactElement}
+            <Button variant="primary" size="sm" onClick={this.handleAddCard}>
+              Add another card
+            </Button>
             <hr />
           
             <Button variant="primary" type="submit" disabled={this.state.updating}>
