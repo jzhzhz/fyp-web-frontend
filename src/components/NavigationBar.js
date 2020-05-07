@@ -87,8 +87,12 @@ class NavigationBar extends React.Component {
                 </NavDropdown>
               </Nav>
             </Navbar.Collapse>
-            <Button variant="dark" href="/login">
-              Are you an admin?
+            <Button 
+              size="sm" 
+              href="/login" 
+              style={{backgroundColor: "#0a4a75"}}
+            >
+              Admin Login
             </Button>
           </Container>
         </Navbar>

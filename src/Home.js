@@ -1,30 +1,12 @@
 import React from 'react';
 import HomeCarousel from './components/HomeCarousel';
 import axios from 'axios';
+import _ from 'lodash';
 
 import { Row, Col } from 'react-bootstrap';
+import { Player } from 'video-react';
+import "../node_modules/video-react/dist/video-react.css";
 import HomeCard from './components/HomeCard';
-
-// inputs for cards in home page
-const newsCard = {
-  title: "News",
-  textList: [
-    "Share walls stuff think but the arise guest.",
-    "Of shameless collected suspicion existence in.",
-    "Now busy say down the shed eyes roof paid her."
-  ],
-  url: "/about/news"
-};
-
-const researchCard = {
-  title: "Research",
-  textList: [
-    "Some quick example text to build on the card.",
-    "Title and make up the bulk of the card's content.",
-    "Share walls stuff think but the arise guest."
-  ],
-  url: "/research"
-};
 
 class Home extends React.Component {
   constructor() {
@@ -49,13 +31,14 @@ class Home extends React.Component {
         url: "",
       },
       cards: [],
-      sidebarTest: "<h5>Sidebar HTML Test</h5><p>This is to test the use of innerhtml in this sidebar. To see if it will actually work</p>"
+      cardReactElements: []
     };
   }
 
   componentDidMount() {
     this.getTextBlocksByType("headline");
     this.getTextBlocksByType("sidebar");
+    this.getTextBlocksByType("cards");
   }
 
   getTextBlocksByType = async (type) => {
@@ -81,11 +64,54 @@ class Home extends React.Component {
 
         console.log(this.state[type]);
       } else {
-        this.getDynamicTextBlocks(res.data.data);
+        this.getCardTextBlocks(res.data.data);
       }
-
-      // console.log(this.state);
     }
+  }
+
+  getCardTextBlocks = (resData) => {
+    let cardArray = [];
+
+    resData.forEach((item) => {
+      let cardTemp = {};
+
+      cardTemp.id = item.id;
+      cardTemp.title = item.title;
+      cardTemp.textList = item.content.split("*SEP*").filter(item => item);
+      cardTemp.url = item.url;
+      cardTemp.changed = false;
+
+      cardArray.push(cardTemp);
+    });
+
+    this.setState({
+      cards: _.cloneDeep(cardArray)
+    });
+
+    this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
+  }
+
+  modifyCardToReactElement = (cardsArr) => {
+    cardsArr = cardsArr.map((card, cardIndex) => {
+      const lineBreak = (cardIndex + 1) === cardsArr.length ?
+        null : <br key={cardIndex+1}/>;
+      return (
+        <div key={cardIndex}>
+          <HomeCard
+            key={cardIndex} 
+            title={card.title} 
+            textList={card.textList}
+            url={card.url} 
+          />
+          {lineBreak}
+        </div>
+      );
+    }
+    );
+
+    this.setState({
+      cardReactElements: _.cloneDeep(cardsArr)
+    });
   }
 
   render() {
@@ -100,38 +126,21 @@ class Home extends React.Component {
               <HomeCarousel />
               <hr />
 
-              <Row>
-                <Col>
-                  <HomeCard
-                    key={newsCard.title} 
-                    title={newsCard.title} 
-                    textList={newsCard.textList}
-                    url={newsCard.url} 
-                  />
-                </Col>
-                <Col>
-                  <HomeCard
-                    key={researchCard.title}  
-                    title={researchCard.title} 
-                    textList={researchCard.textList} 
-                    url={researchCard.url}
-                  />
-                </Col>
-              </Row>
+              {this.state.cardReactElements}
               <hr />
               
-              <Row>
-                <Col>
-                  <h3>Academics  <span><a href="/" style={{fontSize: "small", color: "grey"}}>[MORE]</a></span></h3>
-                  <p>Course suffer to do he sussex it window advice. </p>
-                  <p>Her indulgence but assistance favourable cultivated everything collecting. </p>
-                  <p>Yet matter enable misery end extent common men should.</p>
-                  <hr />
-                </Col>
-              </Row>
             </Col>
             <Col sm={3}>
               <div dangerouslySetInnerHTML={{__html: this.state.sidebar.content}} />
+              <hr />
+
+              <Player
+                playsInline
+                poster="./pictures/aurora.jpg"
+                src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+              />
+              <hr />
+
             </Col>
           </Row>
         </div>

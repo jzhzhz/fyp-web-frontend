@@ -23,7 +23,7 @@ class HomeCard extends React.Component {
 
     return (
       <Styles>
-        <Card>
+        <Card key={this.props.key}>
           <Card.Body className="card-body">
             <Card.Title>{this.props.title}</Card.Title>
             {/* <Card.Subtitle className="mb-2 text-muted">Card Subtitle</Card.Subtitle> */}
