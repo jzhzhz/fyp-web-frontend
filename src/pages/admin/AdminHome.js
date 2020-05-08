@@ -31,7 +31,9 @@ class AdminHome extends React.Component {
         deprecated: 0,
         changed: false
       },
-      cards: [],
+      cards: [{
+        title: ""
+      }],
       cardsReactElement: [],
       oldCardsLength: 0,
       isUpdated: true,
@@ -253,8 +255,11 @@ class AdminHome extends React.Component {
     return 0;
   }
 
+  // change the card information into form elements
+  // and store the result in the state
   modifyCardToReactElement = (reactCardArray) => {
     reactCardArray.forEach((card, cardIndex) => {
+      // transform the text list in each card into form elments
       card.textList = card.textList.map((text, textIndex) => {
         return (
           <Form.Group key={textIndex}>
@@ -272,8 +277,15 @@ class AdminHome extends React.Component {
     });
 
     reactCardArray = reactCardArray.map((item, cardIndex) => {
+      // transform the whole card object into form elements
       return (
-        <Form.Group key={cardIndex} controlId={cardIndex} style={{backgroundColor: "rgb(219, 215, 210)", padding: "15px"}}>
+        // each card becomes a tab of form in tabs
+        <Tab key={cardIndex} eventKey={cardIndex} title={item.title} size="sm">
+        <Form.Group 
+          key={cardIndex} 
+          controlId={cardIndex} 
+          style={{backgroundColor: "rgb(219, 215, 210)", padding: "15px"}}
+        >
           <h5 style={{fontSize: "16px"}}>Card "{this.state.cards[cardIndex].title}"</h5>
           <Form.Row>
             <Col>
@@ -314,6 +326,7 @@ class AdminHome extends React.Component {
             <Form.Text style={{color: "red"}}>WARNING: the whole card will be removed after update!</Form.Text>
           </Form.Group>
         </Form.Group>
+        </Tab>
       );
     });
 
@@ -329,7 +342,7 @@ class AdminHome extends React.Component {
 
     return (
       <React.Fragment>
-        <h3>Settings</h3>
+        <h3>Home Page Settings</h3>
         <hr />
         <div style={{width: "70%"}}>
           <Form onSubmit={this.handleSubmit}>
@@ -384,18 +397,10 @@ class AdminHome extends React.Component {
             <hr />
 
             <h5>Card Item Settings</h5>
-            <Tabs  defaultActiveKey="profile" id="uncontrolled-tab-example">
-              <Tab eventKey="home" title="Home">
-                <p>test1</p>
-              </Tab>
-              <Tab eventKey="profile" title="Profile">
-                <p>test2</p>
-              </Tab>
-              <Tab eventKey="contact" title="Contact" disabled>
-                <p>test3</p>
-              </Tab>
+            <Tabs className="myClass" defaultActiveKey={0} id="uncontrolled-tab-example">
+              {this.state.cardsReactElement}
             </Tabs>
-            {this.state.cardsReactElement}
+            
             <Button variant="primary" size="sm" onClick={this.handleAddCard}>
               Add another card
             </Button>
