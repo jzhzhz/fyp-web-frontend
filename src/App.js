@@ -14,6 +14,7 @@ import Profile from './pages/people/Profile';
 
 // import Login from './pages/Login';
 import AdminHome from './pages/admin/AdminHome';
+import AdminLabels from './pages/admin/AdminLabels';
 
 import { Layout } from './components/Layout';
 import NavigationBar from './components/NavigationBar';
@@ -102,7 +103,8 @@ class App extends React.Component {
               <Route path="/research" component={Research} />
 
               <Route path="/login" component={Login} />
-              <Route path='/admin' component={AdminHome}/>
+              <Route path='/admin/home' component={AdminHome} />
+              <Route path="/admin/labels" component={AdminLabels} />
               {/* route to 404 not found page */}
               <Route component={NoMatch} />
             </Switch>

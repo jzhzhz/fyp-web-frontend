@@ -1,0 +1,19 @@
+/* Inactive tab */
+.myClass > a {
+    background-color: #8bc0e4;
+    color: white;
+    margin: 0.5px;
+}
+.myClass > a:hover {
+    background-color: #639bc0;
+}
+
+/* Active tab */
+.nav-tabs .nav-item.nav-link.active {
+  background-color: #2386c9;
+  color: white;
+}
+
+.myClass {
+  padding-top: 15px;
+}
