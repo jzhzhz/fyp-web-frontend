@@ -14,6 +14,9 @@ class AdminLabels extends React.Component {
       aboutTabs: [],
       academicsTabs: [],
       admissionsTabs: [],
+      aboutLen: 0,
+      academicsLen: 0,
+      admissionsLen: 0,
     };
   }
 
@@ -43,15 +46,18 @@ class AdminLabels extends React.Component {
       })
 
       // labels raw data initialization
+      // and update old length accordingly
       this.setState((prevState) => {
         return {
           ...prevState,
           [type]: labelsRes,
+          [`${type}Len`]: labelsRes.length
         };
       });
       
       console.log(`get ${type} labels success!`);
       console.log(this.state[type]);
+      console.log("the length is: " + this.state[`${type}Len`]);
       
       this.modifyLabelsToReactElement(_.cloneDeep(this.state[type]), type);
     } else {
@@ -62,9 +68,8 @@ class AdminLabels extends React.Component {
   handleLabelChange = (type, labelIndex) => (event) => {
     const {name, value} = event.target;
     console.log(`label tab ${type} is changing...`);
-    console.log(this.state[type]);
 
-    const newLabels = _.cloneDeep(this.state[type]);
+    let newLabels = _.cloneDeep(this.state[type]);
     newLabels[labelIndex][name] = value;
     newLabels[labelIndex].isUpdated = false;
 
@@ -73,6 +78,49 @@ class AdminLabels extends React.Component {
     }, () => {
       this.modifyLabelsToReactElement(_.cloneDeep(this.state[type]), type);
     });
+  }
+
+  handleRemove = (type, index) => (event) => {
+    console.log(`label tab ${type} will be deprecated`);
+    console.log(this.state[type]);
+
+    let newLabels = _.cloneDeep(this.state[type]);
+    if (newLabels[index].deprecated === 1) {
+      newLabels[index].deprecated = 0;
+      newLabels[index].isUpdated = false;
+    } else {
+      newLabels[index].deprecated = 1;
+      newLabels[index].isUpdated = false;
+    }
+
+    this.setState({
+      [type]: _.cloneDeep(newLabels)
+    }, () => {
+      this.modifyLabelsToReactElement(_.cloneDeep(this.state[type]), type);
+    });
+  }
+
+  handleAddLabel = (event) => {
+    const {name} = event.target;
+    let newLabels = _.cloneDeep(this.state[name]);
+
+    const newLabel = {
+      id: 0,
+      label: "New Label",
+      url: "/url",
+      codeContent: "<p>html code segment goes here</p>",
+      type: name,
+      deprecated: 0,
+      isUpdated: false,
+      updating: false
+    };
+
+    newLabels.push(newLabel);
+    this.setState({
+      [name]: newLabels
+    }, () => {
+      this.modifyLabelsToReactElement(_.cloneDeep(this.state[name]), name);
+    })
   }
 
   handleSubmit = async (event) => {
@@ -88,8 +136,14 @@ class AdminLabels extends React.Component {
       console.log("updating information...");
 
       const labelToUpdate = this.state[labelType][labelIndex];
+      let updateUrl;
 
-      let updateUrl = process.env.REACT_APP_ADMIN_URL + "/updateLabel";
+      if (labelIndex < this.state[`${labelType}Len`]) {
+        updateUrl = process.env.REACT_APP_ADMIN_URL + "/updateLabel";
+      } else {
+        updateUrl = process.env.REACT_APP_ADMIN_URL + "/createNewLabel";
+      }
+
       await axios.get(updateUrl, {
         params: {
           id: labelToUpdate.id,
@@ -139,6 +193,7 @@ class AdminLabels extends React.Component {
                     name="label"
                     value={item.label}
                     onChange={this.handleLabelChange(type, index)}
+                    disabled={this.state[type][index].deprecated === 1}
                   />
                 </Form.Group>
               </Col>
@@ -149,6 +204,7 @@ class AdminLabels extends React.Component {
                     name="url"
                     value={item.url}
                     onChange={this.handleLabelChange(type, index)}
+                    disabled={this.state[type][index].deprecated === 1}
                   />
                 </Form.Group>
               </Col>
@@ -162,19 +218,24 @@ class AdminLabels extends React.Component {
                 name="codeContent" 
                 value={item.codeContent} 
                 onChange={this.handleLabelChange(type, index)}
+                disabled={this.state[type][index].deprecated === 1}
               />
             </Form.Group>
 
             <Button variant="primary" type="submit" size="sm" disabled={this.state.updating}>
               Update
             </Button>
-            <Button variant="danger" size="sm" style={{marginLeft: "5px", marginRight: "5px"}}>
-              Remove
+            <Button 
+              variant={this.state[type][index].deprecated === 1 ? "outline-danger" : "danger"} 
+              size="sm" 
+              style={{marginLeft: "5px", marginRight: "5px"}}
+              onClick={this.handleRemove(type, index)}
+            >
+              {this.state[type][index].deprecated === 1 ? "Cancel" : "Remove"}
             </Button>
-            <Button variant="primary" size="sm">
+            <Button variant="primary" size="sm" name={type} onClick={this.handleAddLabel}>
               Add Another Label
             </Button>
-            <Example />
             <Form.Text className="text-muted">
               {this.state[type][index].isUpdated ? updateSuccess : "changes have not been updated"}
             </Form.Text>
@@ -221,35 +282,5 @@ class AdminLabels extends React.Component {
     );
   }
 }
-
-// function Example() {
-//   const [show, setShow] = useState(false);
-
-//   const handleClose = () => setShow(false);
-//   const handleShow = () => setShow(true);
-
-//   return (
-//     <>
-//       <Button variant="primary" onClick={handleShow}>
-//         Launch demo modal
-//       </Button>
-
-//       <Modal show={show} onHide={handleClose}>
-//         <Modal.Header closeButton>
-//           <Modal.Title>Modal heading</Modal.Title>
-//         </Modal.Header>
-//         <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
-//         <Modal.Footer>
-//           <Button variant="secondary" onClick={handleClose}>
-//             Close
-//           </Button>
-//           <Button variant="primary" onClick={handleClose}>
-//             Save Changes
-//           </Button>
-//         </Modal.Footer>
-//       </Modal>
-//     </>
-//   );
-// }
 
 export default AdminLabels;
