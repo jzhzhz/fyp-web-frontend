@@ -1,4 +1,5 @@
 import React from 'react';
+// eslint-disable-next-line
 import { Nav, Navbar, NavDropdown, Container, Button } from 'react-bootstrap';
 import styled from 'styled-components';
 import axios from 'axios';
@@ -6,6 +7,10 @@ import axios from 'axios';
 const Styles = styled.div`
   .nav-bar {
     background-color: #066baf;
+  }
+
+  span {
+    color: rgb(255, 255, 255, 0.815);
   }
 `;
 
@@ -15,8 +20,23 @@ class NavigationBar extends React.Component {
     this.state = {
       aboutLabels: [],
       academicsLabels: [],
-      admissionsLabels: []
+      admissionsLabels: [],
+      isAuthed: false
     };
+  }
+
+  componentDidMount() {
+    this.getLabel("about");
+    this.getLabel("academics");
+    this.getLabel("admissions");
+
+    console.log(sessionStorage.getItem("isAuthed"));
+    
+    if (sessionStorage.getItem("isAuthed") === "true") {
+      this.setState({
+        isAuthed: true
+      });
+    }
   }
 
   getLabel = async (labelType) => {
@@ -54,22 +74,19 @@ class NavigationBar extends React.Component {
     }
   }
 
-  componentDidMount() {
-    this.getLabel("about");
-    this.getLabel("academics");
-    this.getLabel("admissions");
-    console.log("auth? " + this.props.auth);
+  handleLogout = () => {
+    sessionStorage.setItem("isAuthed", "false");
+    this.setState({
+      isAuthed: false
+    })
   }
 
   render() {
-    const welcome = <span style={{color: "rgba(255, 255, 255, 0.815)", marginRight: "5px"}}>Welcome, {this.props.name}</span>;
-    const logout = <Button 
-        size="sm" 
-        href="/login" 
-        style={{backgroundColor: "#0a4a75"}}
-      >
-        Login
-      </Button>;
+    const login = <a href="/login">login</a>;
+    const logout = 
+      <span>
+        Welcome, <a href="/admin/main">{sessionStorage.getItem("username")}</a>. <a href="/" onClick={this.handleLogout}>logout</a>
+      </span>
 
     return (
       <Styles>
@@ -80,7 +97,7 @@ class NavigationBar extends React.Component {
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="mr-auto">
                 <Nav.Item><Nav.Link href="/">Home</Nav.Link></Nav.Item>
-                <NavDropdown title="About" id="basic-nav-dropdown" onClick={this.handleClick}>
+                <NavDropdown title="About" id="basic-nav-dropdown">
                   {this.state.aboutLabels}
                 </NavDropdown>
                 <NavDropdown title="People" id="basic-nav-dropdown">
@@ -97,7 +114,7 @@ class NavigationBar extends React.Component {
                 </NavDropdown>
               </Nav>
             </Navbar.Collapse>
-            {this.props.auth ? welcome : logout}
+            {(this.state.isAuthed || this.props.auth) ? logout : login}
           </Container>
         </Navbar>
       </Styles>

@@ -63,21 +63,17 @@ class App extends React.Component {
 
   PrivateRoute = ({ component: Component, ...rest }) => (
     <Route {...rest} render={(props) => (
-      this.state.isAuthed === true
+      (this.state.isAuthed === true || sessionStorage.getItem("isAuthed") === "true")
         ? <Component {...props} />
         : <Redirect to='/login' />
     )} />
   )
 
-  handleLogout = () => {
-
-  }
-
   render() {
     return (
       <React.Fragment>
         <Router>
-          <NavigationBar auth={this.state.isAuthed} name={this.state.username}/>
+          <NavigationBar auth={this.state.isAuthed}/>
           <Jumbotron/>
           <Layout>
           <div style={{minHeight: "80vh"}}>      
@@ -111,9 +107,9 @@ class App extends React.Component {
                 />
               }/>
 
-              <Route path="/admin/main" component={AdminMain} />
-              <Route path="/admin/home" component={AdminHome} />
-              <Route path="/admin/labels" component={AdminLabels} />
+              <this.PrivateRoute path="/admin/main" component={AdminMain} />
+              <this.PrivateRoute path="/admin/home" component={AdminHome} />
+              <this.PrivateRoute path="/admin/labels" component={AdminLabels} />
 
               {/* route to 404 not found page */}
               <Route component={NoMatch} />
@@ -142,6 +138,12 @@ class Login extends React.Component {
     
     console.log("check result: " + checkResult);
     if (checkResult) {
+      sessionStorage.setItem("isAuthed", "true");
+      sessionStorage.setItem("username", this.props.username);
+      this.setState({
+        isAuthed: true
+      })
+
       this.props.history.push('/admin/main');
     } else {
       this.setState({
