@@ -31,9 +31,7 @@ class AdminHome extends React.Component {
         deprecated: 0,
         changed: false
       },
-      cards: [{
-        title: ""
-      }],
+      cards: [],
       cardsReactElement: [],
       oldCardsLength: 0,
       isUpdated: true,
@@ -323,7 +321,7 @@ class AdminHome extends React.Component {
             >
               {this.state.cards[cardIndex].deprecated === 1 ? "Cancel" : "Remove"}
             </Button>
-            <Form.Text style={{color: "red"}}>WARNING: the whole card will be removed after update!</Form.Text>
+            <Form.Text style={{color: "red", marginLeft: "2px"}}>WARNING: the whole card will be removed after update!</Form.Text>
           </Form.Group>
         </Form.Group>
         </Tab>

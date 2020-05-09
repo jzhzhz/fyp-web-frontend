@@ -43,6 +43,7 @@ class AdminLabels extends React.Component {
       labelsRes.forEach(label => {
         label.isUpdated = true;
         label.updating = false;
+        label.url = label.url.slice(8);
       })
 
       // labels raw data initialization
@@ -149,7 +150,7 @@ class AdminLabels extends React.Component {
           id: labelToUpdate.id,
           label: labelToUpdate.label,
           codeContent: labelToUpdate.codeContent,
-          url: labelToUpdate.url,
+          url: "/details" + labelToUpdate.url,
           deprecated: labelToUpdate.deprecated,
           type: labelToUpdate.type
         }
@@ -176,6 +177,9 @@ class AdminLabels extends React.Component {
   modifyLabelsToReactElement = (rawLabels, type) => {
     const labelTab = rawLabels.map((item, index) => {
       const updateSuccess = <span style={{color: "green"}}>all contents are up-to-date</span>;
+      const notUpdated = this.state[type][index].deprecated === 1 ?
+        <span style={{color: "red"}}>WARNING: the whole card will be removed after update!</span> :
+        "changes have not been updated";
 
       return (
         <Tab key={index} eventKey={index} title={item.label} size="sm">
@@ -206,6 +210,9 @@ class AdminLabels extends React.Component {
                     onChange={this.handleLabelChange(type, index)}
                     disabled={this.state[type][index].deprecated === 1}
                   />
+                  <Form.Text className="text-muted" style={{marginLeft: "5px"}}>
+                    this url will be under /details route
+                  </Form.Text>
                 </Form.Group>
               </Col>
             </Form.Row>
@@ -236,8 +243,8 @@ class AdminLabels extends React.Component {
             <Button variant="primary" size="sm" name={type} onClick={this.handleAddLabel}>
               Add Another Label
             </Button>
-            <Form.Text className="text-muted">
-              {this.state[type][index].isUpdated ? updateSuccess : "changes have not been updated"}
+            <Form.Text className="text-muted" style={{marginLeft: "5px"}}>
+              {this.state[type][index].isUpdated ? updateSuccess : notUpdated}
             </Form.Text>
           </Form>
         </Tab>
