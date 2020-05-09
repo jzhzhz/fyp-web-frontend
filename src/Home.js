@@ -62,7 +62,7 @@ class Home extends React.Component {
           [type]: resData
         });
 
-        console.log(this.state[type]);
+        // console.log(this.state[type]);
       } else {
         this.getCardTextBlocks(res.data.data);
       }

@@ -212,27 +212,64 @@ class AdminHome extends React.Component {
     let updateUrl = process.env.REACT_APP_ADMIN_URL + "/updateHomeTextBlock";
 
     if (type === "cards") {
+      // iterate through each card, update old card, create new card
       for (const [index, card] of this.state.cards.entries()) {
+        // check if the values have been changed
         if (card.changed) {
-          if (index+1 > this.state.oldCardsLength) {
+          // check if this is a new card
+          if (index + 1 > this.state.oldCardsLength) {
             console.log("getting new cards...");
+            console.log(card);
             updateUrl = process.env.REACT_APP_ADMIN_URL + "/createNewCard";
-          }
+            
+            // insert new card into database
+            let res = await axios.get(updateUrl, {
+              params: {
+                id: card.id,
+                title: card.title,
+                content: card.textList.join("*SEP*"),
+                url: card.url,
+                deprecated: card.deprecated
+              }
+            }).catch(err => {
+              console.log(err);
+              return -1;
+            });
+            
+            // update the database id of newly created card
+            if (res.status === 200 && res.data.code === 0) {
+              const retId = res.data.data;
+              let newCards = _.cloneDeep(this.state.cards);
+              newCards[index].id = retId;
 
-          await axios.get(updateUrl, {
-            params: {
-              id: card.id,
-              title: card.title,
-              content: card.textList.join("*SEP*"),
-              url: card.url,
-              deprecated: card.deprecated
+              this.setState({
+                cards: _.cloneDeep(newCards)
+              });
             }
-          }).catch(err => {
-            console.log(err);
-            return -1;
-          })
+          } else {
+            // update values of other old cards
+            await axios.get(updateUrl, {
+              params: {
+                id: card.id,
+                title: card.title,
+                content: card.textList.join("*SEP*"),
+                url: card.url,
+                deprecated: card.deprecated
+              }
+            }).catch(err => {
+              console.log(err);
+              return -1;
+            });
+          }
         }
       }
+      
+      // update the old length of cards array
+      const newLen = this.state.cards.length;
+      this.setState({
+        oldCardsLength: newLen
+      });
+
     } else {
       if (this.state[type].changed) {
         await axios.get(updateUrl, {
