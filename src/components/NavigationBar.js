@@ -10,8 +10,8 @@ const Styles = styled.div`
 `;
 
 class NavigationBar extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       aboutLabels: [],
       academicsLabels: [],
@@ -58,9 +58,19 @@ class NavigationBar extends React.Component {
     this.getLabel("about");
     this.getLabel("academics");
     this.getLabel("admissions");
+    console.log("auth? " + this.props.auth);
   }
 
   render() {
+    const welcome = <span style={{color: "rgba(255, 255, 255, 0.815)", marginRight: "5px"}}>Welcome, {this.props.name}</span>;
+    const logout = <Button 
+        size="sm" 
+        href="/login" 
+        style={{backgroundColor: "#0a4a75"}}
+      >
+        Login
+      </Button>;
+
     return (
       <Styles>
         <Navbar className="nav-bar" variant="dark" expand="lg">
@@ -87,13 +97,7 @@ class NavigationBar extends React.Component {
                 </NavDropdown>
               </Nav>
             </Navbar.Collapse>
-            <Button 
-              size="sm" 
-              href="/login" 
-              style={{backgroundColor: "#0a4a75"}}
-            >
-              Admin Login
-            </Button>
+            {this.props.auth ? welcome : logout}
           </Container>
         </Navbar>
       </Styles>

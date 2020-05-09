@@ -4,7 +4,7 @@ import { Form, Button } from 'react-bootstrap';
 import axios from 'axios';
 
 import Home from './Home';
-import { Overview } from './pages/about/Overview';
+import LabelPage from './pages/LabelPage';
 import Faculty from './pages/people/Faculty';
 import ResearchStaff from './pages/people/ResearchStaff';
 import AdminStaff from './pages/people/AdminStaff';
@@ -12,81 +12,78 @@ import { Research } from './pages/Research';
 import { NoMatch } from './NoMatch';
 import Profile from './pages/people/Profile';
 
-// import Login from './pages/Login';
+import { AdminMain } from './pages/admin/AdminMain';
 import AdminHome from './pages/admin/AdminHome';
 import AdminLabels from './pages/admin/AdminLabels';
 
 import { Layout } from './components/Layout';
 import NavigationBar from './components/NavigationBar';
-import { Jumbotron } from './components/Jumbotron';
+import Jumbotron from './components/Jumbotron';
 import Footer from './components/Footer';
-
-let isAuthenticated = false;
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      jumbo: {}
+      isAuthed: false,
+      username: "",
+      password: ""
     };
   }
 
-  componentDidMount() {
-    this.getTextBlocksByType("jumbo");
+  handleChange = (event) => {
+    const {name, value} = event.target;
+    this.setState({
+      [name]: value
+    });
   }
 
-  getTextBlocksByType = async (type) => {
-    let res = {};
-    const url = process.env.REACT_APP_BACKEND_URL + "/getHomeTextBlockByType?type=" + type;
-    
+  handleAppSubmit = async () => {
+    let checkResult = false;
+    const url = process.env.REACT_APP_ADMIN_URL + "/checkAdmin?" +
+                  "name=" + this.state.username +
+                  "&password=" + this.state.password;
+
     await axios.get(url)
       .then((getRes) => {
-        res = getRes;
+        checkResult = getRes.data.data;
       })
       .catch((err) => {
         console.log(err);
       });
 
-    if (res.status === 200 && res.data.code === 0) {
-      if (type !== "cards") {
-        let resData = res.data.data[0];
-        // resData.content = resData.contentList[0];
+    if (checkResult) {
+      this.setState({
+        isAuthed: true
+      });
+    } 
 
-        this.setState({
-          [type]: resData
-        });
-      } else {
-        this.getDynamicTextBlocks(res.data.data);
-      }
-
-      // console.log(this.state);
-    }
-  }
-
-  getDynamicTextBlocks = (resData) => {
-    // do sth
-    console.log(resData);
+    return checkResult;
   }
 
   PrivateRoute = ({ component: Component, ...rest }) => (
     <Route {...rest} render={(props) => (
-      isAuthenticated === true
+      this.state.isAuthed === true
         ? <Component {...props} />
         : <Redirect to='/login' />
     )} />
   )
 
+  handleLogout = () => {
+
+  }
+
   render() {
     return (
       <React.Fragment>
         <Router>
-          <NavigationBar />
-          <Jumbotron textBlock={this.state.jumbo}/>
+          <NavigationBar auth={this.state.isAuthed} name={this.state.username}/>
+          <Jumbotron/>
           <Layout>
           <div style={{minHeight: "80vh"}}>      
             <Switch>
               <Route exact path="/" component={Home} />
-              <Route path="/about/department-overview" component={Overview} />
+              <Route path="/details/:page" component={LabelPage} />
 
               <Route path="/people/faculty">
                 <Faculty />
@@ -102,9 +99,22 @@ class App extends React.Component {
 
               <Route path="/research" component={Research} />
 
-              <Route path="/login" component={Login} />
-              <Route path='/admin/home' component={AdminHome} />
+              {/* route for admin pages this.Private */}
+              <Route path="/login" render={(props) => 
+                <Login {...props} 
+                  isAuthed={this.state.isAuthed}
+                  username={this.state.username}
+                  password={this.state.password}
+                  handleChange={this.handleChange}
+                  handleAppSubmit={this.handleAppSubmit}
+                  notice={this.state.notice}
+                />
+              }/>
+
+              <Route path="/admin/main" component={AdminMain} />
+              <Route path="/admin/home" component={AdminHome} />
               <Route path="/admin/labels" component={AdminLabels} />
+
               {/* route to 404 not found page */}
               <Route component={NoMatch} />
             </Switch>
@@ -121,11 +131,23 @@ class Login extends React.Component {
   constructor() {
     super();
     this.state = {
-      username: "",
-      password: "",
       notice: "",
       passwordHidden: true,
     };
+  }
+
+  handleSubmit = async (event) => {
+    event.preventDefault();
+    const checkResult = await this.props.handleAppSubmit();
+    
+    console.log("check result: " + checkResult);
+    if (checkResult) {
+      this.props.history.push('/admin/main');
+    } else {
+      this.setState({
+        notice: "invalid username or password"
+      });
+    }
   }
 
   handleShowPassword = () => {
@@ -136,69 +158,38 @@ class Login extends React.Component {
       };
     });
   }
-
-  handleChange = (event) => {
-    const {name, value} = event.target;
-    this.setState((prevState) => {
-      return {
-        ...prevState,
-        [name]: value
-      };
-    });
-  }
-
-  handleSubmit = async (event) => {
-    event.preventDefault();
-    let checkResult = false;
-
-    const url = process.env.REACT_APP_ADMIN_URL + "/checkAdmin?" +
-                  "name=" + this.state.username +
-                  "&password=" + this.state.password;
-
-    await axios.get(url)
-      .then((getRes) => {
-        checkResult = getRes.data.data;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    if (checkResult) {
-      isAuthenticated = true;
-      this.props.history.push('/admin');
-    } else {
-      this.setState((prevState) => {
-        return {
-          ...prevState,
-          notice: "invalid username or password"
-        };
-      });
-    }
-  }
   
   render() {
     return (
-      <Form style={{width: "20%"}} onSubmit={this.handleSubmit}>
+      <Form style={{width: "200px"}} onSubmit={this.handleSubmit}>
         <Form.Group controlId="formBasicUsername">
           <Form.Label>Username</Form.Label>
-          <Form.Control name="username" onChange={this.handleChange} placeholder="Enter username" />
+          <Form.Control 
+            name="username" 
+            value={this.props.username} 
+            onChange={this.props.handleChange} 
+            placeholder="Enter username" 
+          />
         </Form.Group>
 
         <Form.Group controlId="formBasicPassword">
           <Form.Label>Password</Form.Label>
           <Form.Control 
             type={this.state.passwordHidden ? "password" : "input"} 
-            name="password" 
-            onChange={this.handleChange}  
+            name="password"
+            value={this.props.password} 
+            onChange={this.props.handleChange}  
             placeholder="Password" 
           />
           <Form.Text className="text-muted">
             <span style={{color: "red"}}>{this.state.notice}</span>
           </Form.Text>
         </Form.Group>
+        
         <Form.Group controlId="formBasicCheckbox">
           <Form.Check type="checkbox" label="show password" onClick={this.handleShowPassword}/>
         </Form.Group>
+
         <Button style={{backgroundColor: "#066baf"}} type="submit">
           Login
         </Button>
