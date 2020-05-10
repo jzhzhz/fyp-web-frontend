@@ -1,5 +1,6 @@
 import React from 'react';
 import { Form, Button, Tabs, Tab } from 'react-bootstrap';
+import '../styles/tabs.css';
 
 class Login extends React.Component {
   constructor(props) {
@@ -12,17 +13,24 @@ class Login extends React.Component {
 
   handleSubmit = async (event) => {
     event.preventDefault();
-    const checkResult = await this.props.handleAppSubmit();
+    const { name } = event.target;
+    console.log("login type: " + name); 
+    const checkResult = await this.props.handleAppSubmit(name);
     
     console.log("check result: " + checkResult);
     if (checkResult) {
-      sessionStorage.setItem("isAuthed", "true");
+      sessionStorage.setItem("isAuthed", "admin");
       sessionStorage.setItem("username", this.props.username);
       this.setState({
         isAuthed: true
       })
-
-      this.props.history.push('/admin/main');
+    
+      if (name === "admin") {
+        this.props.history.push('/admin/main');
+      } else {
+        this.props.history.push('/staff/main');
+      }
+        
     } else {
       this.setState({
         notice: "invalid username or password"
@@ -38,18 +46,22 @@ class Login extends React.Component {
       };
     });
   }
-  
-  render() {
+
+  getLoginFormByType = (loginType) => {
     return (
-      <React.Fragment>
-      <Form style={{width: "200px"}} onSubmit={this.handleSubmit}>
+      <Form 
+        style={{width: "350px", backgroundColor: "rgb(219, 215, 210)", padding: "20px"}} 
+        name={loginType} 
+        onSubmit={this.handleSubmit}
+      >
         <Form.Group controlId="formBasicUsername">
           <Form.Label>Username</Form.Label>
           <Form.Control 
             name="username" 
             value={this.props.username} 
             onChange={this.props.handleChange} 
-            placeholder="Enter username" 
+            placeholder="Enter username"
+            style={{width: "240px"}} 
           />
         </Form.Group>
 
@@ -60,7 +72,8 @@ class Login extends React.Component {
             name="password"
             value={this.props.password} 
             onChange={this.props.handleChange}  
-            placeholder="Password" 
+            placeholder="Password"
+            style={{width: "240px"}}  
           />
           <Form.Text className="text-muted">
             <span style={{color: "red"}}>{this.state.notice}</span>
@@ -75,17 +88,23 @@ class Login extends React.Component {
           Login
         </Button>
       </Form>
-      <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example">
-        <Tab eventKey="home" title="Home">
-          test
-        </Tab>
-        <Tab eventKey="profile" title="Profile">
-          test
-        </Tab>
-        <Tab eventKey="contact" title="Contact" disabled>
-          test
-        </Tab>
-      </Tabs>
+    );
+  }
+  
+  render() {
+    const adminLogin = this.getLoginFormByType("admin");
+    const staffLogin = this.getLoginFormByType("staff");
+
+    return (
+      <React.Fragment>
+        <Tabs style={{width: "240px"}} className="myClass" defaultActiveKey="admin">
+          <Tab eventKey="admin" title="Admin Login">
+            {adminLogin}
+          </Tab>
+          <Tab eventKey="staff" title="Staff Login">
+            {staffLogin}
+          </Tab>
+        </Tabs>
       </React.Fragment>
     );
   }

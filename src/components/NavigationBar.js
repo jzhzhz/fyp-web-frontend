@@ -76,6 +76,7 @@ class NavigationBar extends React.Component {
 
   handleLogout = () => {
     sessionStorage.setItem("isAuthed", "false");
+    sessionStorage.removeItem("username");
     this.setState({
       isAuthed: false
     })
@@ -85,7 +86,9 @@ class NavigationBar extends React.Component {
     const login = <a href="/login">login</a>;
     const logout = 
       <span>
-        Welcome, <a href="/admin/main">{sessionStorage.getItem("username")}</a>. <a href="/" onClick={this.handleLogout}>logout</a>
+        Welcome, <a href="/admin/main">
+          {this.props.username || sessionStorage.getItem("username")}
+        </a>. <a href="/" onClick={this.handleLogout}>logout</a>
       </span>
 
     return (
@@ -114,7 +117,7 @@ class NavigationBar extends React.Component {
                 </NavDropdown>
               </Nav>
             </Navbar.Collapse>
-            {(this.state.isAuthed || this.props.auth) ? logout : login}
+            {(sessionStorage.getItem("isAuthed") !== "false" || this.props.auth) ? logout : login}
           </Container>
         </Navbar>
       </Styles>

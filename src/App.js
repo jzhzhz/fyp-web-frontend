@@ -38,11 +38,12 @@ class App extends React.Component {
     });
   }
 
-  handleAppSubmit = async () => {
+  handleAppSubmit = async (loginType) => {
     let checkResult = false;
     const url = process.env.REACT_APP_ADMIN_URL + "/checkAdmin?" +
                   "name=" + this.state.username +
-                  "&password=" + this.state.password;
+                  "&password=" + this.state.password +
+                  "&type=" + loginType;
 
     await axios.get(url)
       .then((getRes) => {
@@ -56,14 +57,16 @@ class App extends React.Component {
       this.setState({
         isAuthed: true
       });
+      sessionStorage.setItem("isAuthed", loginType);
+      sessionStorage.setItem("username", this.state.username);
     } 
 
     return checkResult;
   }
 
-  PrivateRoute = ({ component: Component, ...rest }) => (
+  AdminRoute = ({ component: Component, ...rest }) => (
     <Route {...rest} render={(props) => (
-      (this.state.isAuthed === true || sessionStorage.getItem("isAuthed") === "true")
+      (sessionStorage.getItem("isAuthed") === "admin")
         ? <Component {...props} />
         : <Redirect to='/login' />
     )} />
@@ -73,7 +76,7 @@ class App extends React.Component {
     return (
       <React.Fragment>
         <Router>
-          <NavigationBar auth={this.state.isAuthed}/>
+          <NavigationBar username={this.state.username} auth={this.state.isAuthed}/>
           <Jumbotron/>
           <Layout>
           <div style={{minHeight: "80vh"}}>      
@@ -95,7 +98,7 @@ class App extends React.Component {
 
               <Route path="/research" component={Research} />
 
-              {/* route for admin pages this.Private */}
+              
               <Route path="/login" render={(props) => 
                 <Login {...props} 
                   isAuthed={this.state.isAuthed}
@@ -106,10 +109,11 @@ class App extends React.Component {
                   notice={this.state.notice}
                 />
               }/>
-
-              <this.PrivateRoute path="/admin/main" component={AdminMain} />
-              <this.PrivateRoute path="/admin/home" component={AdminHome} />
-              <this.PrivateRoute path="/admin/labels" component={AdminLabels} />
+              
+              {/* route for admin pages this.Admin */}
+              <this.AdminRoute path="/admin/main" component={AdminMain} />
+              <this.AdminRoute path="/admin/home" component={AdminHome} />
+              <this.AdminRoute path="/admin/labels" component={AdminLabels} />
 
               {/* route to 404 not found page */}
               <Route component={NoMatch} />
