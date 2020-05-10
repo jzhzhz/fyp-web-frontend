@@ -16,7 +16,7 @@ export const AdminMain = (props) => {
   return (
     <Styles>
       <React.Fragment>
-        <h2>Main Page for Admin</h2>
+        <h3>Main Page for Admin</h3>
         <hr />
         <ListGroup className="list-group">
           <ListGroup.Item as="a" variant="secondary" href="/admin/home">Home Text Block Setting</ListGroup.Item>
