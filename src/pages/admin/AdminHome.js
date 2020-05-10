@@ -59,6 +59,7 @@ class AdminHome extends React.Component {
         return -1;
       });
 
+    // static text block assinment
     if (res.status === 200 && res.data.code === 0) {
       if (type !== "cards") {
         let resData = res.data.data[0];
@@ -66,14 +67,11 @@ class AdminHome extends React.Component {
         this.setState({
           [type]: resData
         });
-
-        // console.log(this.state[type]);
       } else {
+        // cards assignment
         this.getCardTextBlocks(res.data.data, type);
       }
-    } else {
-      return -1;
-    }
+    } else { return -1; }
 
     return 0;
   }
@@ -168,12 +166,10 @@ class AdminHome extends React.Component {
     }
     newCards[cardIndex].changed = true;
 
-    this.setState(
-      {
+    this.setState({
         cards: _.cloneDeep(newCards),
         isUpdated: false
-      },
-      () => {
+      }, () => {
         this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
       }
     );
@@ -321,7 +317,6 @@ class AdminHome extends React.Component {
           controlId={cardIndex} 
           style={{backgroundColor: "rgb(219, 215, 210)", padding: "15px"}}
         >
-          <h5 style={{fontSize: "16px"}}>Card "{this.state.cards[cardIndex].title}"</h5>
           <Form.Row>
             <Col>
               <Form.Group>

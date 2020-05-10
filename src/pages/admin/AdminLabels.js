@@ -60,6 +60,7 @@ class AdminLabels extends React.Component {
       console.log(this.state[type]);
       console.log("the length is: " + this.state[`${type}Len`]);
       
+      // modify the labels to react elements
       this.modifyLabelsToReactElement(_.cloneDeep(this.state[type]), type);
     } else {
       console.log(`get ${type} labels failed!`);
@@ -68,7 +69,7 @@ class AdminLabels extends React.Component {
 
   handleLabelChange = (type, labelIndex) => (event) => {
     const {name, value} = event.target;
-    console.log(`label tab ${type} is changing...`);
+    console.log(`label tab ${type} ${labelIndex} is changing...`);
 
     let newLabels = _.cloneDeep(this.state[type]);
     newLabels[labelIndex][name] = value;
@@ -82,8 +83,7 @@ class AdminLabels extends React.Component {
   }
 
   handleRemove = (type, index) => (event) => {
-    console.log(`label tab ${type} will be deprecated`);
-    console.log(this.state[type]);
+    console.log(`label tab ${type} ${index} will be deprecated`);
 
     let newLabels = _.cloneDeep(this.state[type]);
     if (newLabels[index].deprecated === 1) {
@@ -105,6 +105,7 @@ class AdminLabels extends React.Component {
     const {name} = event.target;
     let newLabels = _.cloneDeep(this.state[name]);
 
+    // create new label template
     const newLabel = {
       id: 0,
       label: "New Label",
@@ -115,8 +116,11 @@ class AdminLabels extends React.Component {
       isUpdated: false,
       updating: false
     };
-
+    
+    // put new label in new array
     newLabels.push(newLabel);
+
+    // change state and render new elements immediately
     this.setState({
       [name]: newLabels
     }, () => {
@@ -141,22 +145,50 @@ class AdminLabels extends React.Component {
 
       if (labelIndex < this.state[`${labelType}Len`]) {
         updateUrl = process.env.REACT_APP_ADMIN_URL + "/updateLabel";
+
+        await axios.get(updateUrl, {
+          params: {
+            id: labelToUpdate.id,
+            label: labelToUpdate.label,
+            codeContent: labelToUpdate.codeContent,
+            url: "/details" + labelToUpdate.url,
+            deprecated: labelToUpdate.deprecated,
+            type: labelToUpdate.type
+          }
+        }).catch(err => {
+          console.log(err);
+        });
       } else {
         updateUrl = process.env.REACT_APP_ADMIN_URL + "/createNewLabel";
-      }
 
-      await axios.get(updateUrl, {
-        params: {
-          id: labelToUpdate.id,
-          label: labelToUpdate.label,
-          codeContent: labelToUpdate.codeContent,
-          url: "/details" + labelToUpdate.url,
-          deprecated: labelToUpdate.deprecated,
-          type: labelToUpdate.type
+        const res = await axios.get(updateUrl, {
+          params: {
+            id: labelToUpdate.id,
+            label: labelToUpdate.label,
+            codeContent: labelToUpdate.codeContent,
+            url: "/details" + labelToUpdate.url,
+            deprecated: labelToUpdate.deprecated,
+            type: labelToUpdate.type
+          }
+        }).catch(err => {
+          console.log(err);
+        });
+
+        if (res.status === 200 && res.data.code === 0) {
+          const retId = _.cloneDeep(res.data.data);
+          let newLabels = this.state[labelType];
+          
+          newLabels[labelIndex].id = retId;
+
+          this.setState({
+            [labelType]: newLabels,
+            [`${labelType}Len`]: labelIndex + 1
+          });
         }
-      }).catch(err => {
-        console.log(err);
-      })
+
+        console.log("new label created:");
+        console.log(this.state[labelType[labelIndex]]);
+      }
 
       console.log("information updated");
       let newLabels = this.state[labelType];
