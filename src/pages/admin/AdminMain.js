@@ -1,16 +1,29 @@
 import React from 'react';
-import { ListGroup } from 'react-bootstrap';
+import { ListGroup, Button } from 'react-bootstrap';
 import styled from 'styled-components';
 
 const Styles = styled.div`
-  a:hover {
+  .list-group a:hover {
     color: grey;
   }
 
   .list-group {
     width: 300px;
   }
+
+  .bt {
+    background-color: #2386c9;
+  }
+
+  .bt:hover {
+    background-color: #0d588a;
+  }
 `;
+
+const handleLogout = () => {
+  sessionStorage.setItem("isAuthed", "false");
+  sessionStorage.removeItem("username");
+}
 
 export const AdminMain = (props) => {
   return (
@@ -21,6 +34,7 @@ export const AdminMain = (props) => {
         <ListGroup className="list-group">
           <ListGroup.Item as="a" variant="secondary" href="/admin/home">Home Text Block Setting</ListGroup.Item>
           <ListGroup.Item as="a" variant="secondary" href="/admin/labels">Label Setting</ListGroup.Item>
+          <ListGroup.Item as="a" variant="secondary" href="/staff/profile-setting">Profile Setting</ListGroup.Item>
         </ListGroup>
         <br />
 
@@ -29,6 +43,9 @@ export const AdminMain = (props) => {
         <ListGroup className="list-group">
           <ListGroup.Item as="a" variant="secondary" href="/">Back to Home</ListGroup.Item>
         </ListGroup>
+
+        <hr/>
+        <Button className="bt" href="/" onClick={handleLogout}>logout</Button>
       </React.Fragment>
     </Styles>
   );
