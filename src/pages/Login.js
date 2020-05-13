@@ -19,7 +19,7 @@ class Login extends React.Component {
     
     console.log("check result: " + checkResult);
     if (checkResult) {
-      sessionStorage.setItem("isAuthed", "admin");
+      sessionStorage.setItem("isAuthed", name);
       sessionStorage.setItem("username", this.props.username);
       this.setState({
         isAuthed: true

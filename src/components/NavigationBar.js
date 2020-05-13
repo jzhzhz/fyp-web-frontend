@@ -84,11 +84,18 @@ class NavigationBar extends React.Component {
 
   render() {
     const login = <a href="/login">login</a>;
-    const logout = 
+    let settingHref = "/";
+    if (sessionStorage.getItem("isAuthed") === "admin") {
+      settingHref = "/admin/main";
+    } else if (sessionStorage.getItem("isAuthed") === "staff") {
+      settingHref = "/staff/main";
+    }
+
+    const welcome = 
       <span>
-        Welcome, <a href="/admin/main">
+        Welcome, <a href={settingHref}>
           {this.props.username || sessionStorage.getItem("username")}
-        </a>. <a href="/" onClick={this.handleLogout}>logout</a>
+        </a>.
       </span>
 
     return (
@@ -117,7 +124,9 @@ class NavigationBar extends React.Component {
                 </NavDropdown>
               </Nav>
             </Navbar.Collapse>
-            {(sessionStorage.getItem("isAuthed") !== "false" || this.props.auth) ? logout : login}
+            {(sessionStorage.getItem("isAuthed") === "admin" ||
+              sessionStorage.getItem("isAuthed") === "staff" || 
+              this.props.auth) ? welcome : login}
           </Container>
         </Navbar>
       </Styles>
