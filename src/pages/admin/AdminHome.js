@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Button, Tabs, Tab, Col } from 'react-bootstrap';
+import { Form, Button, Tabs, Tab, Col, InputGroup } from 'react-bootstrap';
 import axios from 'axios';
 import _ from 'lodash';
 
@@ -318,7 +318,7 @@ class AdminHome extends React.Component {
           style={{backgroundColor: "rgb(219, 215, 210)", padding: "15px"}}
         >
           <Form.Row>
-            <Col>
+            <Col sm={4}>
               <Form.Group>
                 <Form.Label>Title</Form.Label>
                 <Form.Control
@@ -333,12 +333,17 @@ class AdminHome extends React.Component {
             <Col>
               <Form.Group>
                 <Form.Label>URL</Form.Label>
+                <InputGroup>
+                    <InputGroup.Prepend>
+                      <InputGroup.Text id="inputGroupPrepend">htttps://site-address</InputGroup.Text>
+                    </InputGroup.Prepend>
                 <Form.Control 
                   name="url"
                   value={this.state.cards[cardIndex].url} 
                   onChange={this.handleCardChange(cardIndex)}
                   disabled={this.state.cards[cardIndex].deprecated === 1}
                 />
+                </InputGroup>
               </Form.Group>
             </Col>
           </Form.Row>
@@ -373,6 +378,7 @@ class AdminHome extends React.Component {
     return (
       <React.Fragment>
         <h3>Home Page Settings</h3>
+        <a style={{color: "gray"}} href="/admin/main">{"<<"} return to main setting page</a>
         <hr />
         <div style={{width: "70%"}}>
           <Form onSubmit={this.handleSubmit}>

@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import _ from 'lodash';
-import { Tabs, Tab, Form, Col, Button } from 'react-bootstrap';
+import { Tabs, Tab, Form, Col, Button, InputGroup } from 'react-bootstrap';
 import '../../styles/tabs.css';
 
 class AdminLabels extends React.Component {
@@ -116,7 +116,7 @@ class AdminLabels extends React.Component {
       isUpdated: false,
       updating: false
     };
-    
+
     // put new label in new array
     newLabels.push(newLabel);
 
@@ -222,7 +222,7 @@ class AdminLabels extends React.Component {
             data-label-index={index}
           >
             <Form.Row>
-              <Col>
+              <Col sm={4}>
                 <Form.Group>
                   <Form.Label>Label Name</Form.Label>
                   <Form.Control 
@@ -236,12 +236,17 @@ class AdminLabels extends React.Component {
               <Col>
                 <Form.Group>
                   <Form.Label>URL</Form.Label>
-                  <Form.Control 
-                    name="url"
-                    value={item.url}
-                    onChange={this.handleLabelChange(type, index)}
-                    disabled={this.state[type][index].deprecated === 1}
-                  />
+                  <InputGroup>
+                    <InputGroup.Prepend>
+                      <InputGroup.Text id="inputGroupPrepend">site-address/details</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <Form.Control 
+                      name="url"
+                      value={item.url}
+                      onChange={this.handleLabelChange(type, index)}
+                      disabled={this.state[type][index].deprecated === 1}
+                    />
+                  </InputGroup>
                   <Form.Text className="text-muted" style={{marginLeft: "5px"}}>
                     this url will be under /details route
                   </Form.Text>
@@ -304,6 +309,7 @@ class AdminLabels extends React.Component {
     return (
       <React.Fragment>
         <h3>Label and Label Page Settings</h3>
+        <a style={{color: "gray"}} href="/admin/main">{"<<"} return to main setting page</a>
         <hr />
 
         <h5>About Labels Setting</h5>
