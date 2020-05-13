@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 const Styles = styled.div`
   .card-body {
-    background-color: rgb(219, 215, 210);
+    background-color: rgb(236, 230, 225);
     min-height: 31vh;
   }
 
