@@ -15,6 +15,8 @@ import Login from './pages/Login';
 import { AdminMain } from './pages/admin/AdminMain';
 import AdminHome from './pages/admin/AdminHome';
 import AdminLabels from './pages/admin/AdminLabels';
+import { StaffMain } from './pages/staff/StaffMain';
+import StaffProfile from './pages/staff/StaffProfile';
 
 import { Layout } from './components/Layout';
 import NavigationBar from './components/NavigationBar';
@@ -72,6 +74,15 @@ class App extends React.Component {
     )} />
   )
 
+  StaffRoute = ({ component: Component, ...rest }) => (
+    <Route {...rest} render={(props) => (
+      (sessionStorage.getItem("isAuthed") === "admin" ||
+       sessionStorage.getItem("isAuthed") === "staff")
+        ? <Component {...props} />
+        : <Redirect to='/login' />
+    )} />
+  )
+
   render() {
     return (
       <React.Fragment>
@@ -109,11 +120,14 @@ class App extends React.Component {
                   notice={this.state.notice}
                 />
               }/>
-              
+
               {/* route for admin pages this.Admin */}
               <this.AdminRoute path="/admin/main" component={AdminMain} />
               <this.AdminRoute path="/admin/home" component={AdminHome} />
               <this.AdminRoute path="/admin/labels" component={AdminLabels} />
+              
+              <this.StaffRoute path="/staff/main" component={StaffMain} />
+              <this.StaffRoute path="/staff/profile-setting" component={StaffProfile} />
 
               {/* route to 404 not found page */}
               <Route component={NoMatch} />
