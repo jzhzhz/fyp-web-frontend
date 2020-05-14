@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import axios from 'axios';
 
-import Home from './Home';
+import Home from './pages/Home';
 import LabelPage from './pages/LabelPage';
 import Faculty from './pages/people/Faculty';
 import ResearchStaff from './pages/people/ResearchStaff';

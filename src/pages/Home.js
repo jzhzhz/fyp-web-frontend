@@ -1,12 +1,10 @@
 import React from 'react';
-import HomeCarousel from './components/HomeCarousel';
+import HomeCarousel from '../components/HomeCarousel';
 import axios from 'axios';
 import _ from 'lodash';
 
-import { Row, Col, Card, CardGroup } from 'react-bootstrap';
-import { Player } from 'video-react';
-import "../node_modules/video-react/dist/video-react.css";
-import HomeCard from './components/HomeCard';
+import { Row, Col, Card, CardDeck } from 'react-bootstrap';
+import HomeCard from '../components/HomeCard';
 
 class Home extends React.Component {
   constructor() {
@@ -129,7 +127,7 @@ class Home extends React.Component {
 
               <h3>News</h3>
               <hr />
-              <CardGroup style={{position: "relative"}}>
+              <CardDeck style={{position: "relative"}}>
                 <Card style={{backgroundColor: "rgb(236, 230, 225)"}}>
                   <Card.Img variant="top" src="./pictures/aurora.jpg" />
                   <Card.Body>
@@ -165,10 +163,10 @@ class Home extends React.Component {
                     <small className="text-muted">THURSDAY, DECEMBER 11, 2019</small>
                   </Card.Footer>
                 </Card>
-              </CardGroup>
+              </CardDeck>
               <br />
               <br />
-              <CardGroup>
+              <CardDeck>
                 <Card style={{backgroundColor: "rgb(236, 230, 225)"}}>
                   <Card.Img variant="top" src="./pictures/river.jpg" />
                   <Card.Body>
@@ -198,7 +196,7 @@ class Home extends React.Component {
                     <small className="text-muted">THURSDAY, DECEMBER 11, 2019</small>
                   </Card.Footer>
                 </Card>
-              </CardGroup>
+              </CardDeck>
 
               <br />
               <hr />
@@ -207,13 +205,6 @@ class Home extends React.Component {
             </Col>
             <Col sm={3}>
               <div dangerouslySetInnerHTML={{__html: this.state.sidebar.content}} />
-              <hr />
-
-              <Player
-                playsInline
-                poster="./pictures/aurora.jpg"
-                src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-              />
               <hr />
 
             </Col>
