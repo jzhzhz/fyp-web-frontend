@@ -2,8 +2,9 @@ import React from 'react';
 import HomeCarousel from '../components/HomeCarousel';
 import axios from 'axios';
 import _ from 'lodash';
+import * as Utils from '../utils/Utils';
 
-import { Row, Col, Card, CardDeck } from 'react-bootstrap';
+import { Row, Col, CardDeck } from 'react-bootstrap';
 import HomeCard from '../components/HomeCard';
 
 class Home extends React.Component {
@@ -36,7 +37,7 @@ class Home extends React.Component {
   componentDidMount() {
     this.getTextBlocksByType("headline");
     this.getTextBlocksByType("sidebar");
-    this.getTextBlocksByType("cards");
+    this.getCards();
   }
 
   getTextBlocksByType = async (type) => {
@@ -54,58 +55,89 @@ class Home extends React.Component {
     if (res.status === 200 && res.data.code === 0) {
       if (type !== "cards") {
         let resData = res.data.data[0];
-        // resData.content = resData.contentList[0];
 
         this.setState({
           [type]: resData
         });
-
-        // console.log(this.state[type]);
-      } else {
-        this.getCardTextBlocks(res.data.data);
-      }
+      } 
     }
   }
 
-  getCardTextBlocks = (resData) => {
-    let cardArray = [];
+  getCards = async () => {
+    let res = {};
+    const url = process.env.REACT_APP_BACKEND_URL + "/getAllCards";
+    
+    await axios.get(url)
+      .then((getRes) => {
+        res = getRes;
+      })
+      .catch((err) => {
+        console.log(err);
+        return -1;
+      });
 
-    resData.forEach((item) => {
-      let cardTemp = {};
+    // assign cards in state 
+    // and set the old card list length
+    if (res.status === 200 && res.data.code === 0) {
+      let resData = res.data.data;
+      
+      resData.forEach(item => {
+        const url = process.env.REACT_APP_BACKEND_URL + "/getCardImgByUrl?"
+          + "visitUrl=" + encodeURIComponent(item.imgUrl);
 
-      cardTemp.id = item.id;
-      cardTemp.title = item.title;
-      cardTemp.textList = item.content.split("*SEP*").filter(item => item);
-      cardTemp.url = item.url;
-      cardTemp.changed = false;
+        item.changed = false;
+        item.imgUrl = url;
+      });
 
-      cardArray.push(cardTemp);
-    });
+      this.setState({
+        cards: resData,
+        oldCardsLength: resData.length
+      });
 
-    this.setState({
-      cards: _.cloneDeep(cardArray)
-    });
+    } else { return -1; }
 
     this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
+
+    return 0;
   }
 
   modifyCardToReactElement = (cardsArr) => {
-    cardsArr = cardsArr.map((card, cardIndex) => {
-      const lineBreak = (cardIndex + 1) === cardsArr.length ?
-        null : <br key={cardIndex+1}/>;
+    cardsArr = Utils.chunkArray(_.cloneDeep(cardsArr), 2);
+    console.log(cardsArr);
+
+    cardsArr = cardsArr.map((twoCards, cardIndex) => {
+      // const lineBreak = (cardIndex + 1) === cardsArr.length ?
+      //   null : <br key={cardIndex+1}/>;
+
+      const secondCard = twoCards[1] ? 
+        <HomeCard 
+          key={`deck${cardIndex}card1`} 
+          title={twoCards[1].title} 
+          text={twoCards[1].text}
+          date={twoCards[1].date}
+          url={twoCards[1].url} 
+          imgUrl={twoCards[1].imgUrl}
+        /> : null;
+      
       return (
-        <div key={cardIndex}>
-          <HomeCard
-            key={cardIndex} 
-            title={card.title} 
-            textList={card.textList}
-            url={card.url} 
-          />
-          {lineBreak}
+        <div key={`div${cardIndex}`}>
+          <CardDeck key={cardIndex}>
+            <HomeCard
+              key={`deck${cardIndex}card0`} 
+              title={twoCards[0].title} 
+              text={twoCards[0].text}
+              date={twoCards[0].date}
+              url={twoCards[0].url} 
+              imgUrl={twoCards[0].imgUrl}
+            />
+            {secondCard}
+          </CardDeck>
+          <br key={`br${cardIndex}`}/>
         </div>
       );
-    }
-    );
+    });
+
+    console.log(cardsArr);
 
     this.setState({
       cardReactElements: _.cloneDeep(cardsArr)
@@ -126,79 +158,6 @@ class Home extends React.Component {
               <br />
 
               <h3>News</h3>
-              <hr />
-              <CardDeck style={{position: "relative"}}>
-                <Card style={{backgroundColor: "rgb(236, 230, 225)"}}>
-                  <Card.Img variant="top" src="./pictures/aurora.jpg" />
-                  <Card.Body>
-                    <Card.Title>Are search results biased partisan lines?</Card.Title>
-                    <Card.Text>
-                      This is a wider card with supporting text below as a natural lead-in to
-                      additional content. This content is a little bit longer.
-                    </Card.Text>
-                    <br />
-                    <div  style={{position: "absolute", bottom: "0", color: "gray", marginBottom: "62px", paddingTop: "60px"}}>
-                    <Card.Link className="card-link" href="/" style={{color: "gray", fontSize: "smaller"}}>[MORE]</Card.Link>
-                    </div>
-                  </Card.Body>
-                  <Card.Footer>
-                    <small className="text-muted">THURSDAY, DECEMBER 11, 2019</small>
-                  </Card.Footer>
-                </Card>
-                <Card style={{backgroundColor: "rgb(236, 230, 225)"}}>
-                  <Card.Img variant="top" src="./pictures/forest.jpg" />
-                  <Card.Body>
-                    <Card.Title>Card title</Card.Title>
-                    <Card.Text>
-                      This is a wider card with supporting text below as a natural lead-in to
-                      additional content. This card has even longer content than the first to
-                      show that equal height action.
-                    </Card.Text>
-                    <br />
-                    <div  style={{position: "absolute", bottom: "0", color: "gray", marginBottom: "62px"}}>
-                    <Card.Link className="card-link" href="/" style={{color: "gray", fontSize: "smaller"}}>[MORE]</Card.Link>
-                    </div>                  
-                    </Card.Body>
-                  <Card.Footer>
-                    <small className="text-muted">THURSDAY, DECEMBER 11, 2019</small>
-                  </Card.Footer>
-                </Card>
-              </CardDeck>
-              <br />
-              <br />
-              <CardDeck>
-                <Card style={{backgroundColor: "rgb(236, 230, 225)"}}>
-                  <Card.Img variant="top" src="./pictures/river.jpg" />
-                  <Card.Body>
-                    <Card.Title>Card title</Card.Title>
-                    <Card.Text>
-                      This is a wider card with supporting text below as a natural lead-in to
-                      additional content. This content is a little bit longer.
-                    </Card.Text>
-                    <Card.Link className="card-link" href="/">[MORE]</Card.Link>
-                  </Card.Body>
-                  <Card.Footer>
-                    <small className="text-muted">THURSDAY, DECEMBER 11, 2019</small>
-                  </Card.Footer>
-                </Card>
-                <Card style={{backgroundColor: "rgb(236, 230, 225)"}}>
-                  <Card.Img variant="top" src="./pictures/giraff_bg.jpg" />
-                  <Card.Body>
-                    <Card.Title>Card title</Card.Title>
-                    <Card.Text>
-                      This is a wider card with supporting text below as a natural lead-in to
-                      additional content. This card has even longer content than the first to
-                      show that equal height action.
-                    </Card.Text>
-                    <Card.Link className="card-link" href="/">[MORE]</Card.Link>
-                  </Card.Body>
-                  <Card.Footer>
-                    <small className="text-muted">THURSDAY, DECEMBER 11, 2019</small>
-                  </Card.Footer>
-                </Card>
-              </CardDeck>
-
-              <br />
               <hr />
               {this.state.cardReactElements}
               <hr />

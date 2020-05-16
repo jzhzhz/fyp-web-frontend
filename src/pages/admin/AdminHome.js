@@ -1,7 +1,10 @@
 import React from 'react';
+// eslint-disable-next-line
 import { Form, Button, Tabs, Tab, Col, InputGroup } from 'react-bootstrap';
 import axios from 'axios';
 import _ from 'lodash';
+import { getCurrentDate } from '../../utils/Utils';
+import bsCustomFileInput from 'bs-custom-file-input';
 
 class AdminHome extends React.Component {
   constructor() {
@@ -43,7 +46,7 @@ class AdminHome extends React.Component {
     this.getTextBlocksByType("headline");
     this.getTextBlocksByType("jumbo");
     this.getTextBlocksByType("sidebar");
-    this.getTextBlocksByType("cards");
+    this.getCards();
   }
 
   getTextBlocksByType = async (type) => {
@@ -61,43 +64,51 @@ class AdminHome extends React.Component {
 
     // static text block assinment
     if (res.status === 200 && res.data.code === 0) {
-      if (type !== "cards") {
-        let resData = res.data.data[0];
+      let resData = res.data.data[0];
 
-        this.setState({
-          [type]: resData
-        });
-      } else {
-        // cards assignment
-        this.getCardTextBlocks(res.data.data, type);
-      }
+      this.setState({
+        [type]: resData
+      });
     } else { return -1; }
 
     return 0;
   }
 
-  getCardTextBlocks = (resData, type) => {
-    let cardArray = [];
+  getCards = async () => {
+    let res = {};
+    const url = process.env.REACT_APP_BACKEND_URL + "/getAllCards";
+    
+    await axios.get(url)
+      .then((getRes) => {
+        res = getRes;
+      })
+      .catch((err) => {
+        console.log(err);
+        return -1;
+      });
 
-    resData.forEach((item) => {
-      let cardTemp = {};
+    // assign cards in state 
+    // initialize some picture upload related states
+    // and set the old card list length
+    if (res.status === 200 && res.data.code === 0) {
+      let resData = res.data.data;
 
-      cardTemp.id = item.id;
-      cardTemp.title = item.title;
-      cardTemp.textList = item.content.split("*SEP*").filter(item => item);
-      cardTemp.url = item.url;
-      cardTemp.changed = false;
-      cardTemp.deprecated = 0;
+      resData.forEach(item => {
+        item.changed = false;
+        item.isPicValid = item.imgUrl !== "";
+        item.picUploadMsg = "";
+      });
 
-      cardArray.push(cardTemp);
-    });
+      this.setState({
+        cards: resData,
+        oldCardsLength: resData.length
+      });
 
-    this.setState({
-      cards: _.cloneDeep(cardArray),
-      oldCardsLength: resData.length
-    });
+    } else { return -1; }
 
     this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
+
+    return 0;
   }
 
   handleStaticChange = (event) => {
@@ -114,34 +125,77 @@ class AdminHome extends React.Component {
     });
   }
 
-  handleCardChange = (cardIndex, textIndex) => (event) => {
+  handleCardChange = (cardIndex) => (event) => {
     const {name, value} = event.target;
     let newCards = _.cloneDeep(this.state.cards);
 
-    if (name === "textList") {
-      newCards[cardIndex][name][textIndex] = value;
-    } else {
-      newCards[cardIndex][name] = value;
-    }
+    newCards[cardIndex][name] = value;
     newCards[cardIndex].changed = true;
 
-    this.setState(
-      {
+    this.setState({
         cards: _.cloneDeep(newCards),
         isUpdated: false
-      },
-      () => {
+      }, () => {
         this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
-      }
-    );
+      });
+  }
+
+  handlePicChange = (cardIndex) => async (event) => {
+    event.preventDefault();
+    const url = process.env.REACT_APP_ADMIN_URL + "/uploadCardPic";
+    const fileName = event.target.files[0].name
+    const formData = new FormData();
+    formData.append('file', event.target.files[0]);
+
+    const res = await axios.post(url, formData, {
+      headers: {'Content-Type': 'multipart/form-data'}
+      })
+      .catch(err => {
+        console.log(err)
+        return -1;
+      });
+
+    if (res.status === 200 && res.data.code === 0) {
+      console.log("handling correct file");
+      let newCards = _.cloneDeep(this.state.cards);
+
+      newCards[cardIndex].isPicValid = true;
+      newCards[cardIndex].imgUrl = res.data.data;
+      newCards[cardIndex].imgName = fileName;
+      newCards[cardIndex].changed = true;
+      newCards[cardIndex].uploadMsg = "picture upload success";
+      console.log(newCards[cardIndex].imgName + newCards[cardIndex].imgUrl);
+
+      this.setState({
+        cards: newCards,
+        isUpdated: false
+      }, () => {
+        this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
+      });
+
+    } else {
+      console.log("handling wrong file");
+      let newCards = _.cloneDeep(this.state.cards);
+      newCards[cardIndex].isPicValid = false;
+      console.log(newCards[cardIndex].imgUrl);
+
+      this.setState({
+        cards: newCards
+      }, () => {
+        this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
+      });
+    }
   }
 
   handleAddCard = () => {
     console.log("adding another card");
     const newCard = {
       title: "Sample Title",
-      textList: ["text1", "text2", "text3"],
+      text: "sample text",
       url: "/url",
+      imgName: "",
+      imgUrl: "",
+      date: getCurrentDate("."),
       changed: true,
       deprecated: 0
     };
@@ -192,13 +246,21 @@ class AdminHome extends React.Component {
 
       await this.updateTextBlockByType("sidebar");
 
-      await this.updateTextBlockByType("cards");
+      const result = await this.updateCards();
 
-      this.setState({isUpdated: true});
-      console.log("information updated");
-      this.setState({
-        updating: false
-      })
+      if (result === 0) {
+        this.setState({isUpdated: true});
+        console.log("information updated");
+        this.setState({
+          updating: false
+        });
+      } else if (result === -1) {
+        console.log("card update failed");
+        this.setState({
+          updating: false
+        });
+      }
+
     } else {
       console.log("no need to update");
     }
@@ -207,56 +269,70 @@ class AdminHome extends React.Component {
   updateTextBlockByType = async (type) => {
     let updateUrl = process.env.REACT_APP_ADMIN_URL + "/updateHomeTextBlock";
 
-    if (type === "cards") {
+    if (this.state[type].changed) {
+      await axios.get(updateUrl, {
+        params: {
+          id: this.state[type].id,
+          title: this.state[type].title,
+          content: this.state[type].content,
+          url: this.state[type].url,
+          deprecated: this.state[type].deprecated
+        }
+      }).catch(err => {
+        console.log(err)
+        return -1;
+      });
+    }
+
+    return 0;
+  }
+
+  updateCards = async (type) => {
+    let updateUrl = process.env.REACT_APP_ADMIN_URL + "/updateCardById";
       // iterate through each card, update old card, create new card
       for (const [index, card] of this.state.cards.entries()) {
         // check if the values have been changed
-        if (card.changed) {
-          // check if this is a new card
-          if (index + 1 > this.state.oldCardsLength) {
-            console.log("getting new cards...");
-            console.log(card);
-            updateUrl = process.env.REACT_APP_ADMIN_URL + "/createNewCard";
-            
-            // insert new card into database
-            let res = await axios.get(updateUrl, {
-              params: {
-                id: card.id,
-                title: card.title,
-                content: card.textList.join("*SEP*"),
-                url: card.url,
-                deprecated: card.deprecated
-              }
-            }).catch(err => {
-              console.log(err);
-              return -1;
-            });
-            
-            // update the database id of newly created card
-            if (res.status === 200 && res.data.code === 0) {
-              const retId = res.data.data;
-              let newCards = _.cloneDeep(this.state.cards);
-              newCards[index].id = retId;
+        if (!card.changed) {
+          continue;
+        }
 
-              this.setState({
-                cards: _.cloneDeep(newCards)
-              });
-            }
-          } else {
-            // update values of other old cards
-            await axios.get(updateUrl, {
-              params: {
-                id: card.id,
-                title: card.title,
-                content: card.textList.join("*SEP*"),
-                url: card.url,
-                deprecated: card.deprecated
-              }
-            }).catch(err => {
-              console.log(err);
-              return -1;
+        if (card.imgUrl === "") {
+          alert(`please upload cover picture of card ${index}! `);
+          return -1;
+        }
+
+        // check if this is a new card
+        if (index + 1 > this.state.oldCardsLength) {
+          console.log("getting new cards...");
+          console.log(card);
+          updateUrl = process.env.REACT_APP_ADMIN_URL + "/createNewCard";
+          
+          // insert new card into database
+          let res = await axios.get(updateUrl, {
+            params: card
+          }).catch(err => {
+            console.log(err);
+            return -1;
+          });
+          
+          // update the database id of newly created card
+          if (res.status === 200 && res.data.code === 0) {
+            const retId = res.data.data;
+            let newCards = _.cloneDeep(this.state.cards);
+            newCards[index].id = retId;
+
+            this.setState({
+              cards: _.cloneDeep(newCards)
             });
           }
+        } else {
+          // update values of other old cards
+          await axios.get(updateUrl, {
+            params: card
+          }).catch(err => {
+            console.log(err);
+            return -1;
+          });
         }
       }
       
@@ -266,89 +342,112 @@ class AdminHome extends React.Component {
         oldCardsLength: newLen
       });
 
-    } else {
-      if (this.state[type].changed) {
-        await axios.get(updateUrl, {
-          params: {
-            id: this.state[type].id,
-            title: this.state[type].title,
-            content: this.state[type].content,
-            url: this.state[type].url,
-            deprecated: this.state[type].deprecated
-          }
-        }).catch(err => {
-          console.log(err)
-          return -1;
-        });
-      }
-    }
-
-    return 0;
+      return 0;
   }
 
   // change the card information into form elements
   // and store the result in the state
   modifyCardToReactElement = (reactCardArray) => {
-    reactCardArray.forEach((card, cardIndex) => {
-      // transform the text list in each card into form elments
-      card.textList = card.textList.map((text, textIndex) => {
-        return (
-          <Form.Group key={textIndex}>
-            <Form.Label>Card Text {textIndex+1}</Form.Label>
-            <Form.Control 
-              name="textList"
-              key={textIndex} 
-              value={this.state.cards[cardIndex].textList[textIndex]} 
-              onChange={this.handleCardChange(cardIndex, textIndex)}
-              disabled={this.state.cards[cardIndex].deprecated === 1}
-            />
-          </Form.Group>
-        );
-      });
-    });
-
     reactCardArray = reactCardArray.map((item, cardIndex) => {
+      if (item.id < 0) {
+        return null;
+      }
+      
+      // provide a picture download link
+      let imgDownloadLink = null;
+      if (item.imgUrl !== "") {
+        const url = process.env.REACT_APP_BACKEND_URL + "/getCardImgByUrl?"
+          + "visitUrl=" + encodeURIComponent(item.imgUrl);
+
+        imgDownloadLink = 
+          <a 
+            href={url} 
+            style={{color: "gray", fontSize: "smaller"}} 
+            download
+          >
+            [download picture]
+          </a>;
+      }
+
       // transform the whole card object into form elements
       return (
         // each card becomes a tab of form in tabs
-        <Tab key={cardIndex} eventKey={cardIndex} title={item.title} size="sm">
+        <Tab key={cardIndex} eventKey={cardIndex} title={`Card ${cardIndex+1}`} size="sm">
         <Form.Group 
           key={cardIndex} 
           controlId={cardIndex} 
           style={{backgroundColor: "rgb(219, 215, 210)", padding: "15px"}}
         >
-          <Form.Row>
-            <Col sm={4}>
-              <Form.Group>
-                <Form.Label>Title</Form.Label>
-                <Form.Control
-                  style={{}} 
-                  name="title"
-                  value={this.state.cards[cardIndex].title} 
-                  onChange={this.handleCardChange(cardIndex)}
-                  disabled={this.state.cards[cardIndex].deprecated === 1}
-                />
-              </Form.Group>
-            </Col>
-            <Col>
-              <Form.Group>
-                <Form.Label>URL</Form.Label>
-                <InputGroup>
-                    <InputGroup.Prepend>
-                      <InputGroup.Text id="inputGroupPrepend">htttps://site-address</InputGroup.Text>
-                    </InputGroup.Prepend>
-                <Form.Control 
-                  name="url"
-                  value={this.state.cards[cardIndex].url} 
-                  onChange={this.handleCardChange(cardIndex)}
-                  disabled={this.state.cards[cardIndex].deprecated === 1}
-                />
-                </InputGroup>
-              </Form.Group>
-            </Col>
-          </Form.Row>
+          <Form.Group>
+            <Form.Label>Title</Form.Label>
+            <Form.Control 
+              name="title"
+              value={this.state.cards[cardIndex].title} 
+              onChange={this.handleCardChange(cardIndex)}
+              disabled={this.state.cards[cardIndex].deprecated === 1}
+            />
+          </Form.Group>
 
-          {item.textList}
+          <Form.Group>
+            <Form.Label>URL</Form.Label>
+            <InputGroup>
+                <InputGroup.Prepend>
+                  <InputGroup.Text id="inputGroupPrepend">htttps://site-address</InputGroup.Text>
+                </InputGroup.Prepend>
+            <Form.Control 
+              name="url"
+              value={this.state.cards[cardIndex].url} 
+              onChange={this.handleCardChange(cardIndex)}
+              disabled={this.state.cards[cardIndex].deprecated === 1}
+            />
+            </InputGroup>
+          </Form.Group>
+
+          <Form.Group>
+            <Form.Label>Upload The Cover Picture</Form.Label>
+              <Form.File 
+                id="custom-file"
+                custom
+              > 
+                <Form.File.Input 
+                  isValid={this.state.cards[cardIndex].isPicValid}
+                  isInvalid={!this.state.cards[cardIndex].isPicValid} 
+                  onChange={this.handlePicChange(cardIndex)}
+                />
+                <Form.File.Label data-browse="Choose File">
+                  {this.state.cards[cardIndex].imgName}
+                </Form.File.Label>
+                <Form.Control.Feedback type="valid">
+                  {this.state.cards[cardIndex].uploadMsg}
+                </Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid" style={{color: "red"}}>
+                  invalid picture type!
+                </Form.Control.Feedback>
+              </Form.File>
+              {imgDownloadLink}
+          </Form.Group>
+
+          <Form.Group>
+            <Form.Label>Date Footer</Form.Label>
+            <Form.Control 
+              name="date"
+              value={this.state.cards[cardIndex].date} 
+              onChange={this.handleCardChange(cardIndex)}
+              disabled={this.state.cards[cardIndex].deprecated === 1}
+            />
+          </Form.Group>
+
+          <Form.Group>
+            <Form.Label>Card Text</Form.Label>
+            <Form.Control
+              style={{height: "90px"}} 
+              name="text"
+              as="textarea" 
+              value={this.state.cards[cardIndex].text} 
+              onChange={this.handleCardChange(cardIndex)}
+              disabled={this.state.cards[cardIndex].deprecated === 1}
+            />
+          </Form.Group>
 
           <Form.Group>
             <Button 
@@ -368,6 +467,7 @@ class AdminHome extends React.Component {
     this.setState({
       cardsReactElement: reactCardArray
     });
+    bsCustomFileInput.init();
 
     return _.cloneDeep(reactCardArray);
   }
@@ -433,6 +533,9 @@ class AdminHome extends React.Component {
             <hr />
 
             <h5>Card Item Settings</h5>
+            <Form.Label>
+                even number of cards recommended
+            </Form.Label>
             <Tabs className="myClass" defaultActiveKey={0} id="uncontrolled-tab-example">
               {this.state.cardsReactElement}
             </Tabs>
