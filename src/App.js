@@ -15,7 +15,7 @@ import Login from './pages/Login';
 import { AdminMain } from './pages/admin/AdminMain';
 import AdminHome from './pages/admin/AdminHome';
 import AdminLabels from './pages/admin/AdminLabels';
-import { StaffMain } from './pages/staff/StaffMain';
+// import { StaffMain } from './pages/staff/StaffMain';
 import StaffProfile from './pages/staff/StaffProfile';
 
 import { Layout } from './components/Layout';
@@ -45,7 +45,7 @@ class App extends React.Component {
     const url = process.env.REACT_APP_ADMIN_URL + "/checkAdmin?" +
                   "name=" + this.state.username +
                   "&password=" + this.state.password +
-                  "&type=" + loginType;
+                  "&type=admin";
 
     await axios.get(url)
       .then((getRes) => {
@@ -125,9 +125,7 @@ class App extends React.Component {
               <this.AdminRoute path="/admin/main" component={AdminMain} />
               <this.AdminRoute path="/admin/home" component={AdminHome} />
               <this.AdminRoute path="/admin/labels" component={AdminLabels} />
-              
-              <this.StaffRoute path="/staff/main" component={StaffMain} />
-              <this.StaffRoute path="/staff/profile-setting" component={StaffProfile} />
+              <this.AdminRoute path="/staff/profile-setting" component={StaffProfile} />
 
               {/* route to 404 not found page */}
               <Route component={NoMatch} />

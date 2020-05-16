@@ -93,7 +93,7 @@ class Login extends React.Component {
   
   render() {
     const adminLogin = this.getLoginFormByType("admin");
-    const staffLogin = this.getLoginFormByType("staff");
+    // const staffLogin = this.getLoginFormByType("staff");
 
     return (
       <React.Fragment>
@@ -101,9 +101,9 @@ class Login extends React.Component {
           <Tab eventKey="admin" title="Admin Login">
             {adminLogin}
           </Tab>
-          <Tab eventKey="staff" title="Staff Login">
+          {/* <Tab eventKey="staff" title="Staff Login">
             {staffLogin}
-          </Tab>
+          </Tab> */}
         </Tabs>
       </React.Fragment>
     );
