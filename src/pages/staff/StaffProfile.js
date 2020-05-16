@@ -1,5 +1,6 @@
 import React from 'react';
-import { Form } from 'react-bootstrap';
+import { Form, Col, InputGroup, Button, Tab } from 'react-bootstrap';
+import _ from 'lodash';
 
 class StaffProfile extends React.Component {
   constructor() {
@@ -67,6 +68,89 @@ class StaffProfile extends React.Component {
       });
     }
 
+  }
+
+  modifyCardToReactElement = (reactCardArray) => {
+    reactCardArray.forEach((card, cardIndex) => {
+      // transform the text list in each card into form elments
+      card.textList = card.textList.map((text, textIndex) => {
+        return (
+          <Form.Group key={textIndex}>
+            <Form.Label>Card Text {textIndex+1}</Form.Label>
+            <Form.Control 
+              name="textList"
+              key={textIndex} 
+              value={this.state.cards[cardIndex].textList[textIndex]} 
+              onChange={this.handleCardChange(cardIndex, textIndex)}
+              disabled={this.state.cards[cardIndex].deprecated === 1}
+            />
+          </Form.Group>
+        );
+      });
+    });
+
+    reactCardArray = reactCardArray.map((item, cardIndex) => {
+      // transform the whole card object into form elements
+      return (
+        // each card becomes a tab of form in tabs
+        <Tab key={cardIndex} eventKey={cardIndex} title={item.title} size="sm">
+        <Form.Group 
+          key={cardIndex} 
+          controlId={cardIndex} 
+          style={{backgroundColor: "rgb(219, 215, 210)", padding: "15px"}}
+        >
+          <Form.Row>
+            <Col sm={4}>
+              <Form.Group>
+                <Form.Label>Title</Form.Label>
+                <Form.Control 
+                  name="title"
+                  value={this.state.cards[cardIndex].title} 
+                  onChange={this.handleCardChange(cardIndex)}
+                  disabled={this.state.cards[cardIndex].deprecated === 1}
+                />
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group>
+                <Form.Label>URL</Form.Label>
+                <InputGroup>
+                    <InputGroup.Prepend>
+                      <InputGroup.Text id="inputGroupPrepend">htttps://site-address</InputGroup.Text>
+                    </InputGroup.Prepend>
+                <Form.Control 
+                  name="url"
+                  value={this.state.cards[cardIndex].url} 
+                  onChange={this.handleCardChange(cardIndex)}
+                  disabled={this.state.cards[cardIndex].deprecated === 1}
+                />
+                </InputGroup>
+              </Form.Group>
+            </Col>
+          </Form.Row>
+
+          {item.textList}
+
+          <Form.Group>
+            <Button 
+              variant={this.state.cards[cardIndex].deprecated === 1 ? "outline-danger" : "danger"}
+              size="sm"
+              onClick={this.handleRemove(cardIndex)}
+            >
+              {this.state.cards[cardIndex].deprecated === 1 ? "Cancel" : "Remove"}
+            </Button>
+            <Form.Text style={{color: "red", marginLeft: "2px"}}>WARNING: the whole card will be removed after update!</Form.Text>
+          </Form.Group>
+        </Form.Group>
+        </Tab>
+      );
+    });
+
+    this.setState({
+      cardsReactElement: reactCardArray
+    });
+
+    return _.cloneDeep(reactCardArray);
   }
 
   render() {

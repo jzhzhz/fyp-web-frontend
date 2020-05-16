@@ -1,6 +1,5 @@
 import React from 'react';
-// eslint-disable-next-line
-import { Form, Button, Tabs, Tab, Col, InputGroup } from 'react-bootstrap';
+import { Form, Button, Tabs, Tab, InputGroup } from 'react-bootstrap';
 import axios from 'axios';
 import _ from 'lodash';
 import { getCurrentDate } from '../../utils/Utils';
@@ -38,7 +37,7 @@ class AdminHome extends React.Component {
       cardsReactElement: [],
       oldCardsLength: 0,
       isUpdated: true,
-      updating: false
+      updating: false,
     };
   }
 
@@ -47,6 +46,19 @@ class AdminHome extends React.Component {
     this.getTextBlocksByType("jumbo");
     this.getTextBlocksByType("sidebar");
     this.getCards();
+
+    window.addEventListener('beforeunload', this.beforeunload);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('beforeunload', this.beforeunload);
+  }
+
+  beforeunload = (e) => {
+    if (!this.state.isUpdated) {
+      e.preventDefault();
+      e.returnValue = true;
+    }
   }
 
   getTextBlocksByType = async (type) => {
@@ -64,10 +76,8 @@ class AdminHome extends React.Component {
 
     // static text block assinment
     if (res.status === 200 && res.data.code === 0) {
-      let resData = res.data.data[0];
-
       this.setState({
-        [type]: resData
+        [type]: res.data.data[0]
       });
     } else { return -1; }
 
@@ -221,12 +231,11 @@ class AdminHome extends React.Component {
     newCards[cardIndex].changed = true;
 
     this.setState({
-        cards: _.cloneDeep(newCards),
-        isUpdated: false
-      }, () => {
-        this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
-      }
-    );
+      cards: _.cloneDeep(newCards),
+      isUpdated: false
+    }, () => {
+      this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
+    });
   }
   
   handleSubmit = async (event) => {
@@ -251,11 +260,13 @@ class AdminHome extends React.Component {
       if (result === 0) {
         this.setState({isUpdated: true});
         console.log("information updated");
+
         this.setState({
           updating: false
         });
       } else if (result === -1) {
         console.log("card update failed");
+        
         this.setState({
           updating: false
         });
@@ -297,7 +308,7 @@ class AdminHome extends React.Component {
         }
 
         if (card.imgUrl === "") {
-          alert(`please upload cover picture of card ${index}! `);
+          alert("please upload cover picture!");
           return -1;
         }
 
@@ -369,6 +380,37 @@ class AdminHome extends React.Component {
           </a>;
       }
 
+      let imageUploadSection = 
+        <div>
+          <Form.Label>Image Upload Disabled</Form.Label>
+        </div>;
+      if (item.deprecated === 0) {
+        imageUploadSection = 
+          <div>
+            <Form.Label>Upload The Cover Picture</Form.Label>
+            <Form.File 
+              id="custom-file"
+              custom
+            > 
+              <Form.File.Input 
+                isValid={this.state.cards[cardIndex].isPicValid}
+                isInvalid={!this.state.cards[cardIndex].isPicValid} 
+                onChange={this.handlePicChange(cardIndex)}
+              />
+              <Form.File.Label data-browse="Choose File">
+                {this.state.cards[cardIndex].imgName}
+              </Form.File.Label>
+              <Form.Control.Feedback type="valid">
+                {this.state.cards[cardIndex].uploadMsg}
+              </Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid" style={{color: "red"}}>
+                invalid picture type!
+              </Form.Control.Feedback>
+            </Form.File>
+            {imgDownloadLink}
+          </div>;
+      }
+
       // transform the whole card object into form elements
       return (
         // each card becomes a tab of form in tabs
@@ -404,27 +446,7 @@ class AdminHome extends React.Component {
           </Form.Group>
 
           <Form.Group>
-            <Form.Label>Upload The Cover Picture</Form.Label>
-              <Form.File 
-                id="custom-file"
-                custom
-              > 
-                <Form.File.Input 
-                  isValid={this.state.cards[cardIndex].isPicValid}
-                  isInvalid={!this.state.cards[cardIndex].isPicValid} 
-                  onChange={this.handlePicChange(cardIndex)}
-                />
-                <Form.File.Label data-browse="Choose File">
-                  {this.state.cards[cardIndex].imgName}
-                </Form.File.Label>
-                <Form.Control.Feedback type="valid">
-                  {this.state.cards[cardIndex].uploadMsg}
-                </Form.Control.Feedback>
-                <Form.Control.Feedback type="invalid" style={{color: "red"}}>
-                  invalid picture type!
-                </Form.Control.Feedback>
-              </Form.File>
-              {imgDownloadLink}
+            {imageUploadSection}
           </Form.Group>
 
           <Form.Group>
