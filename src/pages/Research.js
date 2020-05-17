@@ -23,4 +23,3 @@ export const Research = () => (
       <MyEditor />
   </React.Fragment>
 )
-

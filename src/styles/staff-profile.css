@@ -1,0 +1,6 @@
+.profile-list-group {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  height: 300px;
+  overflow-y: scroll;
+}

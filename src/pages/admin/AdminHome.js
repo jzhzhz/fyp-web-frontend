@@ -433,15 +433,15 @@ class AdminHome extends React.Component {
           <Form.Group>
             <Form.Label>URL</Form.Label>
             <InputGroup>
-                <InputGroup.Prepend>
-                  <InputGroup.Text id="inputGroupPrepend">htttps://site-address</InputGroup.Text>
-                </InputGroup.Prepend>
-            <Form.Control 
-              name="url"
-              value={this.state.cards[cardIndex].url} 
-              onChange={this.handleCardChange(cardIndex)}
-              disabled={this.state.cards[cardIndex].deprecated === 1}
-            />
+              <InputGroup.Prepend>
+                <InputGroup.Text id="inputGroupPrepend">https://site-address</InputGroup.Text>
+              </InputGroup.Prepend>
+              <Form.Control 
+                name="url"
+                value={this.state.cards[cardIndex].url} 
+                onChange={this.handleCardChange(cardIndex)}
+                disabled={this.state.cards[cardIndex].deprecated === 1}
+              />
             </InputGroup>
           </Form.Group>
 
