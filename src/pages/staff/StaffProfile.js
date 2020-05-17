@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Row, Col, InputGroup, Button, Tab, ListGroup } from 'react-bootstrap';
+import { Form, FormControl, Row, Col, InputGroup, Button, ListGroup } from 'react-bootstrap';
 import _ from 'lodash';
 import axios from 'axios';
 import '../../styles/staff-profile.css';
@@ -8,8 +8,9 @@ class StaffProfile extends React.Component {
   constructor() {
     super();
     this.state = {
-      profileChoice: "",
-      facultyChoice: "",
+      profileType: "",
+      facultyType: "",
+      searchName: "",
       facultyList: [],
       facultyListElements: [],
       chosenFaculty: {
@@ -22,7 +23,6 @@ class StaffProfile extends React.Component {
         url: "",
         listIndex: -1
       },
-      settingDetail: [],
       url: "",
       pageDetail: {
         intro: "",
@@ -34,11 +34,12 @@ class StaffProfile extends React.Component {
 
   // handle faculty type choosing radio buttons
   // clear the old chosen faculty
-  // clear the old choice and setting page
+  // clear the old profile type and setting page
+  // clear search results
   handleFacultyTypeChange = (event) => {
     const {value} = event.target;
     this.setState({
-      facultyChoice: value,
+      facultyType: value,
       chosenFaculty: {
         id: "",
         name: "",
@@ -49,10 +50,11 @@ class StaffProfile extends React.Component {
         url: "",
         listIndex: -1
       },
-      profileChoice: "",
+      profileType: "",
       settingDetail: []
     }, () => {
       this.getFacultyByType(value);
+      this.handleCancelSearch();
     });
   }
 
@@ -79,6 +81,46 @@ class StaffProfile extends React.Component {
     }
   }
 
+  handleGoSearch = async () => {
+    console.log("doing search in backend");
+    console.log("name: " + this.state.searchName + " type: " + this.state.facultyType);
+
+    let res = {};
+    const url = process.env.REACT_APP_FACULTY_URL + "/searchFacultyByNameWithType";
+    
+    // send search request
+    await axios.get(url, {
+      params: {
+        name: this.state.searchName,
+        type: this.state.facultyType
+      }
+    })
+    .then((getRes) => {
+      res = getRes;
+    })
+    .catch((err) => {
+      console.log(err);
+      return -1;
+    });
+
+    // load search result to list
+    if (res.status === 200 && res.data.code === 0) {
+      this.setState({
+        facultyList: res.data.data
+      }, () => {
+        this.renderFacultyListElement(_.cloneDeep(this.state.facultyList));
+      });
+    }
+  }
+
+  handleCancelSearch = () => {
+    this.setState({
+      searchName: ""
+    }, () => {
+      this.getFacultyByType(this.state.facultyType);
+    });
+  }
+
   // load faculty info after clicked
   handleFacultyClick = (faculty, index) => (event) => {
     const facultyObj = {
@@ -97,34 +139,49 @@ class StaffProfile extends React.Component {
 
     // decide whether faculty detail page used url or template
     // based on the type of faculty url
-    let oldProfileChoice = "";
+    let oldProfileType = "";
     if (faculty.url === "/people/~" + faculty.username) {
-      oldProfileChoice = "template";
+      oldProfileType = "template";
     } else if (faculty.url !== "") {
-      oldProfileChoice = "url";
+      oldProfileType = "url";
     }
 
-    // after clicked the setting part will be force-updated
+    // after clicked the setting part will be re-rendered
     // to get correct faculty information
     this.setState({
       chosenFaculty: facultyObj,
-      profileChoice: oldProfileChoice
+      profileType: oldProfileType
     }, () => {
-      this.forceUpdate(() => {
-        this.renderProfileSettingByType(this.state.profileChoice);
-        this.renderFacultyListElement(_.cloneDeep(this.state.facultyList));
-      });
+      this.renderFacultyListElement(_.cloneDeep(this.state.facultyList));
     });
   }
 
   // handle profile type choosing radio buttons
   handleProfileTypeChange = (event) => {
     const {value} = event.target;
-    this.setState({
-      profileChoice: value
-    }, () => {
-      this.renderProfileSettingByType(value);
-    });
+
+    // change the faculty url to template-specific url
+    if (value === "template") {
+      this.setState(prevState => {
+        const newUrl = "/people/~" + 
+          prevState.chosenFaculty.username;
+
+        return {
+          ...prevState,
+          chosenFaculty: {
+            ...prevState.chosenFaculty,
+            url: newUrl
+          },
+          profileType: value,
+          isUpdated: false
+        };
+      })
+    } else {
+      this.setState({
+        profileType: value,
+        isUpdated: false
+      });
+    }
   }
 
   handleFacultyInfoChange = (event) => {
@@ -139,8 +196,6 @@ class StaffProfile extends React.Component {
         },
         isUpdated: false
       };
-    }, () => {
-      this.renderProfileSettingByType(this.state.profileChoice);
     });
   }
 
@@ -148,8 +203,40 @@ class StaffProfile extends React.Component {
 
   }
 
+  handleSubmit = (event) => {
+    event.preventDefault();
+    console.log("state before update:");
+    console.log(this.state.chosenFaculty);
+
+    if (this.state.isUpdated) {
+      console.log("no need to update");
+    }
+
+    console.log("updating info");
+
+    this.setState({
+      isUpdated: true
+    });
+
+    console.log("update success");
+  }
+
   // render list elements according to returned faculty list
   renderFacultyListElement = (facultyList) => {
+    if (facultyList === undefined || facultyList.length === 0) {
+      const facultyElement = [
+        <ListGroup.Item variant="secondary" key={0}>
+          No Result
+        </ListGroup.Item>
+      ];
+
+      this.setState({
+        facultyListElements: facultyElement
+      });
+
+      return -1;
+    }
+
     let facultyElements = facultyList.map((faculty, index) => 
       <ListGroup.Item 
         as="button" 
@@ -170,152 +257,107 @@ class StaffProfile extends React.Component {
     });
   }
 
-  // render profile setting according to returned profile type
-  renderProfileSettingByType = (type) => {
-    if (type === "template") {
-      const tempForm = 
-      <Form>
-        <h5>Page Template</h5>
-        <Form.Group>
-          <Form.Label>Brief Introduction</Form.Label>
-          <Form.Control 
-            name="intro"
-            value={this.state.pageDetail.intro}
-            onChange={this.handleProfileDetailChange}
-          />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Contact and Other Information</Form.Label>
-          <Form.Control 
-            name="contact"
-            value={this.state.pageDetail.contact}
-            onChange={this.handleProfileDetailChange}
-          />
-        </Form.Group>
-      </Form>
-
-      this.setState({
-        settingDetail: tempForm
-      });
-    }
-
-  }
-
-  modifyCardToReactElement = (reactCardArray) => {
-    reactCardArray.forEach((card, cardIndex) => {
-      // transform the text list in each card into form elments
-      card.textList = card.textList.map((text, textIndex) => {
-        return (
-          <Form.Group key={textIndex}>
-            <Form.Label>Card Text {textIndex+1}</Form.Label>
-            <Form.Control 
-              name="textList"
-              key={textIndex} 
-              value={this.state.cards[cardIndex].textList[textIndex]} 
-              onChange={this.handleCardChange(cardIndex, textIndex)}
-              disabled={this.state.cards[cardIndex].deprecated === 1}
-            />
-          </Form.Group>
-        );
-      });
-    });
-
-    reactCardArray = reactCardArray.map((item, cardIndex) => {
-      // transform the whole card object into form elements
-      return (
-        // each card becomes a tab of form in tabs
-        <Tab key={cardIndex} eventKey={cardIndex} title={item.title} size="sm">
-        <Form.Group 
-          key={cardIndex} 
-          controlId={cardIndex} 
-          style={{backgroundColor: "rgb(219, 215, 210)", padding: "15px"}}
-        >
-          <Form.Row>
-            <Col sm={4}>
-              <Form.Group>
-                <Form.Label>Title</Form.Label>
-                <Form.Control 
-                  name="title"
-                  value={this.state.cards[cardIndex].title} 
-                  onChange={this.handleCardChange(cardIndex)}
-                  disabled={this.state.cards[cardIndex].deprecated === 1}
-                />
-              </Form.Group>
-            </Col>
-            <Col>
-              <Form.Group>
-                <Form.Label>URL</Form.Label>
-                <InputGroup>
-                    <InputGroup.Prepend>
-                      <InputGroup.Text id="inputGroupPrepend">htttps://site-address</InputGroup.Text>
-                    </InputGroup.Prepend>
-                <Form.Control 
-                  name="url"
-                  value={this.state.cards[cardIndex].url} 
-                  onChange={this.handleCardChange(cardIndex)}
-                  disabled={this.state.cards[cardIndex].deprecated === 1}
-                />
-                </InputGroup>
-              </Form.Group>
-            </Col>
-          </Form.Row>
-
-          {item.textList}
-
-          <Form.Group>
-            <Button 
-              variant={this.state.cards[cardIndex].deprecated === 1 ? "outline-danger" : "danger"}
-              size="sm"
-              onClick={this.handleRemove(cardIndex)}
-            >
-              {this.state.cards[cardIndex].deprecated === 1 ? "Cancel" : "Remove"}
-            </Button>
-            <Form.Text style={{color: "red", marginLeft: "2px"}}>WARNING: the whole card will be removed after update!</Form.Text>
-          </Form.Group>
-        </Form.Group>
-        </Tab>
-      );
-    });
-
-    this.setState({
-      cardsReactElement: reactCardArray
-    });
-
-    return _.cloneDeep(reactCardArray);
-  }
-
+  // sections listed from small to large
   render() {
+    // small dynamic parts
+    const updateSuccess = <span style={{color: "green"}}>all contents are up-to-date</span>;
+    const urlText = this.state.profileType === "template" ?
+      "https://site-address" : "https://";
+
+    // faculty list search bar
+    // will not appear unless faculty type is chosen
+    const searchBar = this.state.facultyType !== "" ?
+      <Form inline>
+        <FormControl 
+          type="text" 
+          placeholder="Enter name to search"
+          value={this.state.searchName} 
+          className="mr-sm-2" 
+          onChange={(event) => {this.setState({searchName: event.target.value})}}
+        />
+        <Button 
+          variant="outline-success" 
+          size="sm" 
+          onClick={this.handleGoSearch} 
+          style={{marginTop: "10px", marginRight: "10px"}}
+        >
+          Search
+        </Button>
+        <Button 
+          variant="outline-danger" 
+          size="sm" 
+          onClick={this.handleCancelSearch} 
+          style={{marginTop: "10px"}}
+        >
+          Cancel
+        </Button>
+      </Form> : null;
+
+    // template setting section
+    // will not show if personal url is chosen
+    const templateDetail = this.state.profileType === "template" ?
+    <React.Fragment>
+      <Form.Label><b>Page Template</b></Form.Label>
+      <Form.Group>
+        <Form.Label>Brief Introduction</Form.Label>
+        <Form.Control 
+          name="intro"
+          value={this.state.pageDetail.intro}
+          onChange={this.handleProfileDetailChange}
+        />
+      </Form.Group>
+
+      <Form.Group>
+        <Form.Label>Contact and Other Information</Form.Label>
+        <Form.Control 
+          name="contact"
+          value={this.state.pageDetail.contact}
+          onChange={this.handleProfileDetailChange}
+        />
+      </Form.Group>
+    </React.Fragment> : null;
+
+    // main setting page
+    // will not show until a faculty is chosen
     const mainSettingDetail = this.state.chosenFaculty.listIndex !== -1 ? 
     <React.Fragment>
       <h5>Choose a Way to Provide Profile</h5>
       <div onChange={this.handleProfileTypeChange}>
-        <input type="radio" name="url" value="url" checked={this.state.profileChoice === "url"} onChange={() => {}}/>
+        <input type="radio" name="url" value="url" checked={this.state.profileType === "url"} onChange={() => {}}/>
         <label htmlFor="url" style={{paddingLeft: "5px"}}>use personal url</label>
         <br />
-        <input type="radio" name="template" value="template" checked={this.state.profileChoice === "template"} onChange={() => {}}/>
+        <input type="radio" name="template" value="template" checked={this.state.profileType === "template"} onChange={() => {}}/>
         <label htmlFor="template" style={{paddingLeft: "5px"}}>use provided template</label>
       </div>
       <hr />
 
-      <Form>
+      <h5>Profile Detail</h5>
+      <Form onSubmit={this.handleSubmit}>
         <Form.Group>
           <Form.Label>Personal URL</Form.Label>
           <InputGroup>
             <InputGroup.Prepend>
-              <InputGroup.Text id="inputGroupPrepend">https://</InputGroup.Text>
+              <InputGroup.Text id="inputGroupPrepend">{urlText}</InputGroup.Text>
             </InputGroup.Prepend>
             <Form.Control 
               name="url"
               value={this.state.chosenFaculty.url}
               placeholder="personal website url"
               onChange={this.handleFacultyInfoChange}
-              disabled={this.state.profileChoice === "template"}
+              disabled={this.state.profileType === "template"}
             />
           </InputGroup>
         </Form.Group>
+
+        {templateDetail}
+        <hr />
+        <Button variant="primary" type="submit">
+          Update
+        </Button>
+        <Form.Text className="text-muted">
+          {this.state.isUpdated ? updateSuccess : "changes have not been updated"}
+        </Form.Text>
       </Form>
-      
-      {this.state.settingDetail}
     </React.Fragment> : null;
 
     return (
@@ -327,17 +369,19 @@ class StaffProfile extends React.Component {
             <hr />
             <h5>Faculty Type</h5>
             <div onChange={this.handleFacultyTypeChange}>
-              <input type="radio" name="regular" value="regular" checked={this.state.facultyChoice === "regular"} onChange={() => {}}/>
+              <input type="radio" name="regular" value="regular" checked={this.state.facultyType === "regular"} onChange={() => {}}/>
               <label htmlFor="regular" style={{paddingLeft: "5px"}}>regular faculty</label>
               <br />
-              <input type="radio" name="research" value="research" checked={this.state.facultyChoice === "research"} onChange={() => {}}/>
+              <input type="radio" name="research" value="research" checked={this.state.facultyType === "research"} onChange={() => {}}/>
               <label htmlFor="url" style={{paddingLeft: "5px"}}>research staff</label>
               <br />
-              <input type="radio" name="admin" value="admin" checked={this.state.facultyChoice === "admin"} onChange={() => {}}/>
+              <input type="radio" name="admin" value="admin" checked={this.state.facultyType === "admin"} onChange={() => {}}/>
               <label htmlFor="admin" style={{paddingLeft: "5px"}}>admin staff</label>
             </div>
             <hr />
+
             <h5>Faculty List</h5>
+            {searchBar}
             <ListGroup className="profile-list-group">
               {this.state.facultyListElements}
             </ListGroup>
