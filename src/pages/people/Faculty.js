@@ -1,17 +1,19 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
 import axios from 'axios';
+import _ from 'lodash';
 
 class Faculty extends React.Component {
   constructor() {
     super();
     this.state = {
-      facultyList: []
+      facultyList: [],
+      facultyListElement: []
     };
   }
 
   componentDidMount() {
-
+    this.getFacultyByType("regular");
   }
 
   getFacultyByType = async (type) => {
@@ -26,11 +28,48 @@ class Faculty extends React.Component {
         console.log(err);
       });
 
-    if (res.status === 200 && res.data.code === 0) {      
+    if (res.status === 200 && res.data.code === 0) {
       this.setState({
         facultyList: res.data.data
+      }, () => {
+        this.renderFacultyListElement(this.state.facultyList);
       });
     }
+  }
+
+  renderFacultyListElement = (facultyList) => {
+    facultyList = facultyList.map((faculty, index) => {
+      let link;
+      if (faculty.url === "") {
+        link = faculty.name;
+      } else if (faculty.url.includes("https://")) {
+        link = <a 
+          target="_blank" 
+          href={faculty.url} 
+          rel="noopener noreferrer"
+          style={{color: "black"}}
+        >
+          {faculty.name}
+        </a>;
+      } else {
+        link = <a href={faculty.url} style={{color: "black"}}>{faculty.name}</a>;
+      }
+
+      return (
+        <React.Fragment>
+          <tr>
+            <td>{link}</td>
+            <td>{faculty.phone}</td>
+            <td>{faculty.office}</td>
+            <td>{faculty.email}</td>
+          </tr>
+        </React.Fragment>
+      );
+    });
+
+    this.setState({
+      facultyListElement: _.cloneDeep(facultyList)
+    });
   }
 
   render() {
@@ -41,7 +80,7 @@ class Faculty extends React.Component {
         <hr />
         <p>regular faculty</p>
         
-        <Table striped bordered hover size="sm">
+        <Table striped bordered hover size="sm" style={{textAlign: "center"}}>
           <thead style={{backgroundColor: "#066baf", color: "white"}}>
             <tr>
               <th>name</th>
@@ -51,30 +90,7 @@ class Faculty extends React.Component {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Mark Otto</td>
-              <td>123</td>
-              <td>102</td>
-              <td>123@abc</td>
-            </tr>
-            <tr>
-              <td>Jacob Thorton</td>
-              <td>123</td>
-              <td>102</td>
-              <td>123@abc</td>
-            </tr>
-            <tr>
-              <td>Larry Bird</td>
-              <td>123</td>
-              <td>102</td>
-              <td>123@abc</td>
-            </tr>
-            <tr>
-              <td>Jessica Jones</td>
-              <td>123</td>
-              <td>102</td>
-              <td>123@abc</td>
-            </tr>
+            {this.state.facultyListElement}
           </tbody>
         </Table>
       </React.Fragment>

@@ -47,6 +47,7 @@ class AdminHome extends React.Component {
     this.getTextBlocksByType("sidebar");
     this.getCards();
 
+    // alert before leaving if updates are not saved
     window.addEventListener('beforeunload', this.beforeunload);
   }
 

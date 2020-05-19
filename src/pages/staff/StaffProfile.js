@@ -123,13 +123,20 @@ class StaffProfile extends React.Component {
 
   // load faculty info after clicked
   handleFacultyClick = (faculty, index) => (event) => {
+    // trim the faculty url if it is personal url
+    let facultyUrl = faculty.url;
+    if (facultyUrl.includes("https://")) {
+      facultyUrl = facultyUrl.substring(8);
+    }
+
     const facultyObj = {
       ...faculty,
+      url: facultyUrl,
       isUpdated: true,
       listIndex: index
     }
 
-    // allow to jump to other faculties
+    // not allow to jump to other faculties
     // unless changes are updated
     const oldName = this.state.chosenFaculty.name
     if (!this.state.isUpdated) {
@@ -184,6 +191,7 @@ class StaffProfile extends React.Component {
     }
   }
 
+  // currently handle the url change
   handleFacultyInfoChange = (event) => {
     const {name, value} = event.target;
 
@@ -210,19 +218,52 @@ class StaffProfile extends React.Component {
 
     if (this.state.isUpdated) {
       console.log("no need to update");
+      return 0;
     }
 
-    console.log("updating info");
+    this.updateFacultyUrl();
 
     this.setState({
       isUpdated: true
     });
+  }
 
-    console.log("update success");
+  updateFacultyUrl = async () => {
+    const url = process.env.REACT_APP_FACULTY_URL + "/updateFacultyUrl";
+
+    // check url type
+    let facultyUrl = this.state.chosenFaculty.url;
+    if (this.state.profileType === "url") {
+      facultyUrl = "https://" + facultyUrl;
+    }
+    
+    const res = await axios.get(url, {
+      params: {
+        id: this.state.chosenFaculty.id,
+        url: facultyUrl
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return -1;
+    });
+
+    if (res.status === 200 && res.data.code === 0) {
+      console.log("url updated");
+      // refresh the faculty list after update
+      this.forceUpdate(() => {
+        this.getFacultyByType(this.state.facultyType);
+      })
+
+      return 0;
+    } else {
+      return 1;
+    }
   }
 
   // render list elements according to returned faculty list
   renderFacultyListElement = (facultyList) => {
+    // render empty faculty array
     if (facultyList === undefined || facultyList.length === 0) {
       const facultyElement = [
         <ListGroup.Item variant="secondary" key={0}>
