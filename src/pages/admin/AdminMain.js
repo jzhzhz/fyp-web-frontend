@@ -43,6 +43,19 @@ export const AdminMain = (props) => {
         <ListGroup className="list-group">
           <ListGroup.Item as="a" variant="secondary" href="/">Back to Home</ListGroup.Item>
         </ListGroup>
+        <br />
+
+        <h3>Utilities</h3>
+        <hr />
+        <ListGroup className="list-group">
+          <ListGroup.Item 
+            as="a" 
+            variant="secondary" 
+            href={process.env.REACT_APP_ADMIN_URL + "/getFacultyExcelFile"}
+          >
+            Download Faculties Excel File
+          </ListGroup.Item>
+        </ListGroup>
 
         <hr/>
         <Button className="bt" href="/" onClick={handleLogout}>logout</Button>
