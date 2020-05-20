@@ -5,6 +5,10 @@ import _ from 'lodash';
 import { getCurrentDate } from '../../utils/Utils';
 import bsCustomFileInput from 'bs-custom-file-input';
 
+/**
+ * admin page for home page elements, including:
+ * headline, sidebar, jumbotron text, cards
+ */
 class AdminHome extends React.Component {
   constructor() {
     super();
@@ -41,6 +45,11 @@ class AdminHome extends React.Component {
     };
   }
 
+  /**
+   * retrive home page information 
+   * when this admin page is first loaded,
+   * add event listener for unsaved progress as well
+   */
   componentDidMount() {
     this.getTextBlocksByType("headline");
     this.getTextBlocksByType("jumbo");
@@ -51,10 +60,17 @@ class AdminHome extends React.Component {
     window.addEventListener('beforeunload', this.beforeunload);
   }
 
+  /**
+   * remove the event listener when unmount this page
+   */
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.beforeunload);
   }
 
+  /**
+   * function to check whether progress 
+   * has been updated
+   */
   beforeunload = (e) => {
     if (!this.state.isUpdated) {
       e.preventDefault();
@@ -62,9 +78,14 @@ class AdminHome extends React.Component {
     }
   }
 
+  /**
+   * get home page text blocks by type
+   * @param {string} type
+   */
   getTextBlocksByType = async (type) => {
     let res = {};
-    const url = process.env.REACT_APP_BACKEND_URL + "/getHomeTextBlockByType?type=" + type;
+    const url = process.env.REACT_APP_BACKEND_URL +
+     "/getHomeTextBlockByType?type=" + type;
     
     await axios.get(url)
       .then((getRes) => {
@@ -85,6 +106,9 @@ class AdminHome extends React.Component {
     return 0;
   }
 
+  /**
+   * get home page cards information
+   */
   getCards = async () => {
     let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getAllCards";
@@ -116,13 +140,20 @@ class AdminHome extends React.Component {
       });
 
     } else { return -1; }
-
+    
+    // calling function to render the list into react elements
     this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
 
     return 0;
   }
 
+  /**
+   * static textblock change handler
+   */
   handleStaticChange = (event) => {
+    // name: the name of home textblock
+    // id: the type of content in textblock
+    // value: the content of a type in textblock
     const {name, id, value} = event.target;
     this.setState((prevState) => {
       return {
@@ -136,13 +167,20 @@ class AdminHome extends React.Component {
     });
   }
 
+  /**
+   * card changes (except picture) handler
+   * @param {int} cardIndex
+   */
   handleCardChange = (cardIndex) => (event) => {
+    // name: type of content in a card
+    // value: content of that type in a card
     const {name, value} = event.target;
     let newCards = _.cloneDeep(this.state.cards);
 
     newCards[cardIndex][name] = value;
     newCards[cardIndex].changed = true;
 
+    // re-render the elements after state update
     this.setState({
         cards: _.cloneDeep(newCards),
         isUpdated: false
@@ -151,7 +189,13 @@ class AdminHome extends React.Component {
       });
   }
 
+  /**
+   * card picture changes handler
+   * @param {int} cardIndex
+   */
   handlePicChange = (cardIndex) => async (event) => {
+    // prevent default behavior
+    // initialize url, file and file data
     event.preventDefault();
     const url = process.env.REACT_APP_ADMIN_URL + "/uploadCardPic";
     const fileName = event.target.files[0].name
@@ -165,11 +209,13 @@ class AdminHome extends React.Component {
         console.log(err)
         return -1;
       });
-
+    
+    // handling response from backend
     if (res.status === 200 && res.data.code === 0) {
-      console.log("handling correct file");
+      // handling correct file response
       let newCards = _.cloneDeep(this.state.cards);
 
+      // update card picture related info
       newCards[cardIndex].isPicValid = true;
       newCards[cardIndex].imgUrl = res.data.data;
       newCards[cardIndex].imgName = fileName;
@@ -185,19 +231,25 @@ class AdminHome extends React.Component {
       });
 
     } else {
-      console.log("handling wrong file");
+      // handling wrong file response
       let newCards = _.cloneDeep(this.state.cards);
       newCards[cardIndex].isPicValid = false;
+      newCards[cardIndex].changed = true;
       console.log(newCards[cardIndex].imgUrl);
 
       this.setState({
-        cards: newCards
+        cards: newCards,
+        isUpdated: false
       }, () => {
         this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
       });
     }
   }
 
+  /**
+   * adding new card button handler, 
+   * new card template will be initialized
+   */
   handleAddCard = () => {
     console.log("adding another card");
     const newCard = {
@@ -222,6 +274,10 @@ class AdminHome extends React.Component {
     });
   }
 
+  /**
+   * card remove button handler
+   * @param {int} cardIndex
+   */
   handleRemove = (cardIndex) => (event) => {
     let newCards = _.cloneDeep(this.state.cards);
     if (newCards[cardIndex].deprecated === 1) {
@@ -239,6 +295,11 @@ class AdminHome extends React.Component {
     });
   }
   
+  /**
+   * submit button handler,
+   * calling several update functions 
+   * and handle the response
+   */
   handleSubmit = async (event) => {
     event.preventDefault();
     console.log("state before update:");
@@ -274,7 +335,7 @@ class AdminHome extends React.Component {
       }
 
     } else {
-      console.log("no need to update");
+      alert("no need to update");
     }
   }
 
@@ -299,7 +360,10 @@ class AdminHome extends React.Component {
     return 0;
   }
 
-  updateCards = async (type) => {
+  /**
+   * update the cards information
+   */
+  updateCards = async () => {
     let updateUrl = process.env.REACT_APP_ADMIN_URL + "/updateCardById";
       // iterate through each card, update old card, create new card
       for (const [index, card] of this.state.cards.entries()) {
@@ -308,8 +372,15 @@ class AdminHome extends React.Component {
           continue;
         }
 
+        // check empty picture
         if (card.imgUrl === "") {
           alert("please upload cover picture!");
+          return -1;
+        }
+
+        // check picture validity
+        if (!card.isPicValid) {
+          alert("invalid picture!");
           return -1;
         }
 
@@ -357,8 +428,10 @@ class AdminHome extends React.Component {
       return 0;
   }
 
-  // change the card information into form elements
-  // and store the result in the state
+  /**
+   * change the card information into form elements 
+   * and store the results in the state
+   */
   modifyCardToReactElement = (reactCardArray) => {
     reactCardArray = reactCardArray.map((item, cardIndex) => {
       if (item.id < 0) {
@@ -380,7 +453,9 @@ class AdminHome extends React.Component {
             [download picture]
           </a>;
       }
-
+      
+      // provide image upload functionality
+      // if the card is not deprecated
       let imageUploadSection = 
         <div>
           <Form.Label>Image Upload Disabled</Form.Label>
@@ -490,6 +565,8 @@ class AdminHome extends React.Component {
     this.setState({
       cardsReactElement: reactCardArray
     });
+
+    // initialize dynamic picture upload module
     bsCustomFileInput.init();
 
     return _.cloneDeep(reactCardArray);
