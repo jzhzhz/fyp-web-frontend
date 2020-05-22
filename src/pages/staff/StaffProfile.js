@@ -23,10 +23,10 @@ class StaffProfile extends React.Component {
         url: "",
         listIndex: -1
       },
-      url: "",
-      pageDetail: {
+      generalProfile: {
         intro: "",
-        contact: ""
+        sidebar: "",
+        imgUrl: ""
       },
       isUpdated: true
     };
@@ -189,7 +189,27 @@ class StaffProfile extends React.Component {
       profileType: oldProfileType
     }, () => {
       this.renderFacultyListElement(_.cloneDeep(this.state.facultyList));
+      this.getGeneralProfile(this.state.chosenFaculty.username);
     });
+  }
+
+  getGeneralProfile = async (username) => {
+    const url = process.env.REACT_APP_FACULTY_URL +
+      "/getGeneralProfile?username=" + username;
+    
+    const res = await axios.get(url)
+      .catch((err) => {
+        console.log(err);
+        return -1;
+      });
+
+    if (res.status === 200 && res.data.code === 0) {
+      const retGeneralProfile = res.data.data[0];
+
+      this.setState({
+        generalProfile: retGeneralProfile
+      });
+    }
   }
 
   /** handle profile type choosing radio buttons */ 
@@ -237,7 +257,18 @@ class StaffProfile extends React.Component {
   }
 
   handleProfileDetailChange = (event) => {
+    const {name, value} = event.target;
 
+    this.setState(prevState => {
+      return {
+        ...prevState,
+        generalProfile: {
+          ...prevState.generalProfile,
+          [name]: value
+        },
+        isUpdated: false
+      };
+    });
   }
 
   handleSubmit = (event) => {
@@ -372,7 +403,8 @@ class StaffProfile extends React.Component {
         <Form.Label>Brief Introduction</Form.Label>
         <Form.Control 
           name="intro"
-          value={this.state.pageDetail.intro}
+          as="textarea"
+          value={this.state.generalProfile.intro}
           onChange={this.handleProfileDetailChange}
         />
       </Form.Group>
@@ -380,8 +412,9 @@ class StaffProfile extends React.Component {
       <Form.Group>
         <Form.Label>Contact and Other Information</Form.Label>
         <Form.Control 
-          name="contact"
-          value={this.state.pageDetail.contact}
+          name="sidebar"
+          as="textarea"
+          value={this.state.generalProfile.sidebar}
           onChange={this.handleProfileDetailChange}
         />
       </Form.Group>
