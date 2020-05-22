@@ -1,5 +1,13 @@
 import React from 'react';
 import { Row, Col, Image } from 'react-bootstrap';
+import styled from 'styled-components';
+
+const Styles = styled.div`
+  a {
+    color: gray;
+    font-size: small;
+  }
+`;
 
 class Profile extends React.Component {
 
@@ -10,6 +18,7 @@ class Profile extends React.Component {
   render() {
 
     return (
+      <Styles>
       <React.Fragment>
         <h3>{this.props.match.params.name}</h3>
         <hr />
@@ -32,6 +41,7 @@ class Profile extends React.Component {
 
                 Note that the development build is not optimized.
                 To create a production build, use yarn build. 
+                To create a production build, use yarn build. 
               </p>
               <br />
 
@@ -39,54 +49,72 @@ class Profile extends React.Component {
               <hr />
               <Row>
                 <Col sm={"auto"}>
-                  <p>2020.1.2</p>
+                  <p>Jan 28, 2020</p>
                 </Col>
                 <Col>
-                  <p>Better of always missed we person mr. September smallness northward situation few her certainty something.</p>
+                  <p>Better of always missed we person mr. September smallness northward situation few her.</p>
                 </Col>
               </Row>
               <Row>
                 <Col sm={"auto"}>
-                  <p>2020.1.2</p>
+                <p>Jan 28, 2020</p>
                 </Col>
                 <Col>
-                  <p>Better of always missed we person mr. September smallness northward situation few her certainty something.</p>
+                  <p>Better of always missed we person mr. September smallness northward situation few her.</p>
                 </Col>
               </Row>
               <Row>
                 <Col sm={"auto"}>
-                  <p>2020.1.2</p>
+                <p>Jan 28, 2020</p>
                 </Col>
                 <Col>
-                  <p>Better of always missed we person mr. September smallness northward situation few her certainty something.</p>
+                  <p>Better of always missed we person mr. September smallness northward situation few her.</p>
                 </Col>
               </Row>
               <br />
 
               <h5>Publications</h5>
               <hr />
-              <Row>
+              <Row style={{marginBottom: "20px"}}>
                 <Col sm={"auto"}>
-                  <p>2020.1.2</p>
+                  <img 
+                    src="/pictures/river.jpg"
+                    alt="profile"
+                    height="130" width="220"
+                  />
                 </Col>
-                <Col>
-                  <p>Better of always missed we person mr. September smallness northward situation few her certainty something.</p>
+                <Col style={{paddingLeft: "5px"}}>
+                  <p style={{marginBottom: "5px"}}><b>Better of always missed we person</b></p>
+                  <p style={{marginBottom: "5px"}}>
+                    You can now view fyp-web-frontend in the browser.
+
+                    Local:            http://localhost:3000        
+                    On Your Network:  http://192.168.192.1:3000    
+                    On Your Network:  http://192.168.192.1:3000    
+                    On Your Network:  http://192.168.192.1:3000    
+                  </p>
+                  <a href="/">[MORE]</a>
                 </Col>
               </Row>
               <Row>
                 <Col sm={"auto"}>
-                  <p>2020.1.2</p>
+                  <img 
+                    src="/pictures/river.jpg"
+                    alt="profile"
+                    height="130" width="220"
+                  />
                 </Col>
-                <Col>
-                  <p>Better of always missed we person mr. September smallness northward situation few her certainty something.</p>
-                </Col>
-              </Row>
-              <Row>
-                <Col sm={"auto"}>
-                  <p>2020.1.2</p>
-                </Col>
-                <Col>
-                  <p>Better of always missed we person mr. September smallness northward situation few her certainty something.</p>
+                <Col style={{paddingLeft: "5px"}}>
+                  <p style={{marginBottom: "5px"}}><b>Better of always missed we person</b></p>
+                  <p style={{marginBottom: "5px"}}>
+                    You can now view fyp-web-frontend in the browser.
+
+                    Local:            http://localhost:3000        
+                    On Your Network:  http://192.168.192.1:3000    
+                    On Your Network:  http://192.168.192.1:3000    
+                    On Your Network:  http://192.168.192.1:3000    
+                  </p>
+                  <a href="/">[MORE]</a>
                 </Col>
               </Row>
             </div>
@@ -94,6 +122,7 @@ class Profile extends React.Component {
         </Row>
         <hr />
       </React.Fragment>
+      </Styles>
     );
   }
 }
