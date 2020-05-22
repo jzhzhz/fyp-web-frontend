@@ -32,10 +32,27 @@ class StaffProfile extends React.Component {
     };
   }
 
-  // handle faculty type choosing radio buttons
-  // clear the old chosen faculty
-  // clear the old profile type and setting page
-  // clear search results
+  componentDidMount() {
+    // alert before leaving if updates are not saved
+    window.addEventListener('beforeunload', this.beforeunload);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('beforeunload', this.beforeunload);
+  }
+
+  beforeunload = (e) => {
+    if (!this.state.isUpdated) {
+      e.preventDefault();
+      e.returnValue = true;
+    }
+  }
+
+  /**
+   * handle faculty type choosing with radio buttons,
+   * clear the old chosen faculty,
+   * clear search results
+   */
   handleFacultyTypeChange = (event) => {
     const {value} = event.target;
     this.setState({
@@ -58,7 +75,11 @@ class StaffProfile extends React.Component {
     });
   }
 
-  // get faculty list after type is chosen
+  /**
+   * get the faculty from backend 
+   * after a type is chosen
+   * @param {String} type
+   */
   getFacultyByType = async (type) => {
     let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getFacultyByType?type=" + type;
@@ -81,6 +102,10 @@ class StaffProfile extends React.Component {
     }
   }
 
+  /**
+   * handle the search to backend 
+   * after the search button is clicked
+   */
   handleGoSearch = async () => {
     console.log("doing search in backend");
     console.log("name: " + this.state.searchName + " type: " + this.state.facultyType);
@@ -121,7 +146,11 @@ class StaffProfile extends React.Component {
     });
   }
 
-  // load faculty info after clicked
+  /**
+   * load faculty info after clicked
+   * @param {Object} faculty the faculty to be loaded
+   * @param {Integer} index the index in the faculty list
+   */
   handleFacultyClick = (faculty, index) => (event) => {
     // trim the faculty url if it is personal url
     let facultyUrl = faculty.url;
@@ -163,7 +192,7 @@ class StaffProfile extends React.Component {
     });
   }
 
-  // handle profile type choosing radio buttons
+  /** handle profile type choosing radio buttons */ 
   handleProfileTypeChange = (event) => {
     const {value} = event.target;
 
@@ -191,7 +220,7 @@ class StaffProfile extends React.Component {
     }
   }
 
-  // currently handle the url change
+  /** currently handle the url change */ 
   handleFacultyInfoChange = (event) => {
     const {name, value} = event.target;
 
@@ -261,7 +290,7 @@ class StaffProfile extends React.Component {
     }
   }
 
-  // render list elements according to returned faculty list
+  /** render list elements according to returned faculty list */ 
   renderFacultyListElement = (facultyList) => {
     // render empty faculty array
     if (facultyList === undefined || facultyList.length === 0) {
@@ -298,7 +327,7 @@ class StaffProfile extends React.Component {
     });
   }
 
-  // sections listed from small to large
+  /** sections listed from small to large */ 
   render() {
     // small dynamic parts
     const updateSuccess = <span style={{color: "green"}}>all contents are up-to-date</span>;

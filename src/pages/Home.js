@@ -157,8 +157,6 @@ class Home extends React.Component {
               <br />
               <br />
 
-              {/* <a target="_blank" href="https://google.com" rel="noopener noreferrer">test</a> */}
-
               <h3>News</h3>
               <hr />
               {this.state.cardReactElements}

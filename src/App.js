@@ -33,6 +33,7 @@ class App extends React.Component {
     };
   }
 
+  /** handle changes in login page */
   handleChange = (event) => {
     const {name, value} = event.target;
     this.setState({
@@ -40,6 +41,7 @@ class App extends React.Component {
     });
   }
 
+  /** login button handler in login page */
   handleAppSubmit = async (loginType) => {
     let checkResult = false;
     const url = process.env.REACT_APP_ADMIN_URL + "/checkAdmin?" +
