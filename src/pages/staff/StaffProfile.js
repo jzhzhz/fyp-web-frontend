@@ -3,6 +3,8 @@ import { Form, FormControl, Row, Col, InputGroup, Button, ListGroup } from 'reac
 import _ from 'lodash';
 import axios from 'axios';
 import '../../styles/staff-profile.css';
+import { PubCardSettings } from '../../components/PubCardSettings';
+import bsCustomFileInput from 'bs-custom-file-input';
 
 class StaffProfile extends React.Component {
   constructor() {
@@ -28,6 +30,12 @@ class StaffProfile extends React.Component {
         sidebar: "",
         imgUrl: ""
       },
+      profilePhoto: {
+        uploadMsg: "",
+        isValid: false
+      },
+      newsCards: [],
+      pubCards: [],
       isUpdated: true
     };
   }
@@ -163,7 +171,7 @@ class StaffProfile extends React.Component {
       url: facultyUrl,
       isUpdated: true,
       listIndex: index
-    }
+    };
 
     // not allow to jump to other faculties
     // unless changes are updated
@@ -190,6 +198,8 @@ class StaffProfile extends React.Component {
     }, () => {
       this.renderFacultyListElement(_.cloneDeep(this.state.facultyList));
       this.getGeneralProfile(this.state.chosenFaculty.username);
+      this.getNewsCards();
+      this.getPubCards();
     });
   }
 
@@ -204,11 +214,91 @@ class StaffProfile extends React.Component {
       });
 
     if (res.status === 200 && res.data.code === 0) {
-      const retGeneralProfile = res.data.data[0];
+      // exist profile before
+      if (res.data.data) {
+        const retGeneralProfile = res.data.data[0];
 
-      this.setState({
-        generalProfile: retGeneralProfile
+        this.setState({
+          generalProfile: retGeneralProfile
+        });
+      } else {
+        const tempGeneralProfile = {
+          intro: "<p>sample intro code</p>",
+          sidebar: "<p>sample sidebar code</p>",
+          imgUrl: ""
+        };
+
+        this.setState({
+          generalProfile: tempGeneralProfile
+        });
+      }
+    }
+  }
+
+  getNewsCards = async () => {
+    console.log("getting news cards");
+    const url = process.env.REACT_APP_FACULTY_URL +
+    "/getProfileCustom?username=" + this.state.chosenFaculty.username;
+  
+    const res = await axios.get(url)
+      .catch((err) => {
+        console.log(err);
+        return -1;
       });
+
+    if (res.status === 200 && res.data.code === 0) {
+      console.log(res.data.data);
+    }
+
+    this.setState({ 
+      newsCards: [{
+          dateBar: "",
+          codeSegment: "",
+          type: "",
+          deprecated: 0
+        }]  
+    });
+  }
+
+  getPubCards = async () => {
+    const url = process.env.REACT_APP_FACULTY_URL +
+    "/getProfileCard?username=" + this.state.chosenFaculty.username;
+  
+    const res = await axios.get(url)
+      .catch((err) => {
+        console.log(err);
+        return -1;
+      });
+
+    if (res.status === 200 && res.data.code === 0) {
+      if (res.data.data.length >= 1) {
+        let retPubCards = res.data.data;
+        retPubCards.forEach(card => {
+          card.changed = false;
+          card.isPicValid = card.imgUrl !== "";
+          card.picUploadMsg = "";
+        });
+
+        this.setState({
+          pubCards: retPubCards
+        });
+      } else {
+        this.setState({
+          pubCards: [{
+            id: 0,
+            title: "sample title",
+            text: "sample content text",
+            url: "https://sample.url",
+            imgName: "",
+            imgUrl: "",
+            isPicValid: false,
+            uploadMsg: "",
+            type: "publication",
+            deprecated: 0,
+            changed: true
+          }]
+        });
+      }
     }
   }
 
@@ -256,6 +346,20 @@ class StaffProfile extends React.Component {
     });
   }
 
+  handlePicChange = () => {
+    this.setState(prevState => {
+      return {
+        ...prevState,
+        profilePhoto: {
+          ...prevState.profilePhoto,
+          isValid: true,
+          uploadMsg: "update photo success"
+        },
+        isUpdated: false
+      };
+    });
+  }
+
   handleProfileDetailChange = (event) => {
     const {name, value} = event.target;
 
@@ -271,10 +375,95 @@ class StaffProfile extends React.Component {
     });
   }
 
+  handleCardChange = (cardIndex, type) => (event) => {
+    const {name, value} = event.target;
+    const cardsName = `${type}Cards`;
+
+    let newCards = _.cloneDeep(this.state[cardsName]);
+    newCards[cardIndex][name] = value;
+    newCards[cardIndex].changed = true;
+
+    this.setState({
+      [cardsName]: _.cloneDeep(newCards),
+      isUpdated: false
+    });
+
+    console.log(type + cardIndex + "changing");
+  }
+
+  handleCardPicChange = (cardIndex, type) => (event) => {
+    console.log("handling card pic change");
+    // prevent default behavior
+    // initialize url, file and file data
+    event.preventDefault();
+    const url = process.env.REACT_APP_FACULTY_URL + "/uploadCardPic";
+    const fileName = event.target.files[0].name
+    const formData = new FormData();
+    formData.append('file', event.target.files[0]);
+
+    const cardsName = `${type}Cards`;
+    let newCards = _.cloneDeep(this.state[cardsName]);
+    newCards[cardIndex].isPicValid = true;
+    newCards[cardIndex].picUploadMsg = "picture upload success!";
+    newCards[cardIndex].changed = true;
+    
+    this.setState({
+      [cardsName]: newCards,
+      isUpdated: false
+    });
+
+    console.log(fileName+url);
+  }
+
+  handleAddCard = (event) => {
+    const {name} = event.target;
+    const cardsName = `${name}Cards`;
+
+    let newCards = _.cloneDeep(this.state[cardsName]);
+    let cardTemp = {};
+
+    if (name === "news") {
+
+    } else if (name === "pub") {
+      cardTemp = {
+        id: 0,
+        title: "sample title",
+        text: "sample content text",
+        url: "https://sample.url",
+        imgName: "",
+        imgUrl: "",
+        isPicValid: false,
+        uploadMsg: "",
+        type: "publication",
+        deprecated: 0,
+        changed: true
+      }
+    }
+    
+    newCards.push(cardTemp);
+
+    this.setState({
+      [cardsName]: _.cloneDeep(newCards),
+      isUpdated: false
+    });
+  }
+
+  handleRemove = (cardIndex, type) => (event) => {
+    const cardsName = `${type}Cards`;
+
+    let newCards = _.cloneDeep(this.state[cardsName]);
+    newCards[cardIndex].deprecated = 
+      newCards[cardIndex].deprecated === 0 ? 1 : 0;
+    newCards[cardIndex].changed = true;
+
+    this.setState({
+      [cardsName]: _.cloneDeep(newCards),
+      isUpdated: false
+    });
+  }
+
   handleSubmit = (event) => {
     event.preventDefault();
-    console.log("state before update:");
-    console.log(this.state.chosenFaculty);
 
     if (this.state.isUpdated) {
       console.log("no need to update");
@@ -282,6 +471,10 @@ class StaffProfile extends React.Component {
     }
 
     this.updateFacultyUrl();
+
+    this.updateGeneralProfile();
+
+    this.updateCards("pub");
 
     this.setState({
       isUpdated: true
@@ -313,11 +506,87 @@ class StaffProfile extends React.Component {
       // refresh the faculty list after update
       this.forceUpdate(() => {
         this.getFacultyByType(this.state.facultyType);
-      })
+      });
 
       return 0;
     } else {
       return 1;
+    }
+  }
+
+  updateGeneralProfile = async () => {
+    const url = process.env.REACT_APP_FACULTY_URL + "/updateGeneralProfile";
+    
+    const res = await axios.get(url, {
+      params: {
+        username: this.state.chosenFaculty.username,
+        intro: this.state.generalProfile.intro,
+        sidebar: this.state.generalProfile.sidebar,
+        imgUrl: this.state.generalProfile.imgUrl
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return -1;
+    });
+
+    if (res.status === 200 && res.data.code === 0) {
+      console.log("update general profile success");
+
+      // refresh the faculty list after update
+      this.forceUpdate(() => {
+        this.getFacultyByType(this.state.facultyType);
+      });
+
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+
+  updateCards = async (type) => {
+    const updateUrl = process.env.REACT_APP_FACULTY_URL + "/updateProfileCard";
+    const cardsName = `${type}Cards`;
+
+    for (const [index, card] of this.state[cardsName].entries()) {
+      if (!card.changed) {
+        continue;
+      }
+
+      // // check empty picture
+      // if (card.imgUrl === "") {
+      //   alert("please upload cover picture!");
+      //   return -1;
+      // }
+
+      // // check picture validity
+      // if (!card.isPicValid) {
+      //   alert("invalid picture!");
+      //   return -1;
+      // }
+      console.log("before update: ");
+      console.log(card)
+      const res = await axios.get(updateUrl, {
+        params: {
+          ...card,
+          username: this.state.chosenFaculty.username
+        }
+      }).catch(err => {
+        console.log(err);
+        return -1;
+      });
+
+      if (res.status === 200 && res.data.code === 0) {
+        if (res.data.data !== 0) {
+          const retDatabaseId = res.data.data;
+          let newCards = _.cloneDeep(this.state[cardsName]);
+
+          newCards[index].id = retDatabaseId;
+          this.setState({
+            [cardsName]: newCards
+          });
+        }
+      }
     }
   }
 
@@ -398,26 +667,60 @@ class StaffProfile extends React.Component {
     // will not show if personal url is chosen
     const templateDetail = this.state.profileType === "template" ?
     <React.Fragment>
-      <Form.Label><b>Page Template</b></Form.Label>
+      <h5>Page Template</h5>
+
       <Form.Group>
-        <Form.Label>Brief Introduction</Form.Label>
+        <Form.Label>Upload Profile Photo</Form.Label>
+        <Form.File 
+          id="custom-profile-photo"
+          custom
+        > 
+          <Form.File.Input 
+            isValid={this.state.profilePhoto.isValid}
+            isInvalid={!this.state.profilePhoto.isValid} 
+            onChange={this.handlePicChange}
+          />
+          <Form.File.Label>upload photo here</Form.File.Label>
+          <Form.Control.Feedback type="valid">
+            {this.state.profilePhoto.uploadMsg}
+          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid" style={{color: "red"}}>
+            invalid picture type!
+          </Form.Control.Feedback>
+        </Form.File>
+        {/* {imgDownloadLink} */}
+      </Form.Group>
+
+      <Form.Group>
+        <Form.Label>Brief Introduction (HTML code segment):</Form.Label>
         <Form.Control 
           name="intro"
           as="textarea"
           value={this.state.generalProfile.intro}
           onChange={this.handleProfileDetailChange}
+          style={{height: "130px"}}
         />
       </Form.Group>
 
       <Form.Group>
-        <Form.Label>Contact and Other Information</Form.Label>
+        <Form.Label>Contact and Other Sidebar Information (HTML code segment):</Form.Label>
         <Form.Control 
           name="sidebar"
           as="textarea"
           value={this.state.generalProfile.sidebar}
           onChange={this.handleProfileDetailChange}
+          style={{height: "130px"}}
         />
       </Form.Group>
+
+      <Form.Label><b>Publication</b> Card Settings:</Form.Label>
+      <PubCardSettings
+        cards={this.state.pubCards}
+        handleCardChange={this.handleCardChange} 
+        handleCardPicChange={this.handleCardPicChange}
+        handleRemove={this.handleRemove}
+        handleAddCard={this.handleAddCard}
+      />
     </React.Fragment> : null;
 
     // main setting page
@@ -451,6 +754,7 @@ class StaffProfile extends React.Component {
             />
           </InputGroup>
         </Form.Group>
+        <br />
 
         {templateDetail}
         <hr />
@@ -462,6 +766,9 @@ class StaffProfile extends React.Component {
         </Form.Text>
       </Form>
     </React.Fragment> : null;
+
+    // initialize dynamic picture upload module
+    bsCustomFileInput.init();
 
     return (
       <React.Fragment>
@@ -490,7 +797,7 @@ class StaffProfile extends React.Component {
             </ListGroup>
           </Col>
 
-          <Col sm={8}>
+          <Col sm={8} style={{paddingLeft: "30px", paddingTop: "10px"}}>
             <h3>Profile Setting: <span style={{color: "gray"}}>{this.state.chosenFaculty.name}</span></h3>
             <hr />
             {mainSettingDetail}
