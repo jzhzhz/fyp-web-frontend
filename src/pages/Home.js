@@ -156,16 +156,25 @@ class Home extends React.Component {
               <HomeCarousel />
               <br />
               <br />
-
+            </Col>
+            <Col sm={3}>
+              <div dangerouslySetInnerHTML={{__html: this.state.sidebar.content}} />
+            </Col>
+          </Row>
+          <Row>
+            <Col sm={9}>
               <h3>News</h3>
               <hr />
               {this.state.cardReactElements}
               <hr />
             </Col>
             <Col sm={3}>
-              <div dangerouslySetInnerHTML={{__html: this.state.sidebar.content}} />
+              <h3>Events</h3>
               <hr />
-
+              <div>
+                <p><b>Robotics Today</b></p>
+                <p>This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+              </div>
             </Col>
           </Row>
         </div>

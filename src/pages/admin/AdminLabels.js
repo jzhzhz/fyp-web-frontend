@@ -17,6 +17,7 @@ class AdminLabels extends React.Component {
       aboutLen: 0,
       academicsLen: 0,
       admissionsLen: 0,
+      isUpdated: true
     };
   }
 
@@ -24,6 +25,25 @@ class AdminLabels extends React.Component {
     this.getLabelByType("about");
     this.getLabelByType("academics");
     this.getLabelByType("admissions");
+
+    // alert before leaving if updates are not saved
+    window.addEventListener('beforeunload', this.beforeunload);
+  }
+
+  /** remove the event listener when unmount this page */
+  componentWillUnmount() {
+    window.removeEventListener('beforeunload', this.beforeunload);
+  }
+
+  /**
+   * function to check whether progress 
+   * has been updated
+   */
+  beforeunload = (e) => {
+    if (!this.state.isUpdated) {
+      e.preventDefault();
+      e.returnValue = true;
+    }
   }
 
   getLabelByType = async (type) => {
@@ -76,7 +96,8 @@ class AdminLabels extends React.Component {
     newLabels[labelIndex].isUpdated = false;
 
     this.setState({
-      [type]: _.cloneDeep(newLabels)
+      [type]: _.cloneDeep(newLabels),
+      isUpdated: false
     }, () => {
       this.modifyLabelsToReactElement(_.cloneDeep(this.state[type]), type);
     });
@@ -196,7 +217,8 @@ class AdminLabels extends React.Component {
 
       this.setState({
         [labelType]: newLabels,
-        updating: false
+        updating: false,
+        isUpdated: true
       }, () => {
         this.modifyLabelsToReactElement(_.cloneDeep(this.state[labelType]), labelType)
       });
@@ -208,7 +230,7 @@ class AdminLabels extends React.Component {
 
   modifyLabelsToReactElement = (rawLabels, type) => {
     const labelTab = rawLabels.map((item, index) => {
-      const updateSuccess = <span style={{color: "green"}}>all contents are up-to-date</span>;
+      const updateSuccess = <span style={{color: "green"}}>label <b>{item.label}</b> is up-to-date</span>;
       const notUpdated = this.state[type][index].deprecated === 1 ?
         <span style={{color: "red"}}>WARNING: the whole card will be removed after update!</span> :
         "changes have not been updated";
