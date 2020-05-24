@@ -1,12 +1,14 @@
 import React from 'react';
 import { Form, FormControl, Row, Col, InputGroup, Button, ListGroup } from 'react-bootstrap';
+import bsCustomFileInput from 'bs-custom-file-input';
+import '../../styles/staff-profile.css';
+
 import _ from 'lodash';
 import axios from 'axios';
-import '../../styles/staff-profile.css';
+import * as Utils from '../../utils/Utils';
+
 import { PubCardSettings } from '../../components/PubCardSettings';
 import { NewsCardSettings } from '../../components/NewsCardSettings';
-import * as Utils from '../../utils/Utils';
-import bsCustomFileInput from 'bs-custom-file-input';
 
 class StaffProfile extends React.Component {
   constructor() {
@@ -63,7 +65,8 @@ class StaffProfile extends React.Component {
   /**
    * handle faculty type choosing with radio buttons,
    * clear the old chosen faculty,
-   * clear search results
+   * clear search results, 
+   * finally get faculty list from backend
    */
   handleFacultyTypeChange = (event) => {
     const {value} = event.target;
@@ -114,10 +117,7 @@ class StaffProfile extends React.Component {
     }
   }
 
-  /**
-   * handle the search to backend 
-   * after the search button is clicked
-   */
+  /** handle the search to backend after the search button is clicked */
   handleGoSearch = async () => {
     console.log("doing search in backend");
     console.log("name: " + this.state.searchName + " type: " + this.state.facultyType);
@@ -266,7 +266,7 @@ class StaffProfile extends React.Component {
         this.setState({
           newsCards: retNewsCards
         });
-      } else {
+      } else { // create a template card if not exist
         this.setState({
           newsCards: [{
             id: 0,
@@ -303,7 +303,7 @@ class StaffProfile extends React.Component {
         this.setState({
           pubCards: retPubCards
         });
-      } else {
+      } else { // create a template card if not exist
         this.setState({
           pubCards: [{
             id: 0,
@@ -369,8 +369,7 @@ class StaffProfile extends React.Component {
           isUpdated: false
         };
       });
-    } else {
-    // restore the profile
+    } else { // restore the profile
       this.setState(prevState => {
         return {
           ...prevState,
@@ -401,6 +400,7 @@ class StaffProfile extends React.Component {
     });
   }
 
+  /** send profile photo to backend */
   handlePicChange = async (event) => {
     console.log("handling profile pic change");
     // prevent default behavior
@@ -447,6 +447,7 @@ class StaffProfile extends React.Component {
     }
   }
 
+  /** handle the changes in general profile */
   handleProfileDetailChange = (event) => {
     const {name, value} = event.target;
 
@@ -462,6 +463,11 @@ class StaffProfile extends React.Component {
     });
   }
 
+  /** 
+   * handle the changes in card, according to
+   * @param {Integer} cardIndex index in a card
+   * @param {String} type type of card
+   */
   handleCardChange = (cardIndex, type) => (event) => {
     const {name, value} = event.target;
     const cardsName = `${type}Cards`;
@@ -476,6 +482,7 @@ class StaffProfile extends React.Component {
     });
   }
 
+  /** currently only handle publication card picture upload */
   handleCardPicChange = (cardIndex, type) => async (event) => {
     console.log("handling card pic change");
     // prevent default behavior
@@ -520,6 +527,7 @@ class StaffProfile extends React.Component {
     }
   }
 
+  /** handle card adding, "name" in target is the card type */
   handleAddCard = (event) => {
     const {name} = event.target;
     const cardsName = `${name}Cards`;
@@ -560,6 +568,11 @@ class StaffProfile extends React.Component {
     });
   }
 
+  /**
+   * remove the card by setting deprecated as 1, vice versa 
+   * @param {Integer} cardIndex index in a card
+   * @param {String} type type of card
+   */
   handleRemove = (cardIndex, type) => (event) => {
     const cardsName = `${type}Cards`;
 
@@ -574,6 +587,13 @@ class StaffProfile extends React.Component {
     });
   }
 
+  /**
+   * submit the whole profile by calling 
+   * updateFacultyUrl(), updateGeneralProfile(), 
+   * updateCards("news") and updateCards("pub"), 
+   * also check the image validity in general profile 
+   * and publication cards
+   */
   handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -779,6 +799,9 @@ class StaffProfile extends React.Component {
     const urlText = this.state.profileType === "template" ?
       "https://site-address" : "https://";
 
+    // the download link and name if image
+    // in general profile photo will be update 
+    // if the photo exists
     let profileImgLink = null;
     let imgName = null;
     if (this.state.generalProfile.imgUrl !== "") {
@@ -823,22 +846,24 @@ class StaffProfile extends React.Component {
         </Button>
       </Form> : null;
 
+    // section to change personal url
+    // will not pop up if there is no profile selected
     const personalUrl = this.state.profileType !== "" ?
     <Form.Group>
-    <Form.Label>Personal URL</Form.Label>
-    <InputGroup>
-      <InputGroup.Prepend>
-        <InputGroup.Text id="inputGroupPrepend">{urlText}</InputGroup.Text>
-      </InputGroup.Prepend>
-      <Form.Control 
-        name="url"
-        value={this.state.chosenFaculty.url}
-        placeholder="personal website url"
-        onChange={this.handleFacultyInfoChange}
-        disabled={this.state.profileType === "template"}
-      />
-    </InputGroup>
-  </Form.Group> : null;
+      <Form.Label>Personal URL</Form.Label>
+      <InputGroup>
+        <InputGroup.Prepend>
+          <InputGroup.Text id="inputGroupPrepend">{urlText}</InputGroup.Text>
+        </InputGroup.Prepend>
+        <Form.Control 
+          name="url"
+          value={this.state.chosenFaculty.url}
+          placeholder="personal website url"
+          onChange={this.handleFacultyInfoChange}
+          disabled={this.state.profileType === "template"}
+        />
+      </InputGroup>
+    </Form.Group> : null;
 
     // template setting section
     // will not show if personal url is chosen

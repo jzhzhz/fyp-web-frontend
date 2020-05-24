@@ -1,7 +1,10 @@
 import React from 'react';
-// eslint-disable-next-line
-import { Form, Tabs, Tab, InputGroup, Button } from 'react-bootstrap';
+import { Form, Tabs, Tab, Button } from 'react-bootstrap';
 
+/**
+ * return the settings for the publication card in profile page
+ * @param {Object} props some state objects in parent page
+ */
 export const PubCardSettings = (props) => {
   let cardElements = props.cards.map((card, cardIndex) => {
     // provide a picture download link
