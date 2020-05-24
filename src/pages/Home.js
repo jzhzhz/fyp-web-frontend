@@ -166,7 +166,7 @@ class Home extends React.Component {
               <h3>News</h3>
               <hr />
               {this.state.cardReactElements}
-              <hr />
+              <br />
             </Col>
             <Col sm={3}>
               <h3>Events</h3>
