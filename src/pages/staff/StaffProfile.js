@@ -4,6 +4,8 @@ import _ from 'lodash';
 import axios from 'axios';
 import '../../styles/staff-profile.css';
 import { PubCardSettings } from '../../components/PubCardSettings';
+import { NewsCardSettings } from '../../components/NewsCardSettings';
+import * as Utils from '../../utils/Utils';
 import bsCustomFileInput from 'bs-custom-file-input';
 
 class StaffProfile extends React.Component {
@@ -236,7 +238,6 @@ class StaffProfile extends React.Component {
   }
 
   getNewsCards = async () => {
-    console.log("getting news cards");
     const url = process.env.REACT_APP_FACULTY_URL +
     "/getProfileCustom?username=" + this.state.chosenFaculty.username;
   
@@ -247,17 +248,28 @@ class StaffProfile extends React.Component {
       });
 
     if (res.status === 200 && res.data.code === 0) {
-      console.log(res.data.data);
-    }
+      if (res.data.data.length >= 1) {
+        let retNewsCards = res.data.data;
+        retNewsCards.forEach(card => {
+          card.changed = false;
+        });
 
-    this.setState({ 
-      newsCards: [{
-          dateBar: "",
-          codeSegment: "",
-          type: "",
-          deprecated: 0
-        }]  
-    });
+        this.setState({
+          newsCards: retNewsCards
+        });
+      }
+    } else {
+      this.setState({
+        newsCards: [{
+          id: 0,
+          dateBar: Utils.getCurrentDate("."),
+          codeSegment: "<p>html code segment</p>",
+          type: "news",
+          deprecated: 0,
+          changed: true
+        }]
+      });
+    }
   }
 
   getPubCards = async () => {
@@ -712,6 +724,16 @@ class StaffProfile extends React.Component {
           style={{height: "130px"}}
         />
       </Form.Group>
+      <hr />
+
+      <Form.Label><b>News</b> Card Settings:</Form.Label>
+      <NewsCardSettings 
+        cards={this.state.newsCards}
+        handleCardChange={this.handleCardChange}
+        handleRemove={this.handleRemove}
+        handleAddCard={this.handleAddCard}
+      />
+      <hr />
 
       <Form.Label><b>Publication</b> Card Settings:</Form.Label>
       <PubCardSettings
