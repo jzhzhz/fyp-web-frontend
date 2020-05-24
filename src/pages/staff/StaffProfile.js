@@ -30,11 +30,9 @@ class StaffProfile extends React.Component {
       generalProfile: {
         intro: "",
         sidebar: "",
-        imgUrl: ""
-      },
-      profilePhoto: {
-        uploadMsg: "",
-        isValid: false
+        imgUrl: "",
+        isPicValid: false,
+        picUploadMsg: ""
       },
       newsCards: [],
       pubCards: [],
@@ -218,7 +216,12 @@ class StaffProfile extends React.Component {
     if (res.status === 200 && res.data.code === 0) {
       // exist profile before
       if (res.data.data) {
-        const retGeneralProfile = res.data.data[0];
+        let retGeneralProfile = res.data.data[0];
+        
+        // check profile photo validity
+        if (retGeneralProfile.imgUrl !== "") {
+          retGeneralProfile.isPicValid = true;
+        }
 
         this.setState({
           generalProfile: retGeneralProfile
@@ -227,7 +230,9 @@ class StaffProfile extends React.Component {
         const tempGeneralProfile = {
           intro: "<p>sample intro code</p>",
           sidebar: "<p>sample sidebar code</p>",
-          imgUrl: ""
+          imgUrl: "",
+          isPicValid: false,
+          picUploadMsg: ""
         };
 
         this.setState({
@@ -257,18 +262,18 @@ class StaffProfile extends React.Component {
         this.setState({
           newsCards: retNewsCards
         });
+      } else {
+        this.setState({
+          newsCards: [{
+            id: 0,
+            dateBar: Utils.getCurrentDate("."),
+            codeSegment: "<p>html code segment</p>",
+            type: "news",
+            deprecated: 0,
+            changed: true
+          }]
+        });
       }
-    } else {
-      this.setState({
-        newsCards: [{
-          id: 0,
-          dateBar: Utils.getCurrentDate("."),
-          codeSegment: "<p>html code segment</p>",
-          type: "news",
-          deprecated: 0,
-          changed: true
-        }]
-      });
     }
   }
 
@@ -358,18 +363,50 @@ class StaffProfile extends React.Component {
     });
   }
 
-  handlePicChange = () => {
-    this.setState(prevState => {
-      return {
-        ...prevState,
-        profilePhoto: {
-          ...prevState.profilePhoto,
-          isValid: true,
-          uploadMsg: "update photo success"
-        },
-        isUpdated: false
-      };
+  handlePicChange = async (event) => {
+    console.log("handling profile pic change");
+    // prevent default behavior
+    // initialize url, file and file data
+    event.preventDefault();
+    const url = process.env.REACT_APP_FACULTY_URL + "/uploadProfileImg";
+    const formData = new FormData();
+    formData.append('file', event.target.files[0]);
+
+    const res = await axios.post(url, formData, {
+      headers: {'Content-type': 'multipart/form-data'}
+    })
+    .catch(err => {
+      console.log(err);
+      return -1;
     });
+
+    if (res.status === 200 && res.data.code === 0) {
+      this.setState(prevState => {
+        return {
+          ...prevState,
+          generalProfile: {
+            ...prevState.generalProfile,
+            imgUrl: res.data.data,
+            isPicValid: true,
+            picUploadMsg: "update photo success"
+          },
+          isUpdated: false
+        };
+      });
+    } else {
+      this.setState(prevState => {
+        return {
+          ...prevState,
+          generalProfile: {
+            ...prevState.generalProfile,
+            imgUrl: "",
+            isPicValid: false,
+            picUploadMsg: ""
+          },
+          isUpdated: false
+        };
+      });
+    }
   }
 
   handleProfileDetailChange = (event) => {
@@ -399,32 +436,50 @@ class StaffProfile extends React.Component {
       [cardsName]: _.cloneDeep(newCards),
       isUpdated: false
     });
-
-    console.log(type + cardIndex + "changing");
   }
 
-  handleCardPicChange = (cardIndex, type) => (event) => {
+  handleCardPicChange = (cardIndex, type) => async (event) => {
     console.log("handling card pic change");
     // prevent default behavior
     // initialize url, file and file data
     event.preventDefault();
-    const url = process.env.REACT_APP_FACULTY_URL + "/uploadCardPic";
+    const url = process.env.REACT_APP_FACULTY_URL + "/uploadProfileImg";
     const fileName = event.target.files[0].name
     const formData = new FormData();
     formData.append('file', event.target.files[0]);
 
-    const cardsName = `${type}Cards`;
-    let newCards = _.cloneDeep(this.state[cardsName]);
-    newCards[cardIndex].isPicValid = true;
-    newCards[cardIndex].picUploadMsg = "picture upload success!";
-    newCards[cardIndex].changed = true;
+    const res = await axios.post(url, formData, {
+      headers: {'Content-Type': 'multipart/form-data'}
+      })
+      .catch(err => {
+        console.log(err);
+        return -1;
+      });
     
-    this.setState({
-      [cardsName]: newCards,
-      isUpdated: false
-    });
+    const cardsName = `${type}Cards`;
+    if (res.status === 200 && res.data.code === 0) {
+      let newCards = _.cloneDeep(this.state[cardsName]);
+      newCards[cardIndex].isPicValid = true;
+      newCards[cardIndex].imgUrl = res.data.data;
+      newCards[cardIndex].imgName = fileName;
+      newCards[cardIndex].picUploadMsg = "picture upload success!";
+      newCards[cardIndex].changed = true;
 
-    console.log(fileName+url);
+      this.setState({
+        [cardsName]: newCards,
+        isUpdated: false
+      });
+      console.log(fileName+url);
+    } else {
+      let newCards = _.cloneDeep(this.state[cardsName]);
+      newCards[cardIndex].isPicValid = false;
+      newCards[cardIndex].changed = true;
+
+      this.setState({
+        [cardsName]: newCards,
+        isUpdated: false
+      });
+    }
   }
 
   handleAddCard = (event) => {
@@ -435,7 +490,14 @@ class StaffProfile extends React.Component {
     let cardTemp = {};
 
     if (name === "news") {
-
+      cardTemp = {
+        id: 0,
+        dateBar: Utils.getCurrentDate("."),
+        codeSegment: "<p>html code segment</p>",
+        type: "news",
+        deprecated: 0,
+        changed: true
+      }
     } else if (name === "pub") {
       cardTemp = {
         id: 0,
@@ -474,7 +536,7 @@ class StaffProfile extends React.Component {
     });
   }
 
-  handleSubmit = (event) => {
+  handleSubmit = async (event) => {
     event.preventDefault();
 
     if (this.state.isUpdated) {
@@ -482,11 +544,13 @@ class StaffProfile extends React.Component {
       return 0;
     }
 
-    this.updateFacultyUrl();
+    await this.updateFacultyUrl();
 
-    this.updateGeneralProfile();
+    await this.updateGeneralProfile();
 
-    this.updateCards("pub");
+    await this.updateCards("pub");
+
+    await this.updateCards("news");
 
     this.setState({
       isUpdated: true
@@ -557,7 +621,10 @@ class StaffProfile extends React.Component {
   }
 
   updateCards = async (type) => {
-    const updateUrl = process.env.REACT_APP_FACULTY_URL + "/updateProfileCard";
+    let updateUrl = process.env.REACT_APP_FACULTY_URL + "/updateProfileCard";
+    if (type === "news") {
+      updateUrl = process.env.REACT_APP_FACULTY_URL + "/updateProfileCustom";
+    }
     const cardsName = `${type}Cards`;
 
     for (const [index, card] of this.state[cardsName].entries()) {
@@ -565,19 +632,23 @@ class StaffProfile extends React.Component {
         continue;
       }
 
-      // // check empty picture
-      // if (card.imgUrl === "") {
-      //   alert("please upload cover picture!");
-      //   return -1;
-      // }
+      if (type === "pub") {
+        console.log("checking picture");
+        // // check empty picture
+        // if (card.imgUrl === "") {
+        //   alert("please upload cover picture!");
+        //   return -1;
+        // }
 
-      // // check picture validity
-      // if (!card.isPicValid) {
-      //   alert("invalid picture!");
-      //   return -1;
-      // }
+        // // check picture validity
+        // if (!card.isPicValid) {
+        //   alert("invalid picture!");
+        //   return -1;
+        // }
+      }
+
       console.log("before update: ");
-      console.log(card)
+      console.log(card);
       const res = await axios.get(updateUrl, {
         params: {
           ...card,
@@ -646,6 +717,21 @@ class StaffProfile extends React.Component {
     const urlText = this.state.profileType === "template" ?
       "https://site-address" : "https://";
 
+    let profileImgLink = null;
+    let imgName = null;
+    if (this.state.generalProfile.imgUrl !== "") {
+      const visitUrl = this.state.generalProfile.imgUrl;
+      const url = process.env.REACT_APP_FACULTY_URL + "/getProfileImg?"
+        + "visitUrl=" + encodeURIComponent(visitUrl);
+      
+      profileImgLink = 
+        <a href={url} style={{color: "gray", fontSize: "smaller"}} download>
+          [download profile photo]
+        </a>;
+      
+      imgName = visitUrl.substring(visitUrl.lastIndexOf("/") + 1);
+    }
+
     // faculty list search bar
     // will not appear unless faculty type is chosen
     const searchBar = this.state.facultyType !== "" ?
@@ -688,19 +774,19 @@ class StaffProfile extends React.Component {
           custom
         > 
           <Form.File.Input 
-            isValid={this.state.profilePhoto.isValid}
-            isInvalid={!this.state.profilePhoto.isValid} 
+            isValid={this.state.generalProfile.isPicValid}
+            isInvalid={!this.state.generalProfile.isPicValid} 
             onChange={this.handlePicChange}
           />
-          <Form.File.Label>upload photo here</Form.File.Label>
+          <Form.File.Label>{imgName ? imgName : "upload photo here"}</Form.File.Label>
           <Form.Control.Feedback type="valid">
-            {this.state.profilePhoto.uploadMsg}
+            {this.state.generalProfile.picUploadMsg}
           </Form.Control.Feedback>
           <Form.Control.Feedback type="invalid" style={{color: "red"}}>
             invalid picture type!
           </Form.Control.Feedback>
         </Form.File>
-        {/* {imgDownloadLink} */}
+        {profileImgLink}
       </Form.Group>
 
       <Form.Group>

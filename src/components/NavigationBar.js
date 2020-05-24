@@ -68,9 +68,9 @@ class NavigationBar extends React.Component {
         };
       });
       
-      console.log(`get ${labelType} labels success!`);
+      // console.log(`get ${labelType} labels success!`);
     } else {
-      console.log(`get ${labelType} labels failed!`);
+      // console.log(`get ${labelType} labels failed!`);
     }
   }
 

@@ -206,7 +206,7 @@ class AdminHome extends React.Component {
       headers: {'Content-Type': 'multipart/form-data'}
       })
       .catch(err => {
-        console.log(err)
+        console.log(err);
         return -1;
       });
     

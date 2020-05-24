@@ -32,6 +32,26 @@ export const NewsCardSettings = (props) => {
               style={{height: "150px"}}
             />
           </Form.Group>
+
+          <Form.Group>
+            <Button 
+              variant={card.deprecated === 1 ? "outline-danger" : "danger"}
+              size="sm"
+              onClick={props.handleRemove(cardIndex, "news")}
+            >
+              {card.deprecated === 1 ? "Cancel" : "Remove"}
+            </Button>
+            <Button
+              size="sm"
+              name="news"
+              onClick={props.handleAddCard}
+              style={{marginLeft: "8px"}}
+            >
+              Add another card
+            </Button>
+            <Form.Text style={{color: "red", marginLeft: "2px"}}>WARNING: the whole card will be removed after update!</Form.Text>
+          </Form.Group>
+
         </Form.Group>
       </Tab>
     );

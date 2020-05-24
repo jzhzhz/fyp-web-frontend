@@ -70,18 +70,13 @@ export const PubCardSettings = (props) => {
         </Form.Group>
 
         <Form.Group>
-            <Form.Label>external URL</Form.Label>
-            <InputGroup>
-              <InputGroup.Prepend>
-                <InputGroup.Text id="inputGroupPrepend">https://</InputGroup.Text>
-              </InputGroup.Prepend>
-              <Form.Control 
-                name="url"
-                value={card.url.substring(8)} 
-                onChange={props.handleCardChange(cardIndex, "pub")}
-                disabled={card.deprecated === 1}
-              />
-            </InputGroup>
+          <Form.Label>external URL</Form.Label>
+          <Form.Control 
+            name="url"
+            value={card.url} 
+            onChange={props.handleCardChange(cardIndex, "pub")}
+            disabled={card.deprecated === 1}
+          />
         </Form.Group>
 
         <Form.Group>
