@@ -14,6 +14,10 @@ class StaffProfile extends React.Component {
     this.state = {
       profileType: "",
       facultyType: "",
+      oldProfile: {
+        url: "",
+        profileType: ""
+      },
       searchName: "",
       facultyList: [],
       facultyListElements: [],
@@ -347,6 +351,40 @@ class StaffProfile extends React.Component {
     }
   }
 
+  handleRemoveProfile = () => {
+    // remove the profile
+    if (this.state.chosenFaculty.url !== "") {
+      this.setState(prevState => {
+        return {
+          ...prevState,
+          oldProfile: {
+            profileType: prevState.profileType,
+            url: prevState.chosenFaculty.url
+          },
+          profileType: "",
+          chosenFaculty: {
+            ...prevState.chosenFaculty,
+            url: ""
+          },
+          isUpdated: false
+        };
+      });
+    } else {
+    // restore the profile
+      this.setState(prevState => {
+        return {
+          ...prevState,
+          profileType: prevState.oldProfile.profileType,
+          chosenFaculty: {
+            ...prevState.chosenFaculty,
+            url: prevState.oldProfile.url
+          },
+          isUpdated: false
+        };
+      });
+    }
+  }
+
   /** currently handle the url change */ 
   handleFacultyInfoChange = (event) => {
     const {name, value} = event.target;
@@ -546,11 +584,21 @@ class StaffProfile extends React.Component {
 
     await this.updateFacultyUrl();
 
-    await this.updateGeneralProfile();
+    const profileUpdateRet = await this.updateGeneralProfile();
 
-    await this.updateCards("pub");
+    if (profileUpdateRet === -1) {
+      console.log("error happened when updating general profile");
+      return profileUpdateRet;
+    }
 
     await this.updateCards("news");
+
+    const cardsUpdateRet = await this.updateCards("pub");
+
+    if (cardsUpdateRet === -1) {
+      console.log("error happened when updating publication cards");
+      return cardsUpdateRet;
+    }
 
     this.setState({
       isUpdated: true
@@ -592,6 +640,20 @@ class StaffProfile extends React.Component {
 
   updateGeneralProfile = async () => {
     const url = process.env.REACT_APP_FACULTY_URL + "/updateGeneralProfile";
+
+    const profileImgUrl = this.state.generalProfile.imgUrl;
+    
+    const isProfileImgValid = this.state.generalProfile.isPicValid;
+
+    if (profileImgUrl === "") {
+      alert("Please upload profile photo!");
+      return -1;
+    }
+
+    if (!isProfileImgValid) {
+      alert("Profile photo is not valid!");
+      return -1
+    }
     
     const res = await axios.get(url, {
       params: {
@@ -634,17 +696,17 @@ class StaffProfile extends React.Component {
 
       if (type === "pub") {
         console.log("checking picture");
-        // // check empty picture
-        // if (card.imgUrl === "") {
-        //   alert("please upload cover picture!");
-        //   return -1;
-        // }
+        // check empty picture
+        if (card.imgUrl === "") {
+          alert("please upload cover picture!");
+          return -1;
+        }
 
-        // // check picture validity
-        // if (!card.isPicValid) {
-        //   alert("invalid picture!");
-        //   return -1;
-        // }
+        // check picture validity
+        if (!card.isPicValid) {
+          alert("invalid card picture!");
+          return -1;
+        }
       }
 
       console.log("before update: ");
@@ -721,7 +783,7 @@ class StaffProfile extends React.Component {
     let imgName = null;
     if (this.state.generalProfile.imgUrl !== "") {
       const visitUrl = this.state.generalProfile.imgUrl;
-      const url = process.env.REACT_APP_FACULTY_URL + "/getProfileImg?"
+      const url = process.env.REACT_APP_BACKEND_URL + "/getCardImgByUrl?"
         + "visitUrl=" + encodeURIComponent(visitUrl);
       
       profileImgLink = 
@@ -760,6 +822,23 @@ class StaffProfile extends React.Component {
           Cancel
         </Button>
       </Form> : null;
+
+    const personalUrl = this.state.profileType !== "" ?
+    <Form.Group>
+    <Form.Label>Personal URL</Form.Label>
+    <InputGroup>
+      <InputGroup.Prepend>
+        <InputGroup.Text id="inputGroupPrepend">{urlText}</InputGroup.Text>
+      </InputGroup.Prepend>
+      <Form.Control 
+        name="url"
+        value={this.state.chosenFaculty.url}
+        placeholder="personal website url"
+        onChange={this.handleFacultyInfoChange}
+        disabled={this.state.profileType === "template"}
+      />
+    </InputGroup>
+  </Form.Group> : null;
 
     // template setting section
     // will not show if personal url is chosen
@@ -843,25 +922,24 @@ class StaffProfile extends React.Component {
         <input type="radio" name="template" value="template" checked={this.state.profileType === "template"} onChange={() => {}}/>
         <label htmlFor="template" style={{paddingLeft: "5px"}}>use provided template</label>
       </div>
+      
+      <div>
+        <Button
+          variant={this.state.chosenFaculty.url === "" ? "outline-danger" : "danger"} 
+          size="sm"
+          onClick={this.handleRemoveProfile}
+        >
+          {this.state.chosenFaculty.url === "" ? "Cancel" : "Remove Profile"}
+        </Button>
+        <Form.Text style={{color: "red", marginLeft: "2px"}}>
+          WARNING: the whole profile will be removed after update!
+        </Form.Text>
+      </div>
       <hr />
 
       <h5>Profile Detail</h5>
       <Form onSubmit={this.handleSubmit}>
-        <Form.Group>
-          <Form.Label>Personal URL</Form.Label>
-          <InputGroup>
-            <InputGroup.Prepend>
-              <InputGroup.Text id="inputGroupPrepend">{urlText}</InputGroup.Text>
-            </InputGroup.Prepend>
-            <Form.Control 
-              name="url"
-              value={this.state.chosenFaculty.url}
-              placeholder="personal website url"
-              onChange={this.handleFacultyInfoChange}
-              disabled={this.state.profileType === "template"}
-            />
-          </InputGroup>
-        </Form.Group>
+        {personalUrl}
         <br />
 
         {templateDetail}
