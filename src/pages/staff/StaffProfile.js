@@ -36,6 +36,7 @@ class StaffProfile extends React.Component {
       generalProfile: {
         intro: "",
         sidebar: "",
+        imgName: "",
         imgUrl: "",
         isPicValid: false,
         picUploadMsg: ""
@@ -407,6 +408,7 @@ class StaffProfile extends React.Component {
     // initialize url, file and file data
     event.preventDefault();
     const url = process.env.REACT_APP_FACULTY_URL + "/uploadProfileImg";
+    const fileName = event.target.files[0].name
     const formData = new FormData();
     formData.append('file', event.target.files[0]);
 
@@ -424,6 +426,7 @@ class StaffProfile extends React.Component {
           ...prevState,
           generalProfile: {
             ...prevState.generalProfile,
+            imgName: fileName,
             imgUrl: res.data.data,
             isPicValid: true,
             picUploadMsg: "update photo success"
@@ -680,6 +683,7 @@ class StaffProfile extends React.Component {
         username: this.state.chosenFaculty.username,
         intro: this.state.generalProfile.intro,
         sidebar: this.state.generalProfile.sidebar,
+        imgName: this.state.generalProfile.imgName,
         imgUrl: this.state.generalProfile.imgUrl
       }
     })
@@ -803,7 +807,6 @@ class StaffProfile extends React.Component {
     // in general profile photo will be update 
     // if the photo exists
     let profileImgLink = null;
-    let imgName = null;
     if (this.state.generalProfile.imgUrl !== "") {
       const visitUrl = this.state.generalProfile.imgUrl;
       const url = process.env.REACT_APP_BACKEND_URL + "/getCardImgByUrl?"
@@ -813,8 +816,6 @@ class StaffProfile extends React.Component {
         <a href={url} style={{color: "gray", fontSize: "smaller"}} download>
           [download profile photo]
         </a>;
-      
-      imgName = visitUrl.substring(visitUrl.lastIndexOf("/") + 1);
     }
 
     // faculty list search bar
@@ -882,7 +883,12 @@ class StaffProfile extends React.Component {
             isInvalid={!this.state.generalProfile.isPicValid} 
             onChange={this.handlePicChange}
           />
-          <Form.File.Label>{imgName ? imgName : "upload photo here"}</Form.File.Label>
+          <Form.File.Label>
+            {this.state.generalProfile.imgName ? 
+              this.state.generalProfile.imgName : 
+              "upload photo here"
+            }
+          </Form.File.Label>
           <Form.Control.Feedback type="valid">
             {this.state.generalProfile.picUploadMsg}
           </Form.Control.Feedback>
