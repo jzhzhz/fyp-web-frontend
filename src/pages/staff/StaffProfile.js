@@ -309,6 +309,7 @@ class StaffProfile extends React.Component {
           pubCards: [{
             id: 0,
             title: "sample title",
+            subtitle: "sample subtitle",
             text: "sample content text",
             url: "https://sample.url",
             imgName: "",

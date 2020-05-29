@@ -150,15 +150,16 @@ class Profile extends React.Component {
             <img 
               src={fullImgUrl}
               alt="profile"
-              height="130" width="220"
+              height="142" width="230"
             />
           </Col>
           <Col>
-            <p style={{marginBottom: "5px"}}><b>{card.title}</b></p>
-            <p style={{marginBottom: "5px"}}>
+            <p style={{marginBottom: "2px"}}><b>{card.title}</b></p>
+            <p style={{marginBottom: "2px", fontSize: "0.85em", color: "gray"}}>{card.subtitle}</p>
+            <p style={{marginBottom: "1px"}}>
               {card.text}   
             </p>
-            <a href={card.url}>[MORE]</a>
+            <a href={card.url} style={{fontSize: "0.7em"}}>[MORE]</a>
           </Col>
         </Row>
       ); 

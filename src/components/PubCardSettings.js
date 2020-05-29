@@ -73,6 +73,16 @@ export const PubCardSettings = (props) => {
         </Form.Group>
 
         <Form.Group>
+          <Form.Label>Subtitle (usually to put authors)</Form.Label>
+          <Form.Control 
+            name="subtitle"
+            value={card.subtitle} 
+            onChange={props.handleCardChange(cardIndex, "pub")}
+            disabled={card.deprecated === 1}
+          />
+        </Form.Group>
+
+        <Form.Group>
           <Form.Label>external URL</Form.Label>
           <Form.Control 
             name="url"

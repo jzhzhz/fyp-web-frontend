@@ -32,7 +32,7 @@ export const NewsCardSettings = (props) => {
               value={card.codeSegment}
               onChange={props.handleCardChange(cardIndex, "news")}
               disabled={card.deprecated === 1}
-              style={{height: "150px"}}
+              style={{height: "110px"}}
             />
           </Form.Group>
 
