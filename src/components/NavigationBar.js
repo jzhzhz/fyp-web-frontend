@@ -29,8 +29,6 @@ class NavigationBar extends React.Component {
     this.getLabel("about");
     this.getLabel("academics");
     this.getLabel("admissions");
-
-    console.log(sessionStorage.getItem("isAuthed"));
     
     if (sessionStorage.getItem("isAuthed") === "true") {
       this.setState({

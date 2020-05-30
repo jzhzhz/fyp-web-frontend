@@ -103,7 +103,6 @@ class Home extends React.Component {
 
   modifyCardToReactElement = (cardsArr) => {
     cardsArr = Utils.chunkArray(_.cloneDeep(cardsArr), 2);
-    console.log(cardsArr);
 
     cardsArr = cardsArr.map((twoCards, cardIndex) => {
       // const lineBreak = (cardIndex + 1) === cardsArr.length ?
@@ -136,8 +135,6 @@ class Home extends React.Component {
         </div>
       );
     });
-
-    console.log(cardsArr);
 
     this.setState({
       cardReactElements: _.cloneDeep(cardsArr)

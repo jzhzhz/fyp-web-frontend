@@ -3,6 +3,8 @@ import { Form, Button, Tabs, Tab, InputGroup } from 'react-bootstrap';
 import axios from 'axios';
 import _ from 'lodash';
 import { getCurrentDate } from '../../utils/Utils';
+// eslint-disable-next-line
+import { HomeEventsCardSettings as EventsSettings } from '../../components/HomeEventsCardSettings';
 import bsCustomFileInput from 'bs-custom-file-input';
 
 /**
@@ -39,6 +41,7 @@ class AdminHome extends React.Component {
       },
       cards: [],
       cardsReactElement: [],
+      eventsCards: [],
       oldCardsLength: 0,
       isUpdated: true,
       updating: false,
@@ -55,6 +58,7 @@ class AdminHome extends React.Component {
     this.getTextBlocksByType("jumbo");
     this.getTextBlocksByType("sidebar");
     this.getCards();
+    this.getEventsCards();
 
     // alert before leaving if updates are not saved
     window.addEventListener('beforeunload', this.beforeunload);
@@ -106,9 +110,7 @@ class AdminHome extends React.Component {
     return 0;
   }
 
-  /**
-   * get home page cards information
-   */
+  /** get home page cards information */
   getCards = async () => {
     let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getAllCards";
@@ -145,6 +147,27 @@ class AdminHome extends React.Component {
     this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
 
     return 0;
+  }
+
+  getEventsCards = async () => {
+    const url = process.env.REACT_APP_BACKEND_URL +
+    "/getAllEvents";
+  
+    const res = await axios.get(url)
+      .catch((err) => {
+        console.log(err);
+        return -1;
+      });
+
+    if (res.status === 200 && res.data.code === 0) {
+      res.data.data.forEach(card => {
+        card.changed = false;
+      });
+
+      this.setState({
+        eventsCards: res.data.data
+      });
+    }
   }
 
   /**
@@ -187,6 +210,21 @@ class AdminHome extends React.Component {
       }, () => {
         this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
       });
+  }
+
+  handleEventsCardChange = (cardIndex) => (event) => {
+    // name: type of content in a card
+    // value: content of that type in a card
+    const {name, value} = event.target;
+    let newEventsCards = this.state.eventsCards.slice();
+
+    newEventsCards[cardIndex][name] = value;
+    newEventsCards[cardIndex].changed = true;
+
+    this.setState({
+      eventsCards: newEventsCards.slice(),
+      isUpdated: false
+    });
   }
 
   /**
@@ -251,7 +289,6 @@ class AdminHome extends React.Component {
    * new card template will be initialized
    */
   handleAddCard = () => {
-    console.log("adding another card");
     const newCard = {
       title: "Sample Title",
       text: "sample text",
@@ -274,6 +311,27 @@ class AdminHome extends React.Component {
     });
   }
 
+  handleAddEventsCard = () => {
+    console.log("adding event card")
+    const newCard = {
+      id: 0,
+      title: "sample title",
+      subtitle: getCurrentDate("."),
+      content: "sample event content",
+      url: "/url",
+      deprecated: 0,
+      changed: true
+    };
+
+    let newEventsCards = this.state.eventsCards.slice();
+    newEventsCards.push(newCard);
+
+    this.setState({
+      eventsCards: newEventsCards.slice(),
+      isUpdated: false
+    });
+  }
+
   /**
    * card remove button handler
    * @param {int} cardIndex
@@ -292,6 +350,19 @@ class AdminHome extends React.Component {
       isUpdated: false
     }, () => {
       this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
+    });
+  }
+
+  handleEventsCardRemove = (cardIndex) => (event) => {
+    let newEventsCards = this.state.eventsCards.slice();
+
+    newEventsCards[cardIndex].deprecated = 
+      newEventsCards[cardIndex].deprecated === 0 ? 1 : 0;
+    newEventsCards[cardIndex].changed = true;
+
+    this.setState({
+      eventsCards: newEventsCards.slice(),
+      isUpdated: false
     });
   }
   
@@ -316,6 +387,8 @@ class AdminHome extends React.Component {
       await this.updateTextBlockByType("jumbo");
 
       await this.updateTextBlockByType("sidebar");
+
+      await this.updateEventsCards();
 
       const result = await this.updateCards();
 
@@ -360,72 +433,107 @@ class AdminHome extends React.Component {
     return 0;
   }
 
-  /**
-   * update the cards information
-   */
+  /** update the cards information */
   updateCards = async () => {
     let updateUrl = process.env.REACT_APP_ADMIN_URL + "/updateCardById";
-      // iterate through each card, update old card, create new card
-      for (const [index, card] of this.state.cards.entries()) {
-        // check if the values have been changed
-        if (!card.changed) {
-          continue;
-        }
-
-        // check empty picture
-        if (card.imgUrl === "") {
-          alert("please upload cover picture!");
-          return -1;
-        }
-
-        // check picture validity
-        if (!card.isPicValid) {
-          alert("invalid picture!");
-          return -1;
-        }
-
-        // check if this is a new card
-        if (index + 1 > this.state.oldCardsLength) {
-          console.log("getting new cards...");
-          console.log(card);
-          updateUrl = process.env.REACT_APP_ADMIN_URL + "/createNewCard";
-          
-          // insert new card into database
-          let res = await axios.get(updateUrl, {
-            params: card
-          }).catch(err => {
-            console.log(err);
-            return -1;
-          });
-          
-          // update the database id of newly created card
-          if (res.status === 200 && res.data.code === 0) {
-            const retId = res.data.data;
-            let newCards = _.cloneDeep(this.state.cards);
-            newCards[index].id = retId;
-
-            this.setState({
-              cards: _.cloneDeep(newCards)
-            });
-          }
-        } else {
-          // update values of other old cards
-          await axios.get(updateUrl, {
-            params: card
-          }).catch(err => {
-            console.log(err);
-            return -1;
-          });
-        }
+    // iterate through each card, update old card, create new card
+    for (const [index, card] of this.state.cards.entries()) {
+      // check if the values have been changed
+      if (!card.changed) {
+        continue;
       }
-      
-      // update the old length of cards array
-      const newLen = this.state.cards.length;
-      this.setState({
-        oldCardsLength: newLen
+
+      // check empty picture
+      if (card.imgUrl === "") {
+        alert("please upload cover picture!");
+        return -1;
+      }
+
+      // check picture validity
+      if (!card.isPicValid) {
+        alert("invalid picture!");
+        return -1;
+      }
+
+      // check if this is a new card
+      if (index + 1 > this.state.oldCardsLength) {
+        console.log("getting new cards...");
+        console.log(card);
+        updateUrl = process.env.REACT_APP_ADMIN_URL + "/createNewCard";
+        
+        // insert new card into database
+        let res = await axios.get(updateUrl, {
+          params: card
+        }).catch(err => {
+          console.log(err);
+          return -1;
+        });
+        
+        // update the database id of newly created card
+        if (res.status === 200 && res.data.code === 0) {
+          const retId = res.data.data;
+          let newCards = _.cloneDeep(this.state.cards);
+          newCards[index].id = retId;
+
+          this.setState({
+            cards: _.cloneDeep(newCards)
+          });
+        }
+      } else {
+        // update values of other old cards
+        await axios.get(updateUrl, {
+          params: card
+        }).catch(err => {
+          console.log(err);
+          return -1;
+        });
+      }
+    }
+    
+    // update the old length of cards array
+    const newLen = this.state.cards.length;
+    this.setState({
+      oldCardsLength: newLen
+    });
+
+    return 0;
+  }
+
+  updateEventsCards = async () => {
+    let updateUrl = process.env.REACT_APP_ADMIN_URL + "/updateEventsCardById";
+    // iterate through each card, update old card, create new card
+    for (const [index, card] of this.state.eventsCards.entries()) {
+      if (!card.changed) {
+        continue;
+      }
+
+      const res = await axios.get(updateUrl, {
+        params: card
+      }).catch(err => {
+        console.log(err);
+        return -1;
       });
 
-      return 0;
+      // update success
+      if (res.status === 200 && res.data.code === 0) {
+        const retId = res.data.data;
+        let newEventsCards = this.state.eventsCards.slice();
+
+        // getting database id for new card
+        if (retId !== 0) {
+          newEventsCards[index].id = retId;
+        }
+
+        newEventsCards[index].changed = false;
+
+        this.setState({
+          eventsCards: newEventsCards
+        });
+      } else {
+        console.log("error happened when updating events cards");
+        return -1;
+      }
+    }
   }
 
   /**
@@ -552,8 +660,13 @@ class AdminHome extends React.Component {
               variant={this.state.cards[cardIndex].deprecated === 1 ? "outline-danger" : "danger"}
               size="sm"
               onClick={this.handleRemove(cardIndex)}
+              style={{marginRight: "5px"}}
             >
               {this.state.cards[cardIndex].deprecated === 1 ? "Cancel" : "Remove"}
+            </Button>
+
+            <Button variant="primary" size="sm" onClick={this.handleAddCard}>
+              Add another card
             </Button>
             <Form.Text style={{color: "red", marginLeft: "2px"}}>WARNING: the whole card will be removed after update!</Form.Text>
           </Form.Group>
@@ -639,10 +752,15 @@ class AdminHome extends React.Component {
             <Tabs className="myClass" defaultActiveKey={0} id="uncontrolled-tab-example">
               {this.state.cardsReactElement}
             </Tabs>
-            
-            <Button variant="primary" size="sm" onClick={this.handleAddCard}>
-              Add another card
-            </Button>
+            <hr />
+
+            <h5>Events Item Settings</h5>
+            <EventsSettings 
+              cards={this.state.eventsCards}
+              handleEventsCardChange={this.handleEventsCardChange}
+              handleEventsCardRemove={this.handleEventsCardRemove}
+              handleAddEventsCard={this.handleAddEventsCard}
+            />
             <hr />
           
             <Button variant="primary" type="submit" disabled={this.state.updating}>
