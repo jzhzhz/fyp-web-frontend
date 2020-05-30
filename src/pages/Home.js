@@ -30,7 +30,9 @@ class Home extends React.Component {
         url: "",
       },
       cards: [],
-      cardReactElements: []
+      cardReactElements: [],
+      eventsCards: [],
+      eventsCardsElements: []
     };
   }
 
@@ -38,6 +40,7 @@ class Home extends React.Component {
     this.getTextBlocksByType("headline");
     this.getTextBlocksByType("sidebar");
     this.getCards();
+    this.getEventsCards();
   }
 
   getTextBlocksByType = async (type) => {
@@ -101,6 +104,29 @@ class Home extends React.Component {
     return 0;
   }
 
+  getEventsCards = async () => {
+    const url = process.env.REACT_APP_BACKEND_URL +
+    "/getAllEvents";
+  
+    const res = await axios.get(url)
+      .catch((err) => {
+        console.log(err);
+        return -1;
+      });
+
+    if (res.status === 200 && res.data.code === 0) {
+      res.data.data.forEach(card => {
+        card.changed = false;
+      });
+
+      this.setState({
+        eventsCards: res.data.data
+      }, () => {
+        this.renderEventsCard(this.state.eventsCards.slice());
+      });
+    }
+  }
+
   modifyCardToReactElement = (cardsArr) => {
     cardsArr = Utils.chunkArray(_.cloneDeep(cardsArr), 2);
 
@@ -141,6 +167,23 @@ class Home extends React.Component {
     });
   }
 
+  renderEventsCard = (eventsCards) => {
+    const cardElements = eventsCards.map(card => 
+      <div>
+        <p style={{marginBottom: "2px"}}><b>
+          <a href={card.url} style={{color: "black"}}>{card.title}</a>
+        </b></p>
+        <p style={{marginBottom: "2px", fontSize: "smaller", color: "gray"}}>{card.subtitle}</p>
+        <p>{card.content}</p>
+        <br />
+      </div>
+    );
+
+    this.setState({
+      eventsCardsElements: cardElements
+    });
+  }
+
   render() {
     return (
       <React.Fragment>
@@ -169,8 +212,7 @@ class Home extends React.Component {
               <h3>Events</h3>
               <hr />
               <div>
-                <p><b>Robotics Today</b></p>
-                <p>This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                {this.state.eventsCardsElements}
               </div>
             </Col>
           </Row>
