@@ -49,18 +49,18 @@ a:hover {
   margin-bottom: 5px;
 }
 
-ul {
+.rightblock ul {
   list-style-type: disc;
   padding-left: 0;
 }
 
-li {
+.rightblock li {
   display: inline;
   padding-right: 20px;
   font-size: 15px;
 }
 
-li #lastOne{
+.rightblock li #lastOne{
   padding-right: 0;
 }
 

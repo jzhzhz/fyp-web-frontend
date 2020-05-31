@@ -51,9 +51,9 @@ export const AdminMain = (props) => {
           <ListGroup.Item 
             as="a" 
             variant="secondary" 
-            href={process.env.REACT_APP_ADMIN_URL + "/getFacultyExcelFile"}
+            href="/admin/backend"
           >
-            Download Faculties Excel File
+            Backend Data Management
           </ListGroup.Item>
         </ListGroup>
 

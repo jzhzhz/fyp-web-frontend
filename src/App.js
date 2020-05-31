@@ -15,6 +15,7 @@ import Login from './pages/Login';
 import { AdminMain } from './pages/admin/AdminMain';
 import AdminHome from './pages/admin/AdminHome';
 import AdminLabels from './pages/admin/AdminLabels';
+import AdminBackendManage from './pages/admin/AdminBackendManage';
 // import { StaffMain } from './pages/staff/StaffMain';
 import StaffProfile from './pages/staff/StaffProfile';
 
@@ -127,6 +128,7 @@ class App extends React.Component {
               <this.AdminRoute path="/admin/main" component={AdminMain} />
               <this.AdminRoute path="/admin/home" component={AdminHome} />
               <this.AdminRoute path="/admin/labels" component={AdminLabels} />
+              <this.AdminRoute path="/admin/backend" component={AdminBackendManage} />
               <this.AdminRoute path="/staff/profile-setting" component={StaffProfile} />
 
               {/* route to 404 not found page */}

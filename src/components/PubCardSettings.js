@@ -33,9 +33,7 @@ export const PubCardSettings = (props) => {
       imageUploadSection = 
         <div>
           <Form.Label>Upload The Cover Picture</Form.Label>
-          <Form.File 
-            custom
-          > 
+          <Form.File custom> 
             <Form.File.Input 
               isValid={card.isPicValid}
               isInvalid={!card.isPicValid} 
@@ -93,7 +91,7 @@ export const PubCardSettings = (props) => {
         </Form.Group>
 
         <Form.Group>
-            {imageUploadSection}
+          {imageUploadSection}
         </Form.Group>
 
         <Form.Group>
