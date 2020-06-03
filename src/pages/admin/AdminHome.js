@@ -1,20 +1,25 @@
 import React from 'react';
-import { Form, Button} from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';
+import bsCustomFileInput from 'bs-custom-file-input';
 import axios from 'axios';
 import _ from 'lodash';
 import { getCurrentDate } from '../../utils/Utils';
+// eslint-disable-next-line
+import { Editor, EditorState, RichUtils, convertToRaw, convertFromHTML, ContentState } from 'draft-js';
+import { stateToHTML } from 'draft-js-export-html';
+
+// import components
 import NewEditor from '../../components/NewEditor';
 import { HomeEventsCardSettings as EventsSettings } from '../../components/HomeEventsCardSettings';
 import { HomeCardSettings } from '../../components/HomeCardSettings';
-import bsCustomFileInput from 'bs-custom-file-input';
 
 /**
  * admin page for home page elements, including:
  * headline, sidebar, jumbotron text, cards
  */
 class AdminHome extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       headline: {
         id: 0,
@@ -40,8 +45,8 @@ class AdminHome extends React.Component {
         deprecated: 0,
         changed: false
       },
+      editorState: EditorState.createEmpty(),
       cards: [],
-      cardsReactElement: [],
       eventsCards: [],
       oldCardsLength: 0,
       isUpdated: true,
@@ -61,28 +66,71 @@ class AdminHome extends React.Component {
     this.getCards();
     this.getEventsCards();
 
+    // initialize file upload customization
+    // to file name dynamically
     bsCustomFileInput.init();
 
     // alert before leaving if updates are not saved
     window.addEventListener('beforeunload', this.beforeunload);
   }
 
-  /**
-   * remove the event listener when unmount this page
-   */
+  /** remove the event listener when unmount this page */
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.beforeunload);
   }
 
-  /**
-   * function to check whether progress 
-   * has been updated
-   */
+  /** function to check whether progress has been updated */
   beforeunload = (e) => {
     if (!this.state.isUpdated) {
       e.preventDefault();
       e.returnValue = true;
     }
+  }
+
+  onEditorChange = (newEditorState) => {
+    this.setState({
+      editorState: newEditorState,
+      // isUpdated: false 
+    }, () => {
+      this.setState(prevState => {
+        return {
+          sidebar: {
+            ...prevState.sidebar,
+            content: stateToHTML(
+              this.state.editorState.getCurrentContent()
+            )
+          },
+        };
+      })
+    });
+  };
+
+  draftHandleKeyCommand = (command) => {
+    const newState = RichUtils.handleKeyCommand(this.state.editorState, command);
+    if (newState) {
+      this.onEditorChange(newState);
+      return true;
+    }
+    return false;
+  }
+
+  draftToggleBlockType = (blockType) => {
+    this.onEditorChange(
+      RichUtils.toggleBlockType(
+        this.state.editorState,
+        blockType
+      )
+    );
+  }
+
+  draftToggleInlineStyle = (inlineStyle) => {
+    console.log("inline changes");
+    this.onEditorChange(
+      RichUtils.toggleInlineStyle(
+        this.state.editorState,
+        inlineStyle
+      )
+    );
   }
 
   /**
@@ -103,7 +151,18 @@ class AdminHome extends React.Component {
     if (res.status === 200 && res.data.code === 0) {
       this.setState({
         [type]: res.data.data[0]
+      }, () => {
+        if (type === "sidebar") {
+          const blocksFromHTML = convertFromHTML(this.state.sidebar.content);
+          const state = ContentState.createFromBlockArray(
+            blocksFromHTML.contentBlocks,
+            blocksFromHTML.entityMap,
+          );
+    
+          this.onEditorChange( EditorState.createWithContent(state) );
+        }
       });
+
     } else { return -1; }
 
     return 0;
@@ -111,13 +170,9 @@ class AdminHome extends React.Component {
 
   /** get home page cards information */
   getCards = async () => {
-    let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getAllCards";
 
-    await axios.get(url)
-      .then((getRes) => {
-        res = getRes;
-      })
+    const res = await axios.get(url)
       .catch((err) => {
         console.log(err);
         return -1;
@@ -142,12 +197,10 @@ class AdminHome extends React.Component {
 
     } else { return -1; }
 
-    // calling function to render the list into react elements
-    // this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
-
     return 0;
   }
 
+  /** get home page events information */
   getEventsCards = async () => {
     const url = process.env.REACT_APP_BACKEND_URL +
       "/getAllEvents";
@@ -169,9 +222,7 @@ class AdminHome extends React.Component {
     }
   }
 
-  /**
-   * static textblock change handler
-   */
+  /** static textblock change handler */
   handleStaticChange = (event) => {
     // name: the name of home textblock
     // id: the type of content in textblock
@@ -225,7 +276,7 @@ class AdminHome extends React.Component {
   }
 
   /**
-   * card picture changes handler
+   * card picture changes handler and conduct the upload process
    * @param {int} cardIndex
    */
   handlePicChange = (cardIndex) => async (event) => {
@@ -570,8 +621,17 @@ class AdminHome extends React.Component {
 
             <h5>Sidebar Information Setting</h5>
             <Form.Group>
-              <Form.Label>html code segment:</Form.Label>
-              <NewEditor htmlSegment={this.state.sidebar.content}/>
+              <Form.Label>editor:</Form.Label>
+              <NewEditor 
+                htmlSegment={this.state.sidebar.content}
+                editorState={this.state.editorState}
+                handleKeyCommand={this.draftHandleKeyCommand}
+                toggleBlockType={this.draftToggleBlockType}
+                toggleInlineStyle={this.draftToggleInlineStyle}
+                onChange={this.onEditorChange} 
+              />
+              <br />
+              <Form.Label>translated html code segment:</Form.Label>
               <Form.Control
                 style={{ height: "300px" }}
                 as="textarea"
@@ -590,13 +650,13 @@ class AdminHome extends React.Component {
             <Form.Label>
               even number of cards recommended
             </Form.Label>
-            
+
             <HomeCardSettings
               cards={this.state.cards}
               handleCardChange={this.handleCardChange}
               handleCardRemove={this.handleRemove}
               handleAddCard={this.handleAddCard}
-              handlePicChange={this.handlePicChange} 
+              handlePicChange={this.handlePicChange}
             />
             <hr />
 

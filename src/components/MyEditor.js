@@ -20,8 +20,8 @@ const Styles = styled.div`
 class MyEditor extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {editorState: EditorState.createEmpty()};
-    this.onChange = editorState => this.setState({editorState});
+    // this.state = {editorState: EditorState.createEmpty()};
+    // this.onChange = editorState => this.setState({editorState});
   }
 
   handleKeyCommand = (command, editorState) => {
@@ -35,19 +35,22 @@ class MyEditor extends React.Component {
     return 'not-handled';
   }
 
-  _onBoldClick = () => {
-    this.onChange(RichUtils.toggleInlineStyle(this.state.editorState, 'BOLD'));
+  _onBoldClick = (e) => {
+    e.preventDefault();
+    this.props.onChange(
+      RichUtils.toggleInlineStyle(this.state.editorState, 'BOLD')
+    );
   }
 
   render() {
     return (
       <Styles>
         <div>
-          <button onClick={this._onBoldClick}>B</button>
+          <button onClick={this.props.toggleInlineStyle('BOLD')}>B</button>
           <Editor 
-            editorState={this.state.editorState} 
+            editorState={this.props.editorState} 
             handleKeyCommand={this.handleKeyCommand}
-            onChange={this.onChange} 
+            onChange={this.props.onChange} 
           />
         </div>
       </Styles>
