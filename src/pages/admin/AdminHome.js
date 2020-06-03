@@ -1,10 +1,11 @@
 import React from 'react';
-import { Form, Button, Tabs, Tab, InputGroup } from 'react-bootstrap';
+import { Form, Button} from 'react-bootstrap';
 import axios from 'axios';
 import _ from 'lodash';
 import { getCurrentDate } from '../../utils/Utils';
 import NewEditor from '../../components/NewEditor';
 import { HomeEventsCardSettings as EventsSettings } from '../../components/HomeEventsCardSettings';
+import { HomeCardSettings } from '../../components/HomeCardSettings';
 import bsCustomFileInput from 'bs-custom-file-input';
 
 /**
@@ -59,6 +60,8 @@ class AdminHome extends React.Component {
     this.getTextBlocksByType("sidebar");
     this.getCards();
     this.getEventsCards();
+
+    bsCustomFileInput.init();
 
     // alert before leaving if updates are not saved
     window.addEventListener('beforeunload', this.beforeunload);
@@ -140,7 +143,7 @@ class AdminHome extends React.Component {
     } else { return -1; }
 
     // calling function to render the list into react elements
-    this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
+    // this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
 
     return 0;
   }
@@ -203,8 +206,6 @@ class AdminHome extends React.Component {
     this.setState({
       cards: _.cloneDeep(newCards),
       isUpdated: false
-    }, () => {
-      this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
     });
   }
 
@@ -260,8 +261,6 @@ class AdminHome extends React.Component {
       this.setState({
         cards: newCards,
         isUpdated: false
-      }, () => {
-        this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
       });
 
     } else {
@@ -274,8 +273,6 @@ class AdminHome extends React.Component {
       this.setState({
         cards: newCards,
         isUpdated: false
-      }, () => {
-        this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
       });
     }
   }
@@ -302,8 +299,6 @@ class AdminHome extends React.Component {
     this.setState({
       cards: _.cloneDeep(newCards),
       isUpdated: false
-    }, () => {
-      this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
     });
   }
 
@@ -344,8 +339,6 @@ class AdminHome extends React.Component {
     this.setState({
       cards: _.cloneDeep(newCards),
       isUpdated: false
-    }, () => {
-      this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
     });
   }
 
@@ -532,155 +525,6 @@ class AdminHome extends React.Component {
     }
   }
 
-  /**
-   * change the card information into form elements 
-   * and store the results in the state
-   */
-  modifyCardToReactElement = (reactCardArray) => {
-    reactCardArray = reactCardArray.map((item, cardIndex) => {
-      if (item.id < 0) {
-        return null;
-      }
-
-      // provide a picture download link
-      let imgDownloadLink = null;
-      if (item.imgUrl !== "") {
-        const url = process.env.REACT_APP_BACKEND_URL + "/getCardImgByUrl?"
-          + "visitUrl=" + encodeURIComponent(item.imgUrl);
-
-        imgDownloadLink =
-          <a
-            href={url}
-            style={{ color: "gray", fontSize: "smaller" }}
-            download
-          >
-            [download picture]
-          </a>;
-      }
-
-      // provide image upload functionality
-      // if the card is not deprecated
-      let imageUploadSection =
-        <div>
-          <Form.Label>Image Upload Disabled</Form.Label>
-        </div>;
-      if (item.deprecated === 0) {
-        imageUploadSection =
-          <div>
-            <Form.Label>Upload The Cover Picture</Form.Label>
-            <Form.File
-              id="custom-file"
-              custom
-            >
-              <Form.File.Input
-                isValid={this.state.cards[cardIndex].isPicValid}
-                isInvalid={!this.state.cards[cardIndex].isPicValid}
-                onChange={this.handlePicChange(cardIndex)}
-              />
-              <Form.File.Label data-browse="Choose File">
-                {this.state.cards[cardIndex].imgName}
-              </Form.File.Label>
-              <Form.Control.Feedback type="valid">
-                {this.state.cards[cardIndex].uploadMsg}
-              </Form.Control.Feedback>
-              <Form.Control.Feedback type="invalid" style={{ color: "red" }}>
-                invalid picture type!
-              </Form.Control.Feedback>
-            </Form.File>
-            {imgDownloadLink}
-          </div>;
-      }
-
-      // transform the whole card object into form elements
-      return (
-        // each card becomes a tab of form in tabs
-        <Tab key={cardIndex} eventKey={cardIndex} title={`Card ${cardIndex + 1}`} size="sm">
-          <Form.Group
-            key={cardIndex}
-            controlId={cardIndex}
-            style={{ backgroundColor: "rgb(219, 215, 210)", padding: "15px" }}
-          >
-            <Form.Group>
-              <Form.Label>Title</Form.Label>
-              <Form.Control
-                name="title"
-                value={this.state.cards[cardIndex].title}
-                onChange={this.handleCardChange(cardIndex)}
-                disabled={this.state.cards[cardIndex].deprecated === 1}
-              />
-            </Form.Group>
-
-            <Form.Group>
-              <Form.Label>URL</Form.Label>
-              <InputGroup>
-                <InputGroup.Prepend>
-                  <InputGroup.Text id="inputGroupPrepend">https://site-address</InputGroup.Text>
-                </InputGroup.Prepend>
-                <Form.Control
-                  name="url"
-                  value={this.state.cards[cardIndex].url}
-                  onChange={this.handleCardChange(cardIndex)}
-                  disabled={this.state.cards[cardIndex].deprecated === 1}
-                />
-              </InputGroup>
-            </Form.Group>
-
-            <Form.Group>
-              {imageUploadSection}
-            </Form.Group>
-
-            <Form.Group>
-              <Form.Label>Date Footer</Form.Label>
-              <Form.Control
-                name="date"
-                value={this.state.cards[cardIndex].date}
-                onChange={this.handleCardChange(cardIndex)}
-                disabled={this.state.cards[cardIndex].deprecated === 1}
-              />
-            </Form.Group>
-
-            <Form.Group>
-              <Form.Label>Card Text</Form.Label>
-              <Form.Control
-                style={{ height: "90px" }}
-                name="text"
-                as="textarea"
-                value={this.state.cards[cardIndex].text}
-                onChange={this.handleCardChange(cardIndex)}
-                disabled={this.state.cards[cardIndex].deprecated === 1}
-              />
-            </Form.Group>
-
-            <Form.Group>
-              <Button
-                variant={this.state.cards[cardIndex].deprecated === 1 ? "outline-danger" : "danger"}
-                size="sm"
-                onClick={this.handleRemove(cardIndex)}
-                style={{ marginRight: "5px" }}
-              >
-                {this.state.cards[cardIndex].deprecated === 1 ? "Cancel" : "Remove"}
-              </Button>
-
-              <Button variant="primary" size="sm" onClick={this.handleAddCard}>
-                Add another card
-            </Button>
-              <Form.Text style={{ color: "red", marginLeft: "2px" }}>WARNING: the whole card will be removed after update!</Form.Text>
-            </Form.Group>
-          </Form.Group>
-        </Tab>
-      );
-    });
-
-    this.setState({
-      cardsReactElement: reactCardArray
-    });
-
-    // initialize dynamic picture upload module
-    bsCustomFileInput.init();
-
-    return _.cloneDeep(reactCardArray);
-  }
-
   render() {
     const updateSuccess = <span style={{ color: "green" }}>all contents are up-to-date</span>
 
@@ -746,9 +590,14 @@ class AdminHome extends React.Component {
             <Form.Label>
               even number of cards recommended
             </Form.Label>
-            <Tabs className="myClass" defaultActiveKey={0} id="uncontrolled-tab-example">
-              {this.state.cardsReactElement}
-            </Tabs>
+            
+            <HomeCardSettings
+              cards={this.state.cards}
+              handleCardChange={this.handleCardChange}
+              handleCardRemove={this.handleRemove}
+              handleAddCard={this.handleAddCard}
+              handlePicChange={this.handlePicChange} 
+            />
             <hr />
 
             <h5>Events Item Settings</h5>
