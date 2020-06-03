@@ -168,8 +168,8 @@ class Home extends React.Component {
   }
 
   renderEventsCard = (eventsCards) => {
-    const cardElements = eventsCards.map(card => 
-      <div>
+    const cardElements = eventsCards.map((card, cardIndex) => 
+      <div key={`events ${cardIndex}`}>
         <p style={{marginBottom: "2px"}}><b>
           <a href={card.url} style={{color: "black"}}>{card.title}</a>
         </b></p>
