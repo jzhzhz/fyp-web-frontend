@@ -3,7 +3,7 @@ import { Form, Button, Tabs, Tab, InputGroup } from 'react-bootstrap';
 import axios from 'axios';
 import _ from 'lodash';
 import { getCurrentDate } from '../../utils/Utils';
-// eslint-disable-next-line
+import NewEditor from '../../components/NewEditor';
 import { HomeEventsCardSettings as EventsSettings } from '../../components/HomeEventsCardSettings';
 import bsCustomFileInput from 'bs-custom-file-input';
 
@@ -87,14 +87,10 @@ class AdminHome extends React.Component {
    * @param {string} type
    */
   getTextBlocksByType = async (type) => {
-    let res = {};
     const url = process.env.REACT_APP_BACKEND_URL +
-     "/getHomeTextBlockByType?type=" + type;
-    
-    await axios.get(url)
-      .then((getRes) => {
-        res = getRes;
-      })
+      "/getHomeTextBlockByType?type=" + type;
+
+    const res = await axios.get(url)
       .catch((err) => {
         console.log(err);
         return -1;
@@ -114,7 +110,7 @@ class AdminHome extends React.Component {
   getCards = async () => {
     let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getAllCards";
-    
+
     await axios.get(url)
       .then((getRes) => {
         res = getRes;
@@ -142,7 +138,7 @@ class AdminHome extends React.Component {
       });
 
     } else { return -1; }
-    
+
     // calling function to render the list into react elements
     this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
 
@@ -151,8 +147,8 @@ class AdminHome extends React.Component {
 
   getEventsCards = async () => {
     const url = process.env.REACT_APP_BACKEND_URL +
-    "/getAllEvents";
-  
+      "/getAllEvents";
+
     const res = await axios.get(url)
       .catch((err) => {
         console.log(err);
@@ -177,7 +173,7 @@ class AdminHome extends React.Component {
     // name: the name of home textblock
     // id: the type of content in textblock
     // value: the content of a type in textblock
-    const {name, id, value} = event.target;
+    const { name, id, value } = event.target;
     this.setState((prevState) => {
       return {
         isUpdated: false,
@@ -197,7 +193,7 @@ class AdminHome extends React.Component {
   handleCardChange = (cardIndex) => (event) => {
     // name: type of content in a card
     // value: content of that type in a card
-    const {name, value} = event.target;
+    const { name, value } = event.target;
     let newCards = _.cloneDeep(this.state.cards);
 
     newCards[cardIndex][name] = value;
@@ -205,17 +201,17 @@ class AdminHome extends React.Component {
 
     // re-render the elements after state update
     this.setState({
-        cards: _.cloneDeep(newCards),
-        isUpdated: false
-      }, () => {
-        this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
-      });
+      cards: _.cloneDeep(newCards),
+      isUpdated: false
+    }, () => {
+      this.modifyCardToReactElement(_.cloneDeep(this.state.cards));
+    });
   }
 
   handleEventsCardChange = (cardIndex) => (event) => {
     // name: type of content in a card
     // value: content of that type in a card
-    const {name, value} = event.target;
+    const { name, value } = event.target;
     let newEventsCards = this.state.eventsCards.slice();
 
     newEventsCards[cardIndex][name] = value;
@@ -241,13 +237,13 @@ class AdminHome extends React.Component {
     formData.append('file', event.target.files[0]);
 
     const res = await axios.post(url, formData, {
-      headers: {'Content-Type': 'multipart/form-data'}
-      })
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
       .catch(err => {
         console.log(err);
         return -1;
       });
-    
+
     // handling response from backend
     if (res.status === 200 && res.data.code === 0) {
       // handling correct file response
@@ -356,7 +352,7 @@ class AdminHome extends React.Component {
   handleEventsCardRemove = (cardIndex) => (event) => {
     let newEventsCards = this.state.eventsCards.slice();
 
-    newEventsCards[cardIndex].deprecated = 
+    newEventsCards[cardIndex].deprecated =
       newEventsCards[cardIndex].deprecated === 0 ? 1 : 0;
     newEventsCards[cardIndex].changed = true;
 
@@ -365,7 +361,7 @@ class AdminHome extends React.Component {
       isUpdated: false
     });
   }
-  
+
   /**
    * submit button handler,
    * calling several update functions 
@@ -393,7 +389,7 @@ class AdminHome extends React.Component {
       const result = await this.updateCards();
 
       if (result === 0) {
-        this.setState({isUpdated: true});
+        this.setState({ isUpdated: true });
         console.log("information updated");
 
         this.setState({
@@ -401,7 +397,7 @@ class AdminHome extends React.Component {
         });
       } else if (result === -1) {
         console.log("card update failed");
-        
+
         this.setState({
           updating: false
         });
@@ -460,7 +456,7 @@ class AdminHome extends React.Component {
         console.log("getting new cards...");
         console.log(card);
         updateUrl = process.env.REACT_APP_ADMIN_URL + "/createNewCard";
-        
+
         // insert new card into database
         let res = await axios.get(updateUrl, {
           params: card
@@ -468,7 +464,7 @@ class AdminHome extends React.Component {
           console.log(err);
           return -1;
         });
-        
+
         // update the database id of newly created card
         if (res.status === 200 && res.data.code === 0) {
           const retId = res.data.data;
@@ -489,7 +485,7 @@ class AdminHome extends React.Component {
         });
       }
     }
-    
+
     // update the old length of cards array
     const newLen = this.state.cards.length;
     this.setState({
@@ -545,40 +541,40 @@ class AdminHome extends React.Component {
       if (item.id < 0) {
         return null;
       }
-      
+
       // provide a picture download link
       let imgDownloadLink = null;
       if (item.imgUrl !== "") {
         const url = process.env.REACT_APP_BACKEND_URL + "/getCardImgByUrl?"
           + "visitUrl=" + encodeURIComponent(item.imgUrl);
 
-        imgDownloadLink = 
-          <a 
-            href={url} 
-            style={{color: "gray", fontSize: "smaller"}} 
+        imgDownloadLink =
+          <a
+            href={url}
+            style={{ color: "gray", fontSize: "smaller" }}
             download
           >
             [download picture]
           </a>;
       }
-      
+
       // provide image upload functionality
       // if the card is not deprecated
-      let imageUploadSection = 
+      let imageUploadSection =
         <div>
           <Form.Label>Image Upload Disabled</Form.Label>
         </div>;
       if (item.deprecated === 0) {
-        imageUploadSection = 
+        imageUploadSection =
           <div>
             <Form.Label>Upload The Cover Picture</Form.Label>
-            <Form.File 
+            <Form.File
               id="custom-file"
               custom
-            > 
-              <Form.File.Input 
+            >
+              <Form.File.Input
                 isValid={this.state.cards[cardIndex].isPicValid}
-                isInvalid={!this.state.cards[cardIndex].isPicValid} 
+                isInvalid={!this.state.cards[cardIndex].isPicValid}
                 onChange={this.handlePicChange(cardIndex)}
               />
               <Form.File.Label data-browse="Choose File">
@@ -587,7 +583,7 @@ class AdminHome extends React.Component {
               <Form.Control.Feedback type="valid">
                 {this.state.cards[cardIndex].uploadMsg}
               </Form.Control.Feedback>
-              <Form.Control.Feedback type="invalid" style={{color: "red"}}>
+              <Form.Control.Feedback type="invalid" style={{ color: "red" }}>
                 invalid picture type!
               </Form.Control.Feedback>
             </Form.File>
@@ -598,79 +594,79 @@ class AdminHome extends React.Component {
       // transform the whole card object into form elements
       return (
         // each card becomes a tab of form in tabs
-        <Tab key={cardIndex} eventKey={cardIndex} title={`Card ${cardIndex+1}`} size="sm">
-        <Form.Group 
-          key={cardIndex} 
-          controlId={cardIndex} 
-          style={{backgroundColor: "rgb(219, 215, 210)", padding: "15px"}}
-        >
-          <Form.Group>
-            <Form.Label>Title</Form.Label>
-            <Form.Control 
-              name="title"
-              value={this.state.cards[cardIndex].title} 
-              onChange={this.handleCardChange(cardIndex)}
-              disabled={this.state.cards[cardIndex].deprecated === 1}
-            />
-          </Form.Group>
-
-          <Form.Group>
-            <Form.Label>URL</Form.Label>
-            <InputGroup>
-              <InputGroup.Prepend>
-                <InputGroup.Text id="inputGroupPrepend">https://site-address</InputGroup.Text>
-              </InputGroup.Prepend>
-              <Form.Control 
-                name="url"
-                value={this.state.cards[cardIndex].url} 
+        <Tab key={cardIndex} eventKey={cardIndex} title={`Card ${cardIndex + 1}`} size="sm">
+          <Form.Group
+            key={cardIndex}
+            controlId={cardIndex}
+            style={{ backgroundColor: "rgb(219, 215, 210)", padding: "15px" }}
+          >
+            <Form.Group>
+              <Form.Label>Title</Form.Label>
+              <Form.Control
+                name="title"
+                value={this.state.cards[cardIndex].title}
                 onChange={this.handleCardChange(cardIndex)}
                 disabled={this.state.cards[cardIndex].deprecated === 1}
               />
-            </InputGroup>
-          </Form.Group>
+            </Form.Group>
 
-          <Form.Group>
-            {imageUploadSection}
-          </Form.Group>
+            <Form.Group>
+              <Form.Label>URL</Form.Label>
+              <InputGroup>
+                <InputGroup.Prepend>
+                  <InputGroup.Text id="inputGroupPrepend">https://site-address</InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control
+                  name="url"
+                  value={this.state.cards[cardIndex].url}
+                  onChange={this.handleCardChange(cardIndex)}
+                  disabled={this.state.cards[cardIndex].deprecated === 1}
+                />
+              </InputGroup>
+            </Form.Group>
 
-          <Form.Group>
-            <Form.Label>Date Footer</Form.Label>
-            <Form.Control 
-              name="date"
-              value={this.state.cards[cardIndex].date} 
-              onChange={this.handleCardChange(cardIndex)}
-              disabled={this.state.cards[cardIndex].deprecated === 1}
-            />
-          </Form.Group>
+            <Form.Group>
+              {imageUploadSection}
+            </Form.Group>
 
-          <Form.Group>
-            <Form.Label>Card Text</Form.Label>
-            <Form.Control
-              style={{height: "90px"}} 
-              name="text"
-              as="textarea" 
-              value={this.state.cards[cardIndex].text} 
-              onChange={this.handleCardChange(cardIndex)}
-              disabled={this.state.cards[cardIndex].deprecated === 1}
-            />
-          </Form.Group>
+            <Form.Group>
+              <Form.Label>Date Footer</Form.Label>
+              <Form.Control
+                name="date"
+                value={this.state.cards[cardIndex].date}
+                onChange={this.handleCardChange(cardIndex)}
+                disabled={this.state.cards[cardIndex].deprecated === 1}
+              />
+            </Form.Group>
 
-          <Form.Group>
-            <Button 
-              variant={this.state.cards[cardIndex].deprecated === 1 ? "outline-danger" : "danger"}
-              size="sm"
-              onClick={this.handleRemove(cardIndex)}
-              style={{marginRight: "5px"}}
-            >
-              {this.state.cards[cardIndex].deprecated === 1 ? "Cancel" : "Remove"}
+            <Form.Group>
+              <Form.Label>Card Text</Form.Label>
+              <Form.Control
+                style={{ height: "90px" }}
+                name="text"
+                as="textarea"
+                value={this.state.cards[cardIndex].text}
+                onChange={this.handleCardChange(cardIndex)}
+                disabled={this.state.cards[cardIndex].deprecated === 1}
+              />
+            </Form.Group>
+
+            <Form.Group>
+              <Button
+                variant={this.state.cards[cardIndex].deprecated === 1 ? "outline-danger" : "danger"}
+                size="sm"
+                onClick={this.handleRemove(cardIndex)}
+                style={{ marginRight: "5px" }}
+              >
+                {this.state.cards[cardIndex].deprecated === 1 ? "Cancel" : "Remove"}
+              </Button>
+
+              <Button variant="primary" size="sm" onClick={this.handleAddCard}>
+                Add another card
             </Button>
-
-            <Button variant="primary" size="sm" onClick={this.handleAddCard}>
-              Add another card
-            </Button>
-            <Form.Text style={{color: "red", marginLeft: "2px"}}>WARNING: the whole card will be removed after update!</Form.Text>
+              <Form.Text style={{ color: "red", marginLeft: "2px" }}>WARNING: the whole card will be removed after update!</Form.Text>
+            </Form.Group>
           </Form.Group>
-        </Form.Group>
         </Tab>
       );
     });
@@ -686,22 +682,22 @@ class AdminHome extends React.Component {
   }
 
   render() {
-    const updateSuccess = <span style={{color: "green"}}>all contents are up-to-date</span>
+    const updateSuccess = <span style={{ color: "green" }}>all contents are up-to-date</span>
 
     return (
       <React.Fragment>
         <h3>Home Page Settings</h3>
-        <a style={{color: "gray"}} href="/admin/main">{"<<"} return to main setting page</a>
+        <a style={{ color: "gray" }} href="/admin/main">{"<<"} return to main setting page</a>
         <hr />
-        <div style={{width: "70%"}}>
+        <div style={{ width: "70%" }}>
           <Form onSubmit={this.handleSubmit}>
             <h5>Headline Setting</h5>
             <Form.Group>
               <Form.Label>Headline Title</Form.Label>
-              <Form.Control 
+              <Form.Control
                 name="headline"
-                id="title" 
-                value={this.state.headline.title} 
+                id="title"
+                value={this.state.headline.title}
                 onChange={this.handleStaticChange}
               />
             </Form.Group>
@@ -710,19 +706,19 @@ class AdminHome extends React.Component {
             <h5>Jumbotron Setting</h5>
             <Form.Group>
               <Form.Label>Title</Form.Label>
-              <Form.Control 
+              <Form.Control
                 name="jumbo"
-                id="title" 
-                value={this.state.jumbo.title} 
+                id="title"
+                value={this.state.jumbo.title}
                 onChange={this.handleStaticChange}
               />
             </Form.Group>
             <Form.Group>
               <Form.Label>Subtitle</Form.Label>
-              <Form.Control 
+              <Form.Control
                 name="jumbo"
-                id="content" 
-                value={this.state.jumbo.content} 
+                id="content"
+                value={this.state.jumbo.content}
                 onChange={this.handleStaticChange}
               />
             </Form.Group>
@@ -731,12 +727,13 @@ class AdminHome extends React.Component {
             <h5>Sidebar Information Setting</h5>
             <Form.Group>
               <Form.Label>html code segment:</Form.Label>
+              <NewEditor htmlSegment={this.state.sidebar.content}/>
               <Form.Control
-                style={{height: "300px"}}
-                as="textarea" 
+                style={{ height: "300px" }}
+                as="textarea"
                 name="sidebar"
-                id="content" 
-                value={this.state.sidebar.content} 
+                id="content"
+                value={this.state.sidebar.content}
                 onChange={this.handleStaticChange}
               />
               <Form.Text className="text-muted">
@@ -747,7 +744,7 @@ class AdminHome extends React.Component {
 
             <h5>Card Item Settings</h5>
             <Form.Label>
-                even number of cards recommended
+              even number of cards recommended
             </Form.Label>
             <Tabs className="myClass" defaultActiveKey={0} id="uncontrolled-tab-example">
               {this.state.cardsReactElement}
@@ -755,14 +752,14 @@ class AdminHome extends React.Component {
             <hr />
 
             <h5>Events Item Settings</h5>
-            <EventsSettings 
+            <EventsSettings
               cards={this.state.eventsCards}
               handleEventsCardChange={this.handleEventsCardChange}
               handleEventsCardRemove={this.handleEventsCardRemove}
               handleAddEventsCard={this.handleAddEventsCard}
             />
             <hr />
-          
+
             <Button variant="primary" type="submit" disabled={this.state.updating}>
               Update
             </Button>
