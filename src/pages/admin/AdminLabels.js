@@ -313,7 +313,7 @@ class AdminLabels extends React.Component {
     const tabsName = type + "Tabs";
     const bigTabs = 
       <Tabs
-        className="myClass" 
+        className="card-tabs" 
         defaultActiveKey={0} 
         id="uncontrolled-tab-example"
       >

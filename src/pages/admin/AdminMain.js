@@ -20,6 +20,7 @@ const Styles = styled.div`
   }
 `;
 
+/** remove login state */
 const handleLogout = () => {
   sessionStorage.setItem("isAuthed", "false");
   sessionStorage.removeItem("username");
