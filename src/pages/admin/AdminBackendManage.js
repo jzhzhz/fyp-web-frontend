@@ -25,7 +25,6 @@ class AdminBackendManage extends React.Component {
   }
 
   handleExcelFileChange = async (event) => {
-    console.log("handling excel change");
     // prevent default behavior
     // initialize url, file and file data
     event.preventDefault();

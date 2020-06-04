@@ -56,9 +56,9 @@ export const PubCardSettings = (props) => {
     const cardTab = 
     <Tab className="card-tab" key={cardIndex} eventKey={cardIndex} title={`Card ${cardIndex+1}`} size="sm">
       <Form.Group 
-          key={cardIndex} 
-          controlId={cardIndex} 
-          style={{backgroundColor: "rgb(219, 215, 210)", padding: "15px"}}
+        key={cardIndex} 
+        controlId={cardIndex} 
+        style={{backgroundColor: "rgb(219, 215, 210)", padding: "15px"}}
       >
         <Form.Group>
           <Form.Label>Title</Form.Label>

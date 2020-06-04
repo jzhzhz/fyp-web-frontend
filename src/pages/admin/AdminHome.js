@@ -119,7 +119,6 @@ class AdminHome extends React.Component {
   }
 
   draftToggleInlineStyle = (inlineStyle) => {
-    console.log("inline changes");
     this.onEditorChange(
       RichUtils.toggleInlineStyle(
         this.state.editorState,
@@ -145,7 +144,6 @@ class AdminHome extends React.Component {
       });
     } else { // switch to rich editor
       const blocksFromHTML = convertFromHTML(this.state.sidebar.content);
-
       const state = ContentState.createFromBlockArray(
         blocksFromHTML.contentBlocks,
         blocksFromHTML.entityMap,
