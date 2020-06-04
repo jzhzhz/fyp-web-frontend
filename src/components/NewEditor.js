@@ -1,6 +1,5 @@
 import React from 'react';
-// eslint-disable-next-line
-import { Editor, EditorState, convertToRaw, convertFromHTML, ContentState } from 'draft-js';
+import { Editor, EditorState, convertToRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html'
 import '../styles/new-editor.css';
 
@@ -21,19 +20,6 @@ class NewEditor extends React.Component {
     this.focus = () => this.refs.editor.focus();
   }
 
-  // get html code from sidebar and parse it to editor
-  // componentDidUpdate(prevProps) {
-  //   if (this.props.htmlSegment !== prevProps.htmlSegment) {
-  //     const blocksFromHTML = convertFromHTML(this.props.htmlSegment);
-  //     const state = ContentState.createFromBlockArray(
-  //       blocksFromHTML.contentBlocks,
-  //       blocksFromHTML.entityMap,
-  //     );
-
-  //     this.props.onChange( EditorState.createWithContent(state) );
-  //   }
-  // }
-
   handleFileUpload = (e) => {
     e.preventDefault();
     console.log(convertToRaw(this.props.editorState.getCurrentContent()));
@@ -49,33 +35,36 @@ class NewEditor extends React.Component {
   }
 
   render() {
-    // If the user changes block type before entering any text, we can
-    // either style the placeholder or hide it. Let's just hide it now.
     let className = 'RichEditor-editor';
     const { editorState } = this.props;
 
-    return (
-      <div className="RichEditor-root">
-        <BlockStyleControls
+    const CustomEditor = this.props.disabled ? <p>Editor Disabled</p> :
+    <div className="RichEditor-root">
+      <BlockStyleControls
+        editorState={editorState}
+        onToggle={this.props.toggleBlockType}
+      />
+      <InlineStyleControls
+        editorState={editorState}
+        onToggle={this.props.toggleInlineStyle}
+      />
+      <div className={className} onClick={this.focus}>
+        <Editor
+          blockStyleFn={this.getBlockStyle}
+          customStyleMap={styleMap}
           editorState={editorState}
-          onToggle={this.props.toggleBlockType}
+          handleKeyCommand={this.props.handleKeyCommand}
+          onChange={this.props.onChange}
+          ref="editor"
+          spellCheck={true}
         />
-        <InlineStyleControls
-          editorState={editorState}
-          onToggle={this.props.toggleInlineStyle}
-        />
-        <div className={className} onClick={this.focus}>
-          <Editor
-            blockStyleFn={this.getBlockStyle}
-            customStyleMap={styleMap}
-            editorState={editorState}
-            handleKeyCommand={this.props.handleKeyCommand}
-            onChange={this.props.onChange}
-            ref="editor"
-            spellCheck={true}
-          />
-        </div>
       </div>
+    </div>;
+
+    return (
+      <React.Fragment>
+        {CustomEditor}
+      </React.Fragment>
     );
   }
 }

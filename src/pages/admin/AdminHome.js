@@ -4,8 +4,7 @@ import bsCustomFileInput from 'bs-custom-file-input';
 import axios from 'axios';
 import _ from 'lodash';
 import { getCurrentDate } from '../../utils/Utils';
-// eslint-disable-next-line
-import { Editor, EditorState, RichUtils, convertToRaw, convertFromHTML, ContentState, convertFromRaw } from 'draft-js';
+import { EditorState, RichUtils, convertToRaw, convertFromHTML, ContentState, convertFromRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 
 // import components
@@ -129,6 +128,43 @@ class AdminHome extends React.Component {
     );
   }
 
+  handleEditorSwitch = (event) => {
+    event.preventDefault();
+
+    // switch from rich text to raw editor
+    if (this.state.sidebar.title === "editor") {
+      this.setState(prevState => {
+        return {
+          sidebar: {
+            ...prevState.sidebar,
+            title: "raw",
+            changed: true
+          },
+          isUpdated: false
+        };
+      });
+    } else { // switch to rich editor
+      const blocksFromHTML = convertFromHTML(this.state.sidebar.content);
+
+      const state = ContentState.createFromBlockArray(
+        blocksFromHTML.contentBlocks,
+        blocksFromHTML.entityMap,
+      );
+
+      this.setState(prevState => {
+        return {
+          editorState: EditorState.createWithContent(state),
+          sidebar: {
+            ...prevState.sidebar,
+            title: "editor",
+            changed: true
+          },
+          isUpdated: false
+        }
+      });
+    }
+  }
+
   /**
    * get home page text blocks by type
    * @param {string} type
@@ -150,14 +186,12 @@ class AdminHome extends React.Component {
       }, () => {
         if (type === "sidebar") {
           const rawContentState = JSON.parse(decodeURIComponent(this.state.sidebar.url));
-          // const blocksFromHTML = convertFromHTML(this.state.sidebar.content);
-          // console.log(blocksFromHTML)
-          // const state = ContentState.createFromBlockArray(
-          //   blocksFromHTML.contentBlocks,
-          //   blocksFromHTML.entityMap,
-          // );
           const firstAttempt = true;
-          this.onEditorChange( EditorState.createWithContent(convertFromRaw(rawContentState)), firstAttempt );
+
+          this.onEditorChange(
+            EditorState.createWithContent(convertFromRaw(rawContentState)),
+            firstAttempt
+          );
         }
       });
 
@@ -637,17 +671,17 @@ class AdminHome extends React.Component {
 
             <h5>Sidebar Information Setting</h5>
             <Form.Group>
-              <Form.Label>editor:</Form.Label>
-              <NewEditor 
+              <Form.Label>Rich Text Editor:</Form.Label>
+              <NewEditor
                 htmlSegment={this.state.sidebar.content}
                 editorState={this.state.editorState}
                 handleKeyCommand={this.draftHandleKeyCommand}
                 toggleBlockType={this.draftToggleBlockType}
                 toggleInlineStyle={this.draftToggleInlineStyle}
-                onChange={this.onEditorChange} 
+                onChange={this.onEditorChange}
+                disabled={this.state.sidebar.title !== "editor"}
               />
-              <br />
-              <Form.Label>translated html code segment:</Form.Label>
+              <Form.Label style={{ marginTop: "5px" }}>Raw HTML:</Form.Label>
               <Form.Control
                 style={{ height: "300px" }}
                 as="textarea"
@@ -656,9 +690,20 @@ class AdminHome extends React.Component {
                 value={this.state.sidebar.content}
                 onChange={this.handleStaticChange}
                 disabled={this.state.sidebar.title === "editor"}
+                spellCheck={false}
               />
-              <Form.Text className="text-muted">
-                the sidebar information should be written in html segment, which will later be put on the home page.
+              <Button
+                size="sm"
+                variant="warning"
+                onClick={this.handleEditorSwitch}
+                style={{ marginTop: "8px" }}
+              >
+                Switch Editor to: {this.state.sidebar.title === "editor" ?
+                  "Raw HTML Editor" : "Rich Text Editor"
+                }
+              </Button>
+              <Form.Text style={{ color: "#ffaa00", fontSize: "0.9em" }}>
+                WARNING: some elements might be changed during editor transition
               </Form.Text>
             </Form.Group>
             <hr />
