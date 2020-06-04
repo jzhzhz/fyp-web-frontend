@@ -54,7 +54,7 @@ export const PubCardSettings = (props) => {
     }
 
     const cardTab = 
-    <Tab key={cardIndex} eventKey={cardIndex} title={`Card ${cardIndex+1}`} size="sm">
+    <Tab className="card-tab" key={cardIndex} eventKey={cardIndex} title={`Card ${cardIndex+1}`} size="sm">
       <Form.Group 
           key={cardIndex} 
           controlId={cardIndex} 
@@ -132,7 +132,7 @@ export const PubCardSettings = (props) => {
   });
 
   return (
-    <Tabs className="myClass">
+    <Tabs className="card-tabs">
       {cardElements}
     </Tabs>
   );

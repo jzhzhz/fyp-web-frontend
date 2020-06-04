@@ -9,11 +9,11 @@
   position: absolute;
 }
 
-a {
+.footer a {
   color: rgba(255, 255, 255, 0.815);
 }
 
-a:hover {
+.footer a:hover {
   color: rgba(255, 255, 255, 0.815);
 }
 

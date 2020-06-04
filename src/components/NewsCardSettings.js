@@ -8,7 +8,7 @@ import { Form, Tabs, Tab, Button } from 'react-bootstrap';
 export const NewsCardSettings = (props) => {
   const cardTabs = props.cards.map((card, cardIndex) => {
     return (
-      <Tab key={cardIndex} eventKey={cardIndex} title={`Card ${cardIndex+1}`} size="sm">
+      <Tab className="card-tab" key={cardIndex} eventKey={cardIndex} title={`Card ${cardIndex+1}`} size="sm">
         <Form.Group 
             key={cardIndex} 
             controlId={cardIndex} 
@@ -61,7 +61,7 @@ export const NewsCardSettings = (props) => {
   })
 
   return (
-    <Tabs className="myClass" defaultActiveKey={0}>
+    <Tabs className="card-tabs" defaultActiveKey={0}>
       {cardTabs}
     </Tabs>
   );
