@@ -372,17 +372,22 @@ class StaffProfile extends React.Component {
         };
       });
     } else { // restore the profile
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          profileType: prevState.oldProfile.profileType,
-          chosenFaculty: {
-            ...prevState.chosenFaculty,
-            url: prevState.oldProfile.url
-          },
-          isUpdated: false
-        };
-      });
+      // check if there exists old profile
+      if (this.state.oldProfile.url !== "") {
+        this.setState(prevState => {
+          return {
+            ...prevState,
+            profileType: prevState.oldProfile.profileType,
+            chosenFaculty: {
+              ...prevState.chosenFaculty,
+              url: prevState.oldProfile.url
+            },
+            isUpdated: false
+          };
+        });
+      } else {
+        alert("no profile to restore!");
+      }
     }
   }
 
@@ -608,20 +613,22 @@ class StaffProfile extends React.Component {
 
     await this.updateFacultyUrl();
 
-    const profileUpdateRet = await this.updateGeneralProfile();
+    if (this.state.profileType === "template") {
+      const profileUpdateRet = await this.updateGeneralProfile();
 
-    if (profileUpdateRet === -1) {
-      console.log("error happened when updating general profile");
-      return profileUpdateRet;
-    }
+      if (profileUpdateRet === -1) {
+        console.log("error happened when updating general profile");
+        return profileUpdateRet;
+      }
+  
+      await this.updateCards("news");
 
-    await this.updateCards("news");
-
-    const cardsUpdateRet = await this.updateCards("pub");
-
-    if (cardsUpdateRet === -1) {
-      console.log("error happened when updating publication cards");
-      return cardsUpdateRet;
+      const cardsUpdateRet = await this.updateCards("pub");
+  
+      if (cardsUpdateRet === -1) {
+        console.log("error happened when updating publication cards");
+        return cardsUpdateRet;
+      }
     }
 
     this.setState({
@@ -719,7 +726,7 @@ class StaffProfile extends React.Component {
         continue;
       }
 
-      if (type === "pub") {
+      if (type === "pub" && this.state.chosenFaculty.url !== "") {
         console.log("checking picture");
         // check empty picture
         if (card.imgUrl === "") {

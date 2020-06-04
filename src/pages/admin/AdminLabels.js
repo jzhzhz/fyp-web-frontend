@@ -76,10 +76,6 @@ class AdminLabels extends React.Component {
         };
       });
       
-      console.log(`get ${type} labels success!`);
-      console.log(this.state[type]);
-      console.log("the length is: " + this.state[`${type}Len`]);
-      
       // modify the labels to react elements
       this.modifyLabelsToReactElement(_.cloneDeep(this.state[type]), type);
     } else {

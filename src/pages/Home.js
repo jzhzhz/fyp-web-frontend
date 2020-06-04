@@ -8,12 +8,6 @@ import styled from 'styled-components';
 import HomeCarousel from '../components/HomeCarousel';
 import HomeCard from '../components/HomeCard';
 
-const SidebarStyles = styled.div`
-  p {
-    margin-bottom: 8px;
-  }
-`;
-
 class Home extends React.Component {
   constructor() {
     super();
@@ -230,5 +224,11 @@ class Home extends React.Component {
     );
   }
 }
+
+const SidebarStyles = styled.div`
+  p {
+    margin-bottom: 8px;
+  }
+`;
 
 export default Home;

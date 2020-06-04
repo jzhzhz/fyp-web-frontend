@@ -1,6 +1,5 @@
 import React from 'react';
 import axios from 'axios';
-// import _ from 'lodash';
 
 class LabelPage extends React.Component {
   constructor(props) {
@@ -39,9 +38,7 @@ class LabelPage extends React.Component {
       // and update old length accordingly
       this.setState({
         codeContent: currentCode
-      });
-      
-      console.log(`get label success!`);      
+      });      
     } else {
       console.log(`get ${type} labels failed!`);
     }
