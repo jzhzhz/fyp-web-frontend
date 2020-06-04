@@ -1,5 +1,4 @@
 import React from 'react';
-// import { Button } from 'react-bootstrap';
 // eslint-disable-next-line
 import { Editor, EditorState, convertToRaw, convertFromHTML, ContentState } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html'
@@ -65,12 +64,6 @@ class NewEditor extends React.Component {
           editorState={editorState}
           onToggle={this.props.toggleInlineStyle}
         />
-        {/* <Button 
-          size="sm" 
-          onClick={this.handleFileUpload}
-        >
-          
-        </Button> */}
         <div className={className} onClick={this.focus}>
           <Editor
             blockStyleFn={this.getBlockStyle}

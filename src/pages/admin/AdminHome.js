@@ -5,7 +5,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import { getCurrentDate } from '../../utils/Utils';
 // eslint-disable-next-line
-import { Editor, EditorState, RichUtils, convertToRaw, convertFromHTML, ContentState } from 'draft-js';
+import { Editor, EditorState, RichUtils, convertToRaw, convertFromHTML, ContentState, convertFromRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 
 // import components
@@ -87,21 +87,17 @@ class AdminHome extends React.Component {
     }
   }
 
-  onEditorChange = (newEditorState) => {
-    this.setState({
-      editorState: newEditorState,
-      // isUpdated: false 
-    }, () => {
-      this.setState(prevState => {
-        return {
-          sidebar: {
-            ...prevState.sidebar,
-            content: stateToHTML(
-              this.state.editorState.getCurrentContent()
-            )
-          },
-        };
-      })
+  onEditorChange = (newEditorState, firstAttempt = false) => {
+    this.setState(prevState => {
+      return {
+        editorState: newEditorState,
+        sidebar: {
+          ...prevState.sidebar,
+          content: stateToHTML(newEditorState.getCurrentContent()),
+          changed: !firstAttempt
+        },
+        isUpdated: firstAttempt
+      };
     });
   };
 
@@ -153,13 +149,15 @@ class AdminHome extends React.Component {
         [type]: res.data.data[0]
       }, () => {
         if (type === "sidebar") {
-          const blocksFromHTML = convertFromHTML(this.state.sidebar.content);
-          const state = ContentState.createFromBlockArray(
-            blocksFromHTML.contentBlocks,
-            blocksFromHTML.entityMap,
-          );
-    
-          this.onEditorChange( EditorState.createWithContent(state) );
+          const rawContentState = JSON.parse(decodeURIComponent(this.state.sidebar.url));
+          // const blocksFromHTML = convertFromHTML(this.state.sidebar.content);
+          // console.log(blocksFromHTML)
+          // const state = ContentState.createFromBlockArray(
+          //   blocksFromHTML.contentBlocks,
+          //   blocksFromHTML.entityMap,
+          // );
+          const firstAttempt = true;
+          this.onEditorChange( EditorState.createWithContent(convertFromRaw(rawContentState)), firstAttempt );
         }
       });
 
@@ -456,6 +454,24 @@ class AdminHome extends React.Component {
     let updateUrl = process.env.REACT_APP_ADMIN_URL + "/updateHomeTextBlock";
 
     if (this.state[type].changed) {
+      // store the raw edit content state in the url part of sidebar
+      if (type === "sidebar") {
+        const contentStateStr = encodeURIComponent(
+          JSON.stringify(
+            convertToRaw(this.state.editorState.getCurrentContent())
+          )
+        );
+
+        this.setState(prevState => {
+          return {
+            sidebar: {
+              ...prevState.sidebar,
+              url: contentStateStr
+            }
+          };
+        });
+      }
+
       await axios.get(updateUrl, {
         params: {
           id: this.state[type].id,
@@ -639,6 +655,7 @@ class AdminHome extends React.Component {
                 id="content"
                 value={this.state.sidebar.content}
                 onChange={this.handleStaticChange}
+                disabled={this.state.sidebar.title === "editor"}
               />
               <Form.Text className="text-muted">
                 the sidebar information should be written in html segment, which will later be put on the home page.

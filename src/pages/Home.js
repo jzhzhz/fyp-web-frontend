@@ -1,11 +1,18 @@
 import React from 'react';
-import HomeCarousel from '../components/HomeCarousel';
+import { Row, Col, CardDeck } from 'react-bootstrap';
 import axios from 'axios';
 import _ from 'lodash';
 import * as Utils from '../utils/Utils';
+import styled from 'styled-components';
 
-import { Row, Col, CardDeck } from 'react-bootstrap';
+import HomeCarousel from '../components/HomeCarousel';
 import HomeCard from '../components/HomeCard';
+
+const SidebarStyles = styled.div`
+  p {
+    margin-bottom: 8px;
+  }
+`;
 
 class Home extends React.Component {
   constructor() {
@@ -198,7 +205,9 @@ class Home extends React.Component {
               <br />
             </Col>
             <Col sm={3}>
-              <div dangerouslySetInnerHTML={{__html: this.state.sidebar.content}} />
+              <SidebarStyles>
+                <div dangerouslySetInnerHTML={{__html: this.state.sidebar.content}} />
+              </SidebarStyles>
             </Col>
           </Row>
           <Row>
