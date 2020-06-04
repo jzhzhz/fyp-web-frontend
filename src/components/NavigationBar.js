@@ -81,7 +81,7 @@ class NavigationBar extends React.Component {
   }
 
   render() {
-    const login = <a href="/login">login</a>;
+    const login = <a href="/login" style={{color: "rgba(255, 255, 255, 0.815)"}}>login</a>;
     let settingHref = "/";
     if (sessionStorage.getItem("isAuthed") === "admin") {
       settingHref = "/admin/main";
@@ -91,7 +91,7 @@ class NavigationBar extends React.Component {
 
     const welcome = 
       <span>
-        Welcome, <a href={settingHref}>
+        Welcome, <a href={settingHref} style={{color: "rgba(255, 255, 255, 0.815)"}}>
           {this.props.username || sessionStorage.getItem("username")}
         </a>.
       </span>

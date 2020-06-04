@@ -16,7 +16,6 @@ const Styles = styled.div`
   }
 `;
 
-
 class MyEditor extends React.Component {
   constructor(props) {
     super(props);
