@@ -6,7 +6,7 @@ import axios from 'axios';
 
 const Styles = styled.div`
   .nav-bar {
-    background-color: #066baf;
+    background-color: ${process.env.REACT_APP_NAVBAR_BGCOLOR};
   }
 
   span {

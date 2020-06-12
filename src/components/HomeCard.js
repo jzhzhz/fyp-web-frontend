@@ -4,7 +4,7 @@ import { Card } from 'react-bootstrap';
 class HomeCard extends React.Component {
   render() {
     return (
-      <Card className="card-root" style={{ backgroundColor: "rgb(236, 230, 225)" }}>
+      <Card className="card-root" style={{ backgroundColor: process.env.REACT_APP_HOMECARD_BGCOLOR }}>
         <Card.Img variant="top" src={this.props.imgUrl} />
         <Card.Body>
           <Card.Title style={{ fontSize: "1.2em" }}>{this.props.title}</Card.Title>
