@@ -29,7 +29,7 @@ class NavigationBar extends React.Component {
     this.getLabel("about");
     this.getLabel("academics");
     this.getLabel("admissions");
-    
+
     if (sessionStorage.getItem("isAuthed") === "true") {
       this.setState({
         isAuthed: true
@@ -40,7 +40,7 @@ class NavigationBar extends React.Component {
   getLabel = async (labelType) => {
     let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getLabels?labelType=" + labelType;
-    
+
     await axios.get(url)
       .then((getRes) => {
         res = getRes;
@@ -65,7 +65,7 @@ class NavigationBar extends React.Component {
           [stateLabelName]: labelsRes,
         };
       });
-      
+
       // console.log(`get ${labelType} labels success!`);
     } else {
       // console.log(`get ${labelType} labels failed!`);
@@ -81,7 +81,7 @@ class NavigationBar extends React.Component {
   }
 
   render() {
-    const login = <a href="/login" style={{color: "rgba(255, 255, 255, 0.815)"}}>login</a>;
+    const login = <a href="/login" style={{ color: "rgba(255, 255, 255, 0.815)" }}>login</a>;
     let settingHref = "/";
     if (sessionStorage.getItem("isAuthed") === "admin") {
       settingHref = "/admin/main";
@@ -89,45 +89,47 @@ class NavigationBar extends React.Component {
       settingHref = "/staff/main";
     }
 
-    const welcome = 
+    const welcome =
       <span>
-        Welcome, <a href={settingHref} style={{color: "rgba(255, 255, 255, 0.815)"}}>
+        Welcome, <a href={settingHref} style={{ color: "rgba(255, 255, 255, 0.815)" }}>
           {this.props.username || sessionStorage.getItem("username")}
         </a>.
       </span>
 
     return (
-      <Styles>
-        <Navbar className="nav-bar" variant="dark" expand="lg">
-          <Container>
-            <Navbar.Brand href="http://www.xmu.edu.my/">XMUM</Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav"/>
-            <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="mr-auto">
-                <Nav.Item><Nav.Link href="/">Home</Nav.Link></Nav.Item>
-                <NavDropdown title="About" id="basic-nav-dropdown">
-                  {this.state.aboutLabels}
-                </NavDropdown>
-                <NavDropdown title="People" id="basic-nav-dropdown">
-                  <NavDropdown.Item href="/people/faculty">Faculty</NavDropdown.Item>
-                  <NavDropdown.Item href="/people/research-staff">Research Staff</NavDropdown.Item>
-                  <NavDropdown.Item href="/people/admin-staff">Administrative Staff</NavDropdown.Item>
-                </NavDropdown>
-                <Nav.Item><Nav.Link href="/research">Research</Nav.Link></Nav.Item>
-                <NavDropdown title="Academics" id="basic-nav-dropdown">
-                  {this.state.academicsLabels}
-                </NavDropdown>
-                <NavDropdown title="Admissions" id="basic-nav-dropdown">
-                  {this.state.admissionsLabels}
-                </NavDropdown>
-              </Nav>
-            </Navbar.Collapse>
-            {(sessionStorage.getItem("isAuthed") === "admin" ||
-              sessionStorage.getItem("isAuthed") === "staff" || 
-              this.props.auth) ? welcome : login}
-          </Container>
-        </Navbar>
-      </Styles>
+      <div className="navbar-container">
+        <Styles>
+          <Navbar className="nav-bar" variant="dark" expand="lg">
+            <Container>
+              <Navbar.Brand href="http://www.xmu.edu.my/">XMUM</Navbar.Brand>
+              <Navbar.Toggle aria-controls="basic-navbar-nav" />
+              <Navbar.Collapse id="basic-navbar-nav">
+                <Nav className="mr-auto">
+                  <Nav.Item><Nav.Link href="/">Home</Nav.Link></Nav.Item>
+                  <NavDropdown title="About" id="basic-nav-dropdown">
+                    {this.state.aboutLabels}
+                  </NavDropdown>
+                  <NavDropdown title="People" id="basic-nav-dropdown">
+                    <NavDropdown.Item href="/people/faculty">Faculty</NavDropdown.Item>
+                    <NavDropdown.Item href="/people/research-staff">Research Staff</NavDropdown.Item>
+                    <NavDropdown.Item href="/people/admin-staff">Administrative Staff</NavDropdown.Item>
+                  </NavDropdown>
+                  <Nav.Item><Nav.Link href="/research">Research</Nav.Link></Nav.Item>
+                  <NavDropdown title="Academics" id="basic-nav-dropdown">
+                    {this.state.academicsLabels}
+                  </NavDropdown>
+                  <NavDropdown title="Admissions" id="basic-nav-dropdown">
+                    {this.state.admissionsLabels}
+                  </NavDropdown>
+                </Nav>
+              </Navbar.Collapse>
+              {(sessionStorage.getItem("isAuthed") === "admin" ||
+                sessionStorage.getItem("isAuthed") === "staff" ||
+                this.props.auth) ? welcome : login}
+            </Container>
+          </Navbar>
+        </Styles>
+      </div>
     );
   }
 }

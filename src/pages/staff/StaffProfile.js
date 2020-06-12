@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, FormControl, Row, Col, InputGroup, Button, ListGroup } from 'react-bootstrap';
+import { Form, FormControl, Row, Col, Button, ListGroup } from 'react-bootstrap';
 import bsCustomFileInput from 'bs-custom-file-input';
 import '../../styles/staff-profile.css';
 
@@ -7,8 +7,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import * as Utils from '../../utils/Utils';
 
-import { PubCardSettings } from '../../components/PubCardSettings';
-import { NewsCardSettings } from '../../components/NewsCardSettings';
+import { ProfileSettingMain } from '../../components/ProfileSettingMain';
 
 class StaffProfile extends React.Component {
   constructor() {
@@ -67,7 +66,7 @@ class StaffProfile extends React.Component {
    * handle faculty type choosing with radio buttons,
    * clear the old chosen faculty,
    * clear search results, 
-   * finally get faculty list from backend
+   * get faculty list from backend
    */
   handleFacultyTypeChange = (event) => {
     const {value} = event.target;
@@ -120,21 +119,16 @@ class StaffProfile extends React.Component {
 
   /** handle the search to backend after the search button is clicked */
   handleGoSearch = async () => {
-    console.log("doing search in backend");
-    console.log("name: " + this.state.searchName + " type: " + this.state.facultyType);
-
-    let res = {};
+    // console.log("doing search in backend");
+    // console.log("name: " + this.state.searchName + " type: " + this.state.facultyType);
     const url = process.env.REACT_APP_FACULTY_URL + "/searchFacultyByNameWithType";
     
     // send search request
-    await axios.get(url, {
+    const res = await axios.get(url, {
       params: {
         name: this.state.searchName,
         type: this.state.facultyType
       }
-    })
-    .then((getRes) => {
-      res = getRes;
     })
     .catch((err) => {
       console.log(err);
@@ -151,6 +145,7 @@ class StaffProfile extends React.Component {
     }
   }
 
+  /** cancel search result */
   handleCancelSearch = () => {
     this.setState({
       searchName: ""
@@ -355,6 +350,7 @@ class StaffProfile extends React.Component {
 
   handleRemoveProfile = () => {
     // remove the profile
+    // store the removed profile as old profile
     if (this.state.chosenFaculty.url !== "") {
       this.setState(prevState => {
         return {
@@ -391,7 +387,7 @@ class StaffProfile extends React.Component {
     }
   }
 
-  /** currently handle the url change */ 
+  /** currently only handle the url change */ 
   handleFacultyInfoChange = (event) => {
     const {name, value} = event.target;
 
@@ -408,7 +404,7 @@ class StaffProfile extends React.Component {
   }
 
   /** send profile photo to backend */
-  handlePicChange = async (event) => {
+  handleProfilePicChange = async (event) => {
     console.log("handling profile pic change");
     // prevent default behavior
     // initialize url, file and file data
@@ -502,6 +498,7 @@ class StaffProfile extends React.Component {
     const formData = new FormData();
     formData.append('file', event.target.files[0]);
 
+    // sending req to back-end
     const res = await axios.post(url, formData, {
       headers: {'Content-Type': 'multipart/form-data'}
       })
@@ -510,6 +507,7 @@ class StaffProfile extends React.Component {
         return -1;
       });
     
+    // update information if img upload success
     const cardsName = `${type}Cards`;
     if (res.status === 200 && res.data.code === 0) {
       let newCards = _.cloneDeep(this.state[cardsName]);
@@ -597,7 +595,7 @@ class StaffProfile extends React.Component {
   }
 
   /**
-   * submit the whole profile by calling 
+   * submit the whole profile (if template) by calling 
    * updateFacultyUrl(), updateGeneralProfile(), 
    * updateCards("news") and updateCards("pub"), 
    * also check the image validity in general profile 
@@ -613,6 +611,8 @@ class StaffProfile extends React.Component {
 
     await this.updateFacultyUrl();
 
+    // if the profile type is "template"
+    // update corresponding details
     if (this.state.profileType === "template") {
       const profileUpdateRet = await this.updateGeneralProfile();
 
@@ -657,7 +657,7 @@ class StaffProfile extends React.Component {
     });
 
     if (res.status === 200 && res.data.code === 0) {
-      console.log("url updated");
+      // console.log("url updated");
       // refresh the faculty list after update
       this.forceUpdate(() => {
         this.getFacultyByType(this.state.facultyType);
@@ -669,6 +669,7 @@ class StaffProfile extends React.Component {
     }
   }
 
+  /** update the general part of a faculty's profile */
   updateGeneralProfile = async () => {
     const url = process.env.REACT_APP_FACULTY_URL + "/updateGeneralProfile";
 
@@ -701,7 +702,7 @@ class StaffProfile extends React.Component {
     });
 
     if (res.status === 200 && res.data.code === 0) {
-      console.log("update general profile success");
+      // console.log("update general profile success");
 
       // refresh the faculty list after update
       this.forceUpdate(() => {
@@ -726,8 +727,7 @@ class StaffProfile extends React.Component {
         continue;
       }
 
-      if (type === "pub" && this.state.chosenFaculty.url !== "") {
-        console.log("checking picture");
+      if (type === "pub" && card.deprecated === 0) {
         // check empty picture
         if (card.imgUrl === "") {
           alert("please upload cover picture!");
@@ -741,8 +741,8 @@ class StaffProfile extends React.Component {
         }
       }
 
-      console.log("before update: ");
-      console.log(card);
+      // console.log("before update: ");
+      // console.log(card);
       const res = await axios.get(updateUrl, {
         params: {
           ...card,
@@ -806,26 +806,6 @@ class StaffProfile extends React.Component {
 
   /** sections listed from small to large */ 
   render() {
-    // small dynamic parts
-    const updateSuccess = <span style={{color: "green"}}>all contents are up-to-date</span>;
-    const urlText = this.state.profileType === "template" ?
-      "https://site-address" : "https://";
-
-    // the download link and name if image
-    // in general profile photo will be update 
-    // if the photo exists
-    let profileImgLink = null;
-    if (this.state.generalProfile.imgUrl !== "") {
-      const visitUrl = this.state.generalProfile.imgUrl;
-      const url = process.env.REACT_APP_BACKEND_URL + "/getCardImgByUrl?"
-        + "visitUrl=" + encodeURIComponent(visitUrl);
-      
-      profileImgLink = 
-        <a href={url} style={{color: "gray", fontSize: "smaller"}} download>
-          [download profile photo]
-        </a>;
-    }
-
     // faculty list search bar
     // will not appear unless faculty type is chosen
     const searchBar = this.state.facultyType !== "" ?
@@ -854,143 +834,6 @@ class StaffProfile extends React.Component {
           Cancel
         </Button>
       </Form> : null;
-
-    // section to change personal url
-    // will not pop up if there is no profile selected
-    const personalUrl = this.state.profileType !== "" ?
-    <Form.Group>
-      <Form.Label>Personal URL</Form.Label>
-      <InputGroup>
-        <InputGroup.Prepend>
-          <InputGroup.Text id="inputGroupPrepend">{urlText}</InputGroup.Text>
-        </InputGroup.Prepend>
-        <Form.Control 
-          name="url"
-          value={this.state.chosenFaculty.url}
-          placeholder="personal website url"
-          onChange={this.handleFacultyInfoChange}
-          disabled={this.state.profileType === "template"}
-        />
-      </InputGroup>
-    </Form.Group> : null;
-
-    // template setting section
-    // will not show if personal url is chosen
-    const templateDetail = this.state.profileType === "template" ?
-    <React.Fragment>
-      <h5>Page Template</h5>
-
-      <Form.Group>
-        <Form.Label>Upload Profile Photo</Form.Label>
-        <Form.File 
-          id="custom-profile-photo"
-          custom
-        > 
-          <Form.File.Input 
-            isValid={this.state.generalProfile.isPicValid}
-            isInvalid={!this.state.generalProfile.isPicValid} 
-            onChange={this.handlePicChange}
-          />
-          <Form.File.Label>
-            {this.state.generalProfile.imgName ? 
-              this.state.generalProfile.imgName : 
-              "upload photo here"
-            }
-          </Form.File.Label>
-          <Form.Control.Feedback type="valid">
-            {this.state.generalProfile.picUploadMsg}
-          </Form.Control.Feedback>
-          <Form.Control.Feedback type="invalid" style={{color: "red"}}>
-            invalid picture type!
-          </Form.Control.Feedback>
-        </Form.File>
-        {profileImgLink}
-      </Form.Group>
-
-      <Form.Group>
-        <Form.Label>Brief Introduction (HTML code segment):</Form.Label>
-        <Form.Control 
-          name="intro"
-          as="textarea"
-          value={this.state.generalProfile.intro}
-          onChange={this.handleProfileDetailChange}
-          style={{height: "130px"}}
-        />
-      </Form.Group>
-
-      <Form.Group>
-        <Form.Label>Contact and Other Sidebar Information (HTML code segment):</Form.Label>
-        <Form.Control 
-          name="sidebar"
-          as="textarea"
-          value={this.state.generalProfile.sidebar}
-          onChange={this.handleProfileDetailChange}
-          style={{height: "130px"}}
-        />
-      </Form.Group>
-      <hr />
-
-      <Form.Label><b>News</b> Card Settings:</Form.Label>
-      <NewsCardSettings 
-        cards={this.state.newsCards}
-        handleCardChange={this.handleCardChange}
-        handleRemove={this.handleRemove}
-        handleAddCard={this.handleAddCard}
-      />
-      <hr />
-
-      <Form.Label><b>Publication</b> Card Settings:</Form.Label>
-      <PubCardSettings
-        cards={this.state.pubCards}
-        handleCardChange={this.handleCardChange} 
-        handleCardPicChange={this.handleCardPicChange}
-        handleRemove={this.handleRemove}
-        handleAddCard={this.handleAddCard}
-      />
-    </React.Fragment> : null;
-
-    // main setting page
-    // will not show until a faculty is chosen
-    const mainSettingDetail = this.state.chosenFaculty.listIndex !== -1 ? 
-    <React.Fragment>
-      <h5>Choose a Way to Provide Profile</h5>
-      <div onChange={this.handleProfileTypeChange}>
-        <input type="radio" name="url" value="url" checked={this.state.profileType === "url"} onChange={() => {}}/>
-        <label htmlFor="url" style={{paddingLeft: "5px"}}>use personal url</label>
-        <br />
-        <input type="radio" name="template" value="template" checked={this.state.profileType === "template"} onChange={() => {}}/>
-        <label htmlFor="template" style={{paddingLeft: "5px"}}>use provided template</label>
-      </div>
-      
-      <div>
-        <Button
-          variant={this.state.chosenFaculty.url === "" ? "outline-danger" : "danger"} 
-          size="sm"
-          onClick={this.handleRemoveProfile}
-        >
-          {this.state.chosenFaculty.url === "" ? "Cancel" : "Remove Profile"}
-        </Button>
-        <Form.Text style={{color: "red", marginLeft: "2px"}}>
-          WARNING: the whole profile will be removed after update!
-        </Form.Text>
-      </div>
-      <hr />
-
-      <h5>Profile Detail</h5>
-      <Form onSubmit={this.handleSubmit}>
-        {personalUrl}
-        <br />
-
-        {templateDetail}
-        <hr />
-        <Button variant="primary" type="submit">
-          Update
-        </Button>
-        <Form.Text className="text-muted">
-          {this.state.isUpdated ? updateSuccess : "changes have not been updated"}
-        </Form.Text>
-      </Form>
-    </React.Fragment> : null;
 
     // initialize dynamic picture upload module
     bsCustomFileInput.init();
@@ -1025,7 +868,24 @@ class StaffProfile extends React.Component {
           <Col sm={8} style={{paddingLeft: "30px", paddingTop: "10px"}}>
             <h3>Profile Setting: <span style={{color: "gray"}}>{this.state.chosenFaculty.name}</span></h3>
             <hr />
-            {mainSettingDetail}
+            <ProfileSettingMain 
+              parentState={this.state}
+              handleFacultyInfoChange={this.handleFacultyInfoChange}
+
+              // profile related functions
+              handleProfilePicChange={this.handleProfilePicChange}
+              handleProfileTypeChange={this.handleProfileTypeChange}
+              handleRemoveProfile={this.handleRemoveProfile}
+              handleProfileDetailChange={this.handleProfileDetailChange}
+
+              // card related functions
+              handleCardChange={this.handleCardChange}
+              handleCardPicChange={this.handleCardPicChange}
+              handleRemove={this.handleRemove}
+              handleAddCard={this.handleAddCard}
+
+              handleSubmit={this.handleSubmit}
+            />
           </Col>
         </Row>
 
