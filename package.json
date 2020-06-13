@@ -11,6 +11,7 @@
     "draft-js": "^0.11.6",
     "draft-js-export-html": "^1.4.1",
     "lodash": "^4.17.15",
+    "nock": "^12.0.3",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.1",
     "react-dom": "^16.13.1",
@@ -37,6 +38,14 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
+    ]
+  },
+  "jest": {
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/src/index.js",
+      "/src/serviceWorker.js",
+      "/src/tests/utils/*"
     ]
   }
 }
