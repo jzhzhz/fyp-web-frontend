@@ -33,6 +33,11 @@ class AdminLabels extends React.Component {
   /** remove the event listener when unmount this page */
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.beforeunload);
+
+    // disable setState action when unmounting components
+    this.setState = (state, callback)=>{
+      return;
+    };
   }
 
   /**

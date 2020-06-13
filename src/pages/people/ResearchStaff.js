@@ -16,6 +16,13 @@ class ResearchStaff extends React.Component {
     this.getFacultyByType("research");
   }
 
+  componentWillUnmount() {
+    // disable setState action when unmounting components
+    this.setState = (state, callback)=>{
+      return;
+    };
+  }
+
   getFacultyByType = async (type) => {
     let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getFacultyByType?type=" + type;

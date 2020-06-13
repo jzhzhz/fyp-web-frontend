@@ -44,6 +44,13 @@ class Home extends React.Component {
     this.getEventsCards();
   }
 
+  componentWillUnmount() {
+    // disable setState action when unmounting components
+    this.setState = (state, callback)=>{
+      return;
+    };
+  }
+
   getTextBlocksByType = async (type) => {
     let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getHomeTextBlockByType?type=" + type;

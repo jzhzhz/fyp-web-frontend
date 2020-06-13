@@ -16,6 +16,13 @@ class Faculty extends React.Component {
     this.getFacultyByType("regular");
   }
 
+  componentWillUnmount() {
+    // disable setState action when unmounting components
+    this.setState = (state, callback)=>{
+      return;
+    };
+  }
+
   getFacultyByType = async (type) => {
     let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getFacultyByType?type=" + type;

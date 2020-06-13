@@ -14,6 +14,13 @@ class LabelPage extends React.Component {
     this.getLabelByType(this.state.type);
   }
 
+  componentWillUnmount() {
+    // disable setState action when unmounting components
+    this.setState = (state, callback)=>{
+      return;
+    };
+  }
+
   getLabelByType = async (type) => {
     let res = {};
 

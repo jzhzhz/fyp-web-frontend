@@ -52,6 +52,13 @@ class Profile extends React.Component {
     this.getCards(retUsername, "pub");
   }
 
+  componentWillUnmount() {
+    // disable setState action when unmounting components
+    this.setState = (state, callback)=>{
+      return;
+    };
+  }
+
   getFacultyInformation = async (username) => {
     const url = process.env.REACT_APP_FACULTY_URL + "/getFacultyByUsername?username=" + username;
 

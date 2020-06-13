@@ -37,6 +37,13 @@ class NavigationBar extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    // disable setState action when unmounting components
+    this.setState = (state, callback)=>{
+      return;
+    };
+  }
+
   getLabel = async (labelType) => {
     let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getLabels?labelType=" + labelType;

@@ -53,6 +53,11 @@ class StaffProfile extends React.Component {
 
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.beforeunload);
+
+    // disable setState action when unmounting components
+    this.setState = (state, callback)=>{
+      return;
+    };
   }
 
   beforeunload = (e) => {
