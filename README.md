@@ -1,4 +1,4 @@
-# fyp-website-frontend
+# fyp-website-frontend [![Build Status](https://travis-ci.com/jzhzhz/fyp-web-frontend.svg?branch=append-tests)](https://travis-ci.com/jzhzhz/fyp-web-frontend)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and implemented using [React](https://reactjs.org/) and [React Bootstrap](https://react-bootstrap.github.io/). It cannot stand alone. See the corresponding [back-end project](https://github.com/jzhzhz/fyp-web-backend) for more details.
 
