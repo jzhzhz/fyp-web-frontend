@@ -97,7 +97,7 @@ class NavigationBar extends React.Component {
       </span>
 
     return (
-      <div className="navbar-container">
+      <div className="navbar-container" data-testid="navbar-test">
         <Styles>
           <Navbar className="nav-bar" variant="dark" expand="lg">
             <Container>
