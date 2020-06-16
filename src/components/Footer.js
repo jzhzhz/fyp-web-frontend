@@ -4,7 +4,6 @@ import { Container, Row } from 'react-bootstrap';
 import Logo from '../assets/longpng_logo.png';
 
 function Footer() {
-  console.log(process.env.FOOTER_BGCOLOR);
   return (
     <React.Fragment>
       <div className="footer" style={{backgroundColor: process.env.REACT_APP_FOOTER_BGCOLOR}}>

@@ -63,14 +63,12 @@ class Faculty extends React.Component {
       }
 
       return (
-        <React.Fragment>
-          <tr>
-            <td>{link}</td>
-            <td>{faculty.phone}</td>
-            <td>{faculty.office}</td>
-            <td>{faculty.email}</td>
-          </tr>
-        </React.Fragment>
+        <tr key={`faculty ${index}`}>
+          <td key={`faculty ${index} link`}>{link}</td>
+          <td key={`faculty ${index} phone`}>{faculty.phone}</td>
+          <td key={`faculty ${index} office`}>{faculty.office}</td>
+          <td key={`faculty ${index} email`}>{faculty.email}</td>
+        </tr>
       );
     });
 
