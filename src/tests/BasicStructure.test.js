@@ -11,18 +11,17 @@ import { Research } from "../pages/Research";
 beforeAll(() => {
   nock.disableNetConnect();
   NockUtils.doHomeRelatedNocks();
-})
+});
 
 
 afterEach(cleanup);
 
 afterAll(() => {
   nock.enableNetConnect();
-})
+});
 
-describe("basic pages' strucutre test", () => {
-  test("should basic home components are correctly rendered", () => {
-
+describe("basic pages strucutre test", () => {
+  test("should basic home components correctly rendered", () => {
     const { getByText, getByTestId } = render(<App />);
 
     const navbarComponent = getByTestId("navbar-test");
@@ -54,5 +53,5 @@ describe("basic pages' strucutre test", () => {
     const { getByText } = render(<Research />);
 
     expect(getByText("Research")).toBeInTheDocument();
-  })
+  });
 });
