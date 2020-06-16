@@ -4,6 +4,8 @@ import { Container } from 'react-bootstrap';
 /** adding Container for every page components */
 export const Layout = (props) => (
   <Container>
-    {props.children}
+    <div style={{minHeight: "80vh"}}>
+      {props.children}
+    </div>
   </Container>
 )

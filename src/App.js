@@ -92,8 +92,7 @@ class App extends React.Component {
         <Router>
           <NavigationBar username={this.state.username} auth={this.state.isAuthed}/>
           <Jumbotron/>
-          <Layout>
-          <div style={{minHeight: "80vh"}}>      
+          <Layout>   
             <Switch>
               <Route exact path="/" component={Home} />
               <Route path="/details/:page" component={LabelPage} />
@@ -134,7 +133,6 @@ class App extends React.Component {
               {/* route to 404 not found page */}
               <Route component={NoMatch} />
             </Switch>
-          </div>
           </Layout>   
         </Router>
         <Footer />

@@ -91,6 +91,7 @@ class AdminHome extends React.Component {
     }
   }
 
+  /** rich text editor change handler */
   onEditorChange = (newEditorState, firstAttempt = false) => {
     this.setState(prevState => {
       return {
@@ -105,6 +106,7 @@ class AdminHome extends React.Component {
     });
   };
 
+  /** rich text editor key cmd handler */
   draftHandleKeyCommand = (command) => {
     const newState = RichUtils.handleKeyCommand(this.state.editorState, command);
     if (newState) {
@@ -114,6 +116,9 @@ class AdminHome extends React.Component {
     return false;
   }
 
+  /** rich text editor block style toggle handler
+   *  @param {string} blockStyle for selected block
+   */
   draftToggleBlockType = (blockType) => {
     this.onEditorChange(
       RichUtils.toggleBlockType(
@@ -123,6 +128,9 @@ class AdminHome extends React.Component {
     );
   }
 
+  /** rich text editor inline style toggle handler
+   *  @param {string} inlineStyle for selected texts
+   */
   draftToggleInlineStyle = (inlineStyle) => {
     this.onEditorChange(
       RichUtils.toggleInlineStyle(
@@ -132,6 +140,7 @@ class AdminHome extends React.Component {
     );
   }
 
+  /** handler for editor switch between rich text and raw HTML */
   handleEditorSwitch = (event) => {
     event.preventDefault();
 
@@ -295,6 +304,10 @@ class AdminHome extends React.Component {
     });
   }
 
+  /**
+   * sidebar events card changes (except picture) handler
+   * @param {int} cardIndex
+   */
   handleEventsCardChange = (cardIndex) => (event) => {
     // name: type of content in a card
     // value: content of that type in a card
@@ -316,8 +329,9 @@ class AdminHome extends React.Component {
    */
   handlePicChange = (cardIndex) => async (event) => {
     // prevent default behavior
-    // initialize url, file and file data
     event.preventDefault();
+
+    // initialize url, file and file data
     const url = process.env.REACT_APP_ADMIN_URL + "/uploadCardPic";
     const fileName = event.target.files[0].name
     const formData = new FormData();
@@ -326,10 +340,10 @@ class AdminHome extends React.Component {
     const res = await axios.post(url, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
-      .catch(err => {
-        console.log(err);
-        return -1;
-      });
+    .catch(err => {
+      console.log(err);
+      return -1;
+    });
 
     // handling response from backend
     if (res.status === 200 && res.data.code === 0) {
@@ -389,7 +403,6 @@ class AdminHome extends React.Component {
   }
 
   handleAddEventsCard = () => {
-    console.log("adding event card")
     const newCard = {
       id: 0,
       title: "sample title",
@@ -550,12 +563,10 @@ class AdminHome extends React.Component {
 
       // check if this is a new card
       if (index + 1 > this.state.oldCardsLength) {
-        console.log("getting new cards...");
-        console.log(card);
         updateUrl = process.env.REACT_APP_ADMIN_URL + "/createNewCard";
 
         // insert new card into database
-        let res = await axios.get(updateUrl, {
+        const res = await axios.get(updateUrl, {
           params: card
         }).catch(err => {
           console.log(err);
