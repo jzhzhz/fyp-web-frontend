@@ -8,6 +8,7 @@ import Login from "../pages/Login";
 import { NoMatch } from "../NoMatch";
 import { Research } from "../pages/Research";
 
+/** disable network utilities and intercept requests */
 beforeAll(() => {
   nock.disableNetConnect();
   NockUtils.doHomeRelatedNocks();
@@ -16,6 +17,7 @@ beforeAll(() => {
 
 afterEach(cleanup);
 
+/** restore network utilities */
 afterAll(() => {
   nock.enableNetConnect();
 });
