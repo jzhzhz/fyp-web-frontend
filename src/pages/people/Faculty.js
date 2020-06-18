@@ -16,24 +16,25 @@ class Faculty extends React.Component {
     this.getFacultyByType("regular");
   }
 
-  componentWillUnmount() {
-    // disable setState action when unmounting components
-    this.setState = (state, callback)=>{
-      return;
-    };
-  }
+  // componentWillUnmount() {
+  //   // disable setState action when unmounting components
+  //   this.setState = (state, callback)=>{
+  //     return;
+  //   };
+  // }
 
   getFacultyByType = async (type) => {
-    let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getFacultyByType?type=" + type;
     
-    await axios.get(url)
-      .then((getRes) => {
-        res = getRes;
-      })
+    console.log("getting res");
+
+    const res = await axios.get(url)
       .catch((err) => {
         console.log(err);
       });
+    
+    console.log("the res is ");
+    console.log(res);
 
     if (res.status === 200 && res.data.code === 0) {
       this.setState({

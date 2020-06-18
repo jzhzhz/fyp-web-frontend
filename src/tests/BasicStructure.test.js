@@ -19,10 +19,11 @@ afterEach(cleanup);
 
 /** restore network utilities */
 afterAll(() => {
+  nock.cleanAll();
   nock.enableNetConnect();
 });
 
-describe("basic pages strucutre test", () => {
+describe("basic pages components render test", () => {
   test("should basic home components correctly rendered", () => {
     const { getByText, getByTestId } = render(<App />);
 
