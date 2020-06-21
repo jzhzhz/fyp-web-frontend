@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import HomeCarousel from '../components/HomeCarousel';
 import HomeCard from '../components/HomeCard';
 
+/** home page for the website */
 class Home extends React.Component {
   constructor() {
     super();
@@ -37,6 +38,7 @@ class Home extends React.Component {
     };
   }
 
+  /** call functions to get all home page information */
   componentDidMount() {
     this.getTextBlocksByType("headline");
     this.getTextBlocksByType("sidebar");
@@ -51,6 +53,7 @@ class Home extends React.Component {
     };
   }
 
+  /** get dynamic contents like jumbotron and headline */
   getTextBlocksByType = async (type) => {
     let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getHomeTextBlockByType?type=" + type;
@@ -64,40 +67,29 @@ class Home extends React.Component {
       });
 
     if (res.status === 200 && res.data.code === 0) {
-      if (type !== "cards") {
-        let resData = res.data.data[0];
-
         this.setState({
-          [type]: resData
+          [type]: res.data.data[0]
         });
-      } 
     }
   }
 
+  /** get home page cards information */
   getCards = async () => {
-    let res = {};
     const url = process.env.REACT_APP_BACKEND_URL + "/getAllCards";
     
-    await axios.get(url)
-      .then((getRes) => {
-        res = getRes;
-      })
+    const res = await axios.get(url)
       .catch((err) => {
         console.log(err);
         return -1;
       });
 
-    // assign cards in state 
-    // and set the old card list length
     if (res.status === 200 && res.data.code === 0) {
       let resData = res.data.data;
       
+      // construct image fetching url
       resData.forEach(item => {
         const url = process.env.REACT_APP_BACKEND_URL + "/getCardImgByUrl?"
           + "visitUrl=" + encodeURIComponent(item.imgUrl);
-
-        item.changed = false;
-        item.imgUrl = url;
       });
 
       this.setState({
@@ -112,6 +104,7 @@ class Home extends React.Component {
     return 0;
   }
 
+  /** get events info in home page bottom sidebar */
   getEventsCards = async () => {
     const url = process.env.REACT_APP_BACKEND_URL +
     "/getAllEvents";
@@ -123,10 +116,6 @@ class Home extends React.Component {
       });
 
     if (res.status === 200 && res.data.code === 0) {
-      res.data.data.forEach(card => {
-        card.changed = false;
-      });
-
       this.setState({
         eventsCards: res.data.data
       }, () => {
@@ -135,7 +124,10 @@ class Home extends React.Component {
     }
   }
 
+  /** transform the cards backend info to react elements */
   modifyCardToReactElement = (cardsArr) => {
+    // group the original card array by 2 as a new list
+    // e.g. [1, 2, 3, 4] => [[1, 2], [3, 4]]
     cardsArr = Utils.chunkArray(_.cloneDeep(cardsArr), 2);
 
     cardsArr = cardsArr.map((twoCards, cardIndex) => {
@@ -175,6 +167,7 @@ class Home extends React.Component {
     });
   }
 
+  /** transform the events backend info to react elements */
   renderEventsCard = (eventsCards) => {
     const cardElements = eventsCards.map((card, cardIndex) => 
       <div key={`events ${cardIndex}`}>
