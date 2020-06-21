@@ -2,6 +2,7 @@ import React from 'react';
 import { Form, Button, Tabs, Tab } from 'react-bootstrap';
 import '../styles/tabs.css';
 
+/** login page component */
 class Login extends React.Component {
   constructor(props) {
     super(props);

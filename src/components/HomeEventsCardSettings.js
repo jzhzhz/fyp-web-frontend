@@ -2,7 +2,7 @@ import React from 'react';
 import { Form, Tabs, Tab, Button } from 'react-bootstrap';
 
 /**
- * return the settings for the news card in profile page
+ * return the settings for the events card in home page
  * @param {Object} props some state objects in parent page
  */
 export const HomeEventsCardSettings = (props) => {

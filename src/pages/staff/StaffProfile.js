@@ -9,6 +9,7 @@ import * as Utils from '../../utils/Utils';
 
 import { ProfileSettingMain } from '../../components/ProfileSettingMain';
 
+/** setting page for the profile of staff */
 class StaffProfile extends React.Component {
   constructor() {
     super();
@@ -98,7 +99,7 @@ class StaffProfile extends React.Component {
   /**
    * get the faculty from backend 
    * after a type is chosen
-   * @param {String} type
+   * @param {string} type
    */
   getFacultyByType = async (type) => {
     let res = {};
@@ -161,8 +162,8 @@ class StaffProfile extends React.Component {
 
   /**
    * load faculty info after clicked
-   * @param {Object} faculty the faculty to be loaded
-   * @param {Integer} index the index in the faculty list
+   * @param {object} faculty the faculty to be loaded
+   * @param {number} index the index in the faculty list
    */
   handleFacultyClick = (faculty, index) => (event) => {
     // trim the faculty url if it is personal url
@@ -208,6 +209,10 @@ class StaffProfile extends React.Component {
     });
   }
 
+  /** 
+   * get the general information about a faculty
+   * @param {string} username for ideatity recognition 
+   */
   getGeneralProfile = async (username) => {
     const url = process.env.REACT_APP_FACULTY_URL +
       "/getGeneralProfile?username=" + username;
@@ -232,6 +237,7 @@ class StaffProfile extends React.Component {
           generalProfile: retGeneralProfile
         });
       } else {
+        // create new template profile
         const tempGeneralProfile = {
           intro: "<p>sample intro code</p>",
           sidebar: "<p>sample sidebar code</p>",
@@ -247,6 +253,7 @@ class StaffProfile extends React.Component {
     }
   }
 
+  /** get cards information in news tab */
   getNewsCards = async () => {
     const url = process.env.REACT_APP_FACULTY_URL +
     "/getProfileCustom?username=" + this.state.chosenFaculty.username;
@@ -282,6 +289,7 @@ class StaffProfile extends React.Component {
     }
   }
 
+  /** get cards information in publication tab */
   getPubCards = async () => {
     const url = process.env.REACT_APP_FACULTY_URL +
     "/getProfileCard?username=" + this.state.chosenFaculty.username;
@@ -327,6 +335,7 @@ class StaffProfile extends React.Component {
 
   /** handle profile type choosing radio buttons */ 
   handleProfileTypeChange = (event) => {
+    // get chosen value
     const {value} = event.target;
 
     // change the faculty url to template-specific url
@@ -353,6 +362,10 @@ class StaffProfile extends React.Component {
     }
   }
 
+  /**
+   * make the profile deprecated as a removal
+   * save a profile history in case of restore
+   */
   handleRemoveProfile = () => {
     // remove the profile
     // store the removed profile as old profile
@@ -410,7 +423,7 @@ class StaffProfile extends React.Component {
 
   /** send profile photo to backend */
   handleProfilePicChange = async (event) => {
-    console.log("handling profile pic change");
+    // console.log("handling profile pic change");
     // prevent default behavior
     // initialize url, file and file data
     event.preventDefault();
@@ -419,6 +432,7 @@ class StaffProfile extends React.Component {
     const formData = new FormData();
     formData.append('file', event.target.files[0]);
 
+    // send the picture
     const res = await axios.post(url, formData, {
       headers: {'Content-type': 'multipart/form-data'}
     })
@@ -475,8 +489,8 @@ class StaffProfile extends React.Component {
 
   /** 
    * handle the changes in card, according to
-   * @param {Integer} cardIndex index in a card
-   * @param {String} type type of card
+   * @param {number} cardIndex index in a card
+   * @param {string} type type of card
    */
   handleCardChange = (cardIndex, type) => (event) => {
     const {name, value} = event.target;
@@ -539,8 +553,9 @@ class StaffProfile extends React.Component {
     }
   }
 
-  /** handle card adding, "name" in target is the card type */
+  /** handle card adding */
   handleAddCard = (event) => {
+    // name is card type
     const {name} = event.target;
     const cardsName = `${name}Cards`;
 
@@ -582,8 +597,8 @@ class StaffProfile extends React.Component {
 
   /**
    * remove the card by setting deprecated as 1, vice versa 
-   * @param {Integer} cardIndex index in a card
-   * @param {String} type type of card
+   * @param {number} cardIndex index in a card
+   * @param {string} type type of card
    */
   handleRemove = (cardIndex, type) => (event) => {
     const cardsName = `${type}Cards`;

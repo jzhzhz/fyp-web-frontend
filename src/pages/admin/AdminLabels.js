@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { Tabs, Tab, Form, Col, Button, InputGroup } from 'react-bootstrap';
 import '../../styles/tabs.css';
 
+/** setting page for navbar label pages */
 class AdminLabels extends React.Component {
   constructor() {
     super();

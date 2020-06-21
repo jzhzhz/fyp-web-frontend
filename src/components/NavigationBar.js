@@ -1,6 +1,5 @@
 import React from 'react';
-// eslint-disable-next-line
-import { Nav, Navbar, NavDropdown, Container, Button } from 'react-bootstrap';
+import { Nav, Navbar, NavDropdown, Container } from 'react-bootstrap';
 import styled from 'styled-components';
 import axios from 'axios';
 

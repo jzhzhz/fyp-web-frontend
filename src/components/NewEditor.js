@@ -1,6 +1,5 @@
 import React from 'react';
-import { Editor, EditorState, convertToRaw } from 'draft-js';
-import { stateToHTML } from 'draft-js-export-html'
+import { Editor, EditorState } from 'draft-js';
 import '../styles/new-editor.css';
 
 // Custom overrides for "code" style.
@@ -13,17 +12,12 @@ const styleMap = {
   },
 };
 
+/** rich text editor in the home page setting */
 class NewEditor extends React.Component {
   constructor(props) {
     super(props);
     this.state = { editorState: EditorState.createEmpty() };
     this.focus = () => this.refs.editor.focus();
-  }
-
-  handleFileUpload = (e) => {
-    e.preventDefault();
-    console.log(convertToRaw(this.props.editorState.getCurrentContent()));
-    console.log(stateToHTML(this.props.editorState.getCurrentContent()));
   }
 
   /** change the name of certain block to change its style */

@@ -26,6 +26,7 @@ const handleLogout = () => {
   sessionStorage.removeItem("username");
 }
 
+/** main page for admin to manage data  */
 export const AdminMain = (props) => {
   return (
     <Styles>
