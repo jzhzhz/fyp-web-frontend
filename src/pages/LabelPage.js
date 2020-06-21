@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
+/** page components according to the navbar labels */
 class LabelPage extends React.Component {
   constructor(props) {
     super(props);
@@ -22,16 +23,11 @@ class LabelPage extends React.Component {
   }
 
   getLabelByType = async (type) => {
-    let res = {};
-
     const url = process.env.REACT_APP_BACKEND_URL + 
       "/getLabelByUrl?url=" + 
       this.state.currentUrl;
     
-    await axios.get(url)
-      .then((getRes) => {
-        res = getRes;
-      })
+    const res = await axios.get(url)
       .catch((err) => {
         console.log(err);
       });

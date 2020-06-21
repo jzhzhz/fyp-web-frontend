@@ -14,10 +14,11 @@ class Login extends React.Component {
   handleSubmit = async (event) => {
     event.preventDefault();
     const { name } = event.target;
-    console.log("login type: " + name); 
+    console.log("login type: " + name);
+    
+    // calling login validation function in App.js
     const checkResult = await this.props.handleAppSubmit(name);
     
-    console.log("check result: " + checkResult);
     if (checkResult) {
       sessionStorage.setItem("isAuthed", name);
       sessionStorage.setItem("username", this.props.username);

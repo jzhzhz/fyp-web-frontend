@@ -3,6 +3,7 @@ import '../styles/footer.css'
 import { Container, Row } from 'react-bootstrap';
 import Logo from '../assets/longpng_logo.png';
 
+/** general footer component for website*/
 function Footer() {
   return (
     <React.Fragment>
