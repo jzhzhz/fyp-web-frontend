@@ -90,6 +90,8 @@ class Home extends React.Component {
       resData.forEach(item => {
         const url = process.env.REACT_APP_BACKEND_URL + "/getCardImgByUrl?"
           + "visitUrl=" + encodeURIComponent(item.imgUrl);
+        
+        item.imgUrl = url;
       });
 
       this.setState({
