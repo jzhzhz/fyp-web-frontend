@@ -4,6 +4,8 @@ import bsCustomFileInput from 'bs-custom-file-input';
 import axios from 'axios';
 import _ from 'lodash';
 import { getCurrentDate } from '../../utils/Utils';
+
+// rich text editor functionalities
 import { EditorState, RichUtils, convertToRaw, convertFromHTML, ContentState, convertFromRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 
@@ -200,10 +202,23 @@ class AdminHome extends React.Component {
           const rawContentState = JSON.parse(decodeURIComponent(this.state.sidebar.url));
           const firstAttempt = true;
 
-          this.onEditorChange(
-            EditorState.createWithContent(convertFromRaw(rawContentState)),
-            firstAttempt
-          );
+          if (this.state.sidebar.title === "editor") {
+            this.onEditorChange(
+              EditorState.createWithContent(convertFromRaw(rawContentState)),
+              firstAttempt
+            );
+          } else if (this.state.sidebar.title === "raw") {
+            const blocksFromHTML = convertFromHTML(this.state.sidebar.content);
+            const state = ContentState.createFromBlockArray(
+              blocksFromHTML.contentBlocks,
+              blocksFromHTML.entityMap,
+            );
+
+            this.onEditorChange(
+              EditorState.createWithContent(state),
+              firstAttempt
+            );
+          }
         }
       });
 
@@ -286,7 +301,7 @@ class AdminHome extends React.Component {
 
   /**
    * card changes (except picture) handler
-   * @param {int} cardIndex
+   * @param {number} cardIndex
    */
   handleCardChange = (cardIndex) => (event) => {
     // name: type of content in a card
