@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import axios from 'axios';
 
+// import website presentation pages
 import Home from './pages/Home';
 import LabelPage from './pages/LabelPage';
 import Faculty from './pages/people/Faculty';
@@ -11,6 +12,7 @@ import { Research } from './pages/Research';
 import { NoMatch } from './NoMatch';
 import Profile from './pages/people/Profile';
 
+// import admin management pages
 import Login from './pages/Login';
 import { AdminMain } from './pages/admin/AdminMain';
 import AdminHome from './pages/admin/AdminHome';
@@ -19,11 +21,17 @@ import AdminBackendManage from './pages/admin/AdminBackendManage';
 // import { StaffMain } from './pages/staff/StaffMain';
 import StaffProfile from './pages/staff/StaffProfile';
 
+// import layout and sub-components
 import { Layout } from './components/Layout';
 import NavigationBar from './components/NavigationBar';
 import Jumbotron from './components/Jumbotron';
 import Footer from './components/Footer';
 
+/**
+ * main application component, 
+ * handling routing, pagestructure 
+ * and login validation 
+ */
 class App extends React.Component {
   constructor() {
     super();
@@ -69,6 +77,7 @@ class App extends React.Component {
     return checkResult;
   }
 
+  /** create admin-only route */
   AdminRoute = ({ component: Component, ...rest }) => (
     <Route {...rest} render={(props) => (
       (sessionStorage.getItem("isAuthed") === "admin")
@@ -77,6 +86,7 @@ class App extends React.Component {
     )} />
   )
 
+  /** create staff-only route */
   StaffRoute = ({ component: Component, ...rest }) => (
     <Route {...rest} render={(props) => (
       (sessionStorage.getItem("isAuthed") === "admin" ||
@@ -95,8 +105,12 @@ class App extends React.Component {
           <Layout>   
             <Switch>
               <Route exact path="/" component={Home} />
+              <Route path="/research" component={Research} />
+
+              {/* route label page in navbar labels */}
               <Route path="/details/:page" component={LabelPage} />
 
+              {/* route faculty info pages and profiles */}
               <Route path="/people/faculty">
                 <Faculty />
               </Route>
@@ -106,12 +120,9 @@ class App extends React.Component {
               <Route path="/people/admin-staff">
                 <AdminStaff />
               </Route>
-
               <Route path="/people/~:name" component={Profile} />
 
-              <Route path="/research" component={Research} />
-
-              
+              {/* route login page and all the props */}
               <Route path="/login" render={(props) => 
                 <Login {...props} 
                   isAuthed={this.state.isAuthed}
@@ -120,8 +131,8 @@ class App extends React.Component {
                   handleChange={this.handleChange}
                   handleAppSubmit={this.handleAppSubmit}
                   notice={this.state.notice}
-                />
-              }/>
+                />}
+              />
 
               {/* route for admin pages this.Admin */}
               <this.AdminRoute path="/admin/main" component={AdminMain} />
