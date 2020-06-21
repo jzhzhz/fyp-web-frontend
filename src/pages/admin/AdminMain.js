@@ -39,13 +39,6 @@ export const AdminMain = (props) => {
         </ListGroup>
         <br />
 
-        <h3>Navigation</h3>
-        <hr />
-        <ListGroup className="list-group">
-          <ListGroup.Item as="a" variant="secondary" href="/">Back to Home</ListGroup.Item>
-        </ListGroup>
-        <br />
-
         <h3>Utilities</h3>
         <hr />
         <ListGroup className="list-group">
@@ -56,6 +49,13 @@ export const AdminMain = (props) => {
           >
             Backend Data Management
           </ListGroup.Item>
+        </ListGroup>
+        <br />
+
+        <h3>Navigation</h3>
+        <hr />
+        <ListGroup className="list-group">
+          <ListGroup.Item as="a" variant="secondary" href="/">Back to Home</ListGroup.Item>
         </ListGroup>
 
         <hr/>
