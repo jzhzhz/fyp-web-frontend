@@ -231,6 +231,15 @@ const SidebarStyles = styled.div`
   p {
     margin-bottom: 8px;
   }
+
+  blockquote {
+    border-left: 5px solid #eee;
+    color: #666;
+    font-family: 'Hoefler Text', 'Georgia', serif;
+    font-style: italic;
+    margin: 16px 0;
+    padding: 10px 20px;
+  }
 `;
 
 export default Home;
