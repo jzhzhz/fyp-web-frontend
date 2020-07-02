@@ -145,7 +145,8 @@ class AdminLabels extends React.Component {
 
     // change state and render new elements immediately
     this.setState({
-      [name]: newLabels
+      [name]: newLabels,
+      isUpdated: false
     }, () => {
       this.modifyLabelsToReactElement(_.cloneDeep(this.state[name]), name);
     })
