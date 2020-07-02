@@ -485,15 +485,26 @@ class AdminHome extends React.Component {
       })
       console.log("updating information...");
 
-      await this.updateTextBlockByType("headline");
+      const headRes = await this.updateTextBlockByType("headline");
 
-      await this.updateTextBlockByType("jumbo");
+      const jumboRes = await this.updateTextBlockByType("jumbo");
 
       await this.updateTextBlockByType("sidebar");
 
       await this.updateEventsCards();
 
       const result = await this.updateCards();
+
+      if (headRes !== 0 || jumboRes !== 0) {
+        alert("invalid contents!");
+
+        this.setState({
+          updating: false,
+          isUpdated: false
+        });
+
+        return;
+      }
 
       if (result === 0) {
         this.setState({ isUpdated: true });
@@ -535,6 +546,10 @@ class AdminHome extends React.Component {
             }
           };
         });
+      }
+
+      if (this.state[type].title.length > 45) {
+        return -1;
       }
 
       await axios.get(updateUrl, {
@@ -674,6 +689,15 @@ class AdminHome extends React.Component {
                 value={this.state.headline.title}
                 onChange={this.handleStaticChange}
               />
+              <Form.Text 
+                style={{color: this.state.headline.title.length > 45 ? "red" : "gray"}}
+              >
+                {
+                  this.state.headline.title.length > 45 ? 
+                  "exceed maximum words!" : 
+                  "maximum length is 45 words"
+                }
+              </Form.Text>
             </Form.Group>
             <hr />
 
@@ -686,6 +710,15 @@ class AdminHome extends React.Component {
                 value={this.state.jumbo.title}
                 onChange={this.handleStaticChange}
               />
+              <Form.Text 
+                style={{color: this.state.jumbo.title.length > 45 ? "red" : "gray"}}
+              >
+                {
+                  this.state.jumbo.title.length > 45 ? 
+                  "exceed maximum words!" : 
+                  "maximum length is 45 words"
+                }
+              </Form.Text>
             </Form.Group>
             <Form.Group>
               <Form.Label>Subtitle</Form.Label>
