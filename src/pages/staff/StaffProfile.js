@@ -836,6 +836,7 @@ class StaffProfile extends React.Component {
           value={this.state.searchName} 
           className="mr-sm-2" 
           onChange={(event) => {this.setState({searchName: event.target.value})}}
+          style={{width: "100%"}}
         />
         <Button 
           variant="outline-success" 
