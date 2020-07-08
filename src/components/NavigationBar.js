@@ -103,9 +103,9 @@ class NavigationBar extends React.Component {
       </span>
 
     return (
-      <div className="navbar-container" data-testid="navbar-test">
+      <div className="navbar-container">
         <Styles>
-          <Navbar className="nav-bar" variant="dark" expand="lg">
+          <Navbar className="nav-bar" variant="dark" expand="lg" data-testid="navbar-test">
             <Container>
               <Navbar.Brand href="http://www.xmu.edu.my/">XMUM</Navbar.Brand>
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
