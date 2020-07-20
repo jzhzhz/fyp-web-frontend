@@ -288,6 +288,7 @@ class AdminLabels extends React.Component {
                 value={item.codeContent} 
                 onChange={this.handleLabelChange(type, index)}
                 disabled={this.state[type][index].deprecated === 1}
+                spellCheck="false"
               />
             </Form.Group>
 

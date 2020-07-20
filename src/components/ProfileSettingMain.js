@@ -87,6 +87,7 @@ export const ProfileSettingMain = (props) => {
           value={props.parentState.generalProfile.intro}
           onChange={props.handleProfileDetailChange}
           style={{height: "130px"}}
+          spellCheck="false"
         />
       </Form.Group>
 
@@ -98,6 +99,7 @@ export const ProfileSettingMain = (props) => {
           value={props.parentState.generalProfile.sidebar}
           onChange={props.handleProfileDetailChange}
           style={{height: "130px"}}
+          spellCheck="false"
         />
       </Form.Group>
       <hr />
